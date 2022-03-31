@@ -1,4 +1,7 @@
+#include <bitset>
+
 using namespace std;
+
 const int MAX_COMPONENTS = 256;
 const int MAX_SYSTEMS = 64;
 const int MAX_ENTITIES = 1000;

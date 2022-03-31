@@ -6,3 +6,4 @@ fi
 cd build
 cmake ../
 make
+mv ./solnce ../

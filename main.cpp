@@ -2,6 +2,7 @@
 #include <string>
 
 #include <src/WindowManager.hpp>
+#include <src/ecs/ComponentContainer.hpp>
 
 using namespace std;
 

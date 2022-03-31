@@ -10,7 +10,7 @@ class IComponentContainer
 {
 public:
     virtual void EntityDestroyed(const Entity entity) = 0;
-}
+};
 
 template <class T>
 class ComponentContainer : public IComponentContainer
@@ -18,19 +18,16 @@ class ComponentContainer : public IComponentContainer
 public:
     void InsertData(const Entity entity) 
     {
-        if (entityComponentMap.find(entity)) {
-            cout << "Entity already has this component" << endl;
-            return;
-        }
-        Component component;
+        T component;
 
         componentArray[dataSize] = component;
-        entityComponentMap.insert({entity, component});
-        componentEntityMap.insert({component, entity});
+        entityIndexMap.insert({entity, component});
+        indexEntityMap.insert({component, entity});
+
         dataSize++;
     }
 
-    void RemoveData(const Entity entity) 
+    void RemoveData(const Entity entity)
     {
         // Removes the component data of the entity and moves last entry of array 
         // into the gap to keep the array packed and cache-friendly
@@ -42,6 +39,8 @@ public:
         Entity replacedEntity = indexEntityMap.find(dataSize - 1);
         entityIndexMap.at(replacedEntity) = removedIndex;
         indexEntityMap.at(removedIndex) = replacedEntity;
+
+        dataSize--;
     }
 
     T& GetData(const Entity entity) 
@@ -60,4 +59,4 @@ private:
     unordered_map<Entity, int> entityIndexMap;
     unordered_map<int, Entity> indexEntityMap;
     int dataSize = 0;
-}
+};
