@@ -1,0 +1,59 @@
+
+#pragma once
+
+#include <set>
+#include <iostream>
+#include <queue>
+#include "Utils.hpp"
+
+using namespace std;
+
+class EntityManager
+{
+public:
+    EntityManager() 
+    {
+        for (int i = 0; i < MAX_ENTITIES; i++) 
+        {
+            unusedEntities.push(i);
+        }
+    }
+
+    Entity CreateEntity() 
+    {
+        if (livingEntities >= MAX_ENTITIES) 
+        {
+            cout << "ERROR: Maximum amount of entities reached" << endl;
+            // amazing error handling, right?
+        }
+
+        Entity newEntity = unusedEntities.front();
+        unusedEntities.pop();
+        livingEntities++;
+
+        return newEntity;
+    }
+
+    void RemoveEntity(Entity entity)
+    {
+        signatures[entity].reset();
+        unusedEntities.push(entity);
+        livingEntities--;
+    }
+
+    void SetSignature(Entity entity, Signature signature)
+    {
+        signatures[entity] = signature;
+    }
+
+    Signature GetSignature(Entity entity)
+    {
+        return signatures[entity];
+    }
+
+
+private:
+    int livingEntities = 0;
+    queue<Entity> unusedEntities;
+    array<Signature, MAX_ENTITIES> signatures;
+};

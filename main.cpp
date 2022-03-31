@@ -3,6 +3,7 @@
 
 #include <src/WindowManager.hpp>
 #include <src/ecs/ComponentContainer.hpp>
+#include <src/ecs/EntityManager.hpp>
 
 using namespace std;
 

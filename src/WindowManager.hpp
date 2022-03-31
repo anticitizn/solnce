@@ -1,5 +1,5 @@
-#ifndef WINDOWMANAGER
-#define WINDOWMANAGER
+
+#pragma once
 
 #include <string>
 
@@ -20,5 +20,3 @@ public:
 private:
     SDL_Window* window;
 };
-
-#endif
