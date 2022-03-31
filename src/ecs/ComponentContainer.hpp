@@ -18,10 +18,19 @@ template <class T>
 class ComponentContainer : public IComponentContainer
 {
 public:
-    void InsertData(const Entity entity) 
+    void InsertData(const Entity entity)
     {
         T component;
 
+        componentArray[dataSize] = component;
+        entityIndexMap.insert({entity, component});
+        indexEntityMap.insert({component, entity});
+
+        dataSize++;
+    }
+
+    void InsertData(const Entity entity, const T component)
+    {
         componentArray[dataSize] = component;
         entityIndexMap.insert({entity, component});
         indexEntityMap.insert({component, entity});
