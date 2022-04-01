@@ -6,6 +6,7 @@
 #include <src/ecs/EntityManager.hpp>
 #include <src/ecs/ComponentManager.hpp>
 #include <src/ecs/SystemManager.hpp>
+#include <src/ecs/ECS.hpp>
 
 using namespace std;
 

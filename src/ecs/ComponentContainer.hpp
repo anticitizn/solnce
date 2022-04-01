@@ -43,11 +43,11 @@ public:
         // Removes the component data of the entity and moves last entry of array 
         // into the gap to keep the array packed and cache-friendly
 
-        int removedIndex = entityIndexMap.find(entity);
+        int removedIndex = entityIndexMap[entity];
         entityIndexMap.erase(entity);
         componentArray[removedIndex] = componentArray[dataSize - 1];
 
-        Entity replacedEntity = indexEntityMap.find(dataSize - 1);
+        Entity replacedEntity = indexEntityMap[dataSize - 1];
         entityIndexMap.at(replacedEntity) = removedIndex;
         indexEntityMap.at(removedIndex) = replacedEntity;
 
