@@ -6,9 +6,8 @@
 #include <src/ecs/EntityManager.hpp>
 #include <src/ecs/ComponentManager.hpp>
 #include <src/ecs/SystemManager.hpp>
-#include <src/ecs/Entity.hpp>
 #include <src/ecs/ECS.hpp>
-
+#include <src/ecs/Entity.hpp>
 
 using namespace std;
 
@@ -23,7 +22,6 @@ int main(int argc, char *argv[])
     {
         Entity entity2;
     }
-    
 
-    cout << ecs::entityManager.GetLivingEntitiesCount() << endl;
+    cout << ecs::coordinator.GetEntitiesCount() << endl;
 }

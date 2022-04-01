@@ -51,7 +51,7 @@ public:
         return signatures[entity];
     }
 
-    int GetLivingEntitiesCount()
+    int GetEntitiesCount()
     {
         return livingEntities;
     }

@@ -1,15 +1,11 @@
 
 #pragma once
 
-#include "ComponentManager.hpp"
-#include "EntityManager.hpp"
-#include "SystemManager.hpp"
+#include "Coordinator.hpp"
 
 using namespace std;
 
 namespace ecs
 {
-    ComponentManager componentManager;
-    EntityManager entityManager;
-    SystemManager systemManager;
+    Coordinator coordinator;
 }
