@@ -5,6 +5,7 @@
 #include <src/ecs/ComponentContainer.hpp>
 #include <src/ecs/EntityManager.hpp>
 #include <src/ecs/ComponentManager.hpp>
+#include <src/ecs/SystemManager.hpp>
 
 using namespace std;
 
