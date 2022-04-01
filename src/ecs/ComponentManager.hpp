@@ -22,19 +22,19 @@ public:
     }
 
     template <typename T>
-    void AddComponent(Entity entity, T component)
+    void AddComponent(EntityID entity, T component)
     {
         GetComponentContainer<T>()->InsertData(entity, component);
     }
 
     template <typename T>
-    void RemoveComponent(Entity entity)
+    void RemoveComponent(EntityID entity)
     {
         GetComponentContainer<T>()->RemoveData(entity);
     }
 
     template <typename T>
-    T& GetComponent(Entity entity)
+    T& GetComponent(EntityID entity)
     {
         return GetComponentContainer<T>()->GetData(entity);
     }
@@ -46,7 +46,7 @@ public:
         return componentTypes[typeName];
     }
 
-    void EntityDestroyed(Entity entity)
+    void EntityDestroyed(EntityID entity)
     {
         for (auto const& pair : componentContainers)
         {
