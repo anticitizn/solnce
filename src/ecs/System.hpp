@@ -6,5 +6,5 @@ using namespace std;
 class System
 {
 public:
-    set<EntityID> entities;
+    set<Entity> entities;
 };

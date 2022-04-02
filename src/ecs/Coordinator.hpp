@@ -16,12 +16,12 @@ public:
         systemManager = make_unique<SystemManager>();
     }
 
-    EntityID CreateEntity()
+    Entity CreateEntity()
     {
         return entityManager->CreateEntity();
     }
 
-    void DestroyEntity(EntityID entity)
+    void DestroyEntity(Entity entity)
     {
         entityManager->DestroyEntity(entity);
         componentManager->EntityDestroyed(entity);
@@ -29,7 +29,7 @@ public:
     }
 
     template <typename T>
-    void AddComponent(EntityID entity, T component)
+    void AddComponent(Entity entity, T component)
     {
         componentManager->AddComponent<T>(entity, component);
 
@@ -41,7 +41,7 @@ public:
     }
 
     template <typename T>
-    void RemoveComponent(EntityID entity)
+    void RemoveComponent(Entity entity)
     {
         componentManager->RemoveComponent<T>(entity);
 
@@ -53,7 +53,7 @@ public:
     }
 
     template <typename T>
-    T& GetComponent(EntityID entity)
+    T& GetComponent(Entity entity)
     {
         return componentManager->GetComponent<T>(entity);
     }

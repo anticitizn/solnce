@@ -19,7 +19,7 @@ public:
         }
     }
 
-    EntityID CreateEntity() 
+    Entity CreateEntity() 
     {
         if (livingEntities >= MAX_ENTITIES) 
         {
@@ -27,26 +27,26 @@ public:
             // amazing error handling, right?
         }
 
-        EntityID newEntity = unusedEntities.front();
+        Entity newEntity = unusedEntities.front();
         unusedEntities.pop();
         livingEntities++;
 
         return newEntity;
     }
 
-    void DestroyEntity(EntityID entity)
+    void DestroyEntity(Entity entity)
     {
         signatures[entity].reset();
         unusedEntities.push(entity);
         livingEntities--;
     }
 
-    void SetSignature(EntityID entity, Signature signature)
+    void SetSignature(Entity entity, Signature signature)
     {
         signatures[entity] = signature;
     }
 
-    Signature GetSignature(EntityID entity)
+    Signature GetSignature(Entity entity)
     {
         return signatures[entity];
     }
@@ -59,6 +59,6 @@ public:
 
 private:
     int livingEntities = 0;
-    queue<EntityID> unusedEntities;
+    queue<Entity> unusedEntities;
     array<Signature, MAX_ENTITIES> signatures;
 };

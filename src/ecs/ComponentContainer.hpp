@@ -11,14 +11,14 @@ using namespace std;
 class IComponentContainer
 {
 public:
-    virtual void EntityDestroyed(const EntityID entity) = 0;
+    virtual void EntityDestroyed(const Entity entity) = 0;
 };
 
 template <class T>
 class ComponentContainer : public IComponentContainer
 {
 public:
-    void InsertData(const EntityID entity)
+    void InsertData(const Entity entity)
     {
         T component;
 
@@ -29,7 +29,7 @@ public:
         dataSize++;
     }
 
-    void InsertData(const EntityID entity, const T component)
+    void InsertData(const Entity entity, const T component)
     {
         componentArray[dataSize] = component;
         entityIndexMap.insert({entity, component});
@@ -38,7 +38,7 @@ public:
         dataSize++;
     }
 
-    void RemoveData(const EntityID entity)
+    void RemoveData(const Entity entity)
     {
         // Removes the component data of the entity and moves last entry of array 
         // into the gap to keep the array packed and cache-friendly
@@ -47,27 +47,27 @@ public:
         entityIndexMap.erase(entity);
         componentArray[removedIndex] = componentArray[dataSize - 1];
 
-        EntityID replacedEntity = indexEntityMap[dataSize - 1];
+        Entity replacedEntity = indexEntityMap[dataSize - 1];
         entityIndexMap.at(replacedEntity) = removedIndex;
         indexEntityMap.at(removedIndex) = replacedEntity;
 
         dataSize--;
     }
 
-    T& GetData(const EntityID entity) 
+    T& GetData(const Entity entity) 
     {
-        int index = entityIndexMap.find(entity);
+        int index = entityIndexMap[entity];
         return componentArray[index];
     }
 
-    void EntityDestroyed(const EntityID entity) override 
+    void EntityDestroyed(const Entity entity) override 
     {
         RemoveData(entity);
     }
 
 private:
     array<T, MAX_ENTITIES> componentArray;
-    unordered_map<EntityID, int> entityIndexMap;
-    unordered_map<int, EntityID> indexEntityMap;
+    unordered_map<Entity, int> entityIndexMap;
+    unordered_map<int, Entity> indexEntityMap;
     int dataSize = 0;
 };

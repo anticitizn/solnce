@@ -1,11 +1,7 @@
 
 #pragma once
 
+#include "Utils.hpp"
 #include "Coordinator.hpp"
 
-using namespace std;
-
-namespace ecs
-{
-    Coordinator coordinator;
-}
+Coordinator coordinator;

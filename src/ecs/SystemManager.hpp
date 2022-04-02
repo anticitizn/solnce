@@ -33,7 +33,7 @@ public:
         signatures.insert({typeName, signature});
     }
 
-    void EntitySignatureChanged(EntityID entity, Signature signature)
+    void EntitySignatureChanged(Entity entity, Signature signature)
     {
         for (auto const& pair : systems)
         {
@@ -53,7 +53,7 @@ public:
         }
     }
 
-    void EntityDestroyed(EntityID entity)
+    void EntityDestroyed(Entity entity)
     {
         for (auto const& pair : systems)
         {

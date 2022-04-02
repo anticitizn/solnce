@@ -1,8 +1,8 @@
+
 #pragma once
 
-struct Position
+struct Size
 {
     float x;
     float y;
-    float z;
 };
