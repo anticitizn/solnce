@@ -40,7 +40,7 @@ public:
     }
 
     template <typename T>
-    Signature GetComponentType(T component)
+    ComponentType GetComponentType()
     {
         const char* typeName = typeid(T).name();
         return componentTypes[typeName];

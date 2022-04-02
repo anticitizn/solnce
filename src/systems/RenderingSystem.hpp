@@ -10,7 +10,7 @@
 #include <src/components/Size.hpp>
 #include <src/components/Texture.hpp>
 
-#include <external/SOIL/SOIL.h>
+#include <external/stb/stb_image.h>
 
 using namespace std;
 
@@ -38,10 +38,8 @@ public:
             auto const& texture = coordinator.GetComponent<Texture>(entity);
             if (filenameTextures.find(texture.filename) == filenameTextures.end())
             {
-                unsigned int textureId = SOIL_load_OGL_texture(texture.filename.c_str(), 0, 0, 
-                                            SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT);
-                
-                filenameTextures.insert({texture.filename, textureId});
+                // load image with stb and generate texture
+                //filenameTextures.insert({texture.filename, textureId});
             }
         }
     }
@@ -49,5 +47,4 @@ public:
 private:
     WindowManager windowManager;
     unordered_map<string, unsigned int> filenameTextures;
-    // 
 };

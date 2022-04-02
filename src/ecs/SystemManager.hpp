@@ -17,6 +17,7 @@ public:
         const char* typeName = typeid(T).name();
         auto system = make_shared<T>();
         systems.insert({typeName, system});
+        return system;
     }
 
     template <typename T>
