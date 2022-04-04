@@ -1,8 +1,6 @@
 
 #pragma once
 
-#define GL_GLEXT_PROTOTYPES 1
-
 #include <string>
 #include <unordered_map>
 #include <iostream>
@@ -36,7 +34,7 @@ public:
     void Render()
     {
         LoadTextures();
-        
+
     }
 
 private:
