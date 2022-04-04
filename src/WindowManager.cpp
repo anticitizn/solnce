@@ -32,13 +32,17 @@ void WindowManager::Init(string windowName, bool fullscreen, unsigned int window
 	SDL_GLContext context = SDL_GL_CreateContext(window);
 	cout << "SDL initialized" << endl;
 
+	// Initializing GLAD, make sure it's after the OpenGL context initialization
+	if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
+	{
+		cout << "Failed to initialize GLAD" << endl;
+		exit(-1);
+	}
+
 	SDL_SetRelativeMouseMode(SDL_FALSE);
 
-	int contextWidth;
-    int contextHeight;
-
 	SDL_GetWindowSize(window, &contextWidth, &contextHeight);
-	cout << "Resolution is " << contextWidth << "/" << contextHeight << endl;	
+	cout << "Resolution is " << contextWidth << "/" << contextHeight << endl;
 }
 
 void WindowManager::Update()
@@ -50,4 +54,15 @@ void WindowManager::Exit()
 {
     SDL_DestroyWindow(window);
     SDL_Quit();
+}
+
+int WindowManager::GetContextWidth()
+{
+	return contextWidth;
+}
+
+
+int WindowManager::GetContextHeight()
+{
+	return contextHeight;
 }

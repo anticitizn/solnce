@@ -16,7 +16,11 @@ public:
         unsigned int windowPosX=100, unsigned int WindowPosY=100);
     void Update();
     void Exit();
+    int GetContextWidth();
+    int GetContextHeight();
 
 private:
     SDL_Window* window;
+    int contextWidth;
+    int contextHeight;
 };

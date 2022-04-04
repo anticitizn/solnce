@@ -6,4 +6,5 @@
 struct Texture
 {
     string filename;
+    unsigned int textureId = 0;
 };
