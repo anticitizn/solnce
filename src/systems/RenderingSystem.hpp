@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <iostream>
 
-#include <src/Shader.hpp>
+#include <src/ShaderManager.hpp>
 #include <src/WindowManager.hpp>
 #include <src/ecs/System.hpp>
 #include <src/components/Position.hpp>
@@ -22,12 +22,16 @@ extern Coordinator coordinator;
 class RenderingSystem : public System
 {
 public:
-    void Init(string TexturesPath)
+    void Init(string TexturesPath, string ShadersPath)
     {
+        shadersPath = ShadersPath;
         texturesPath = TexturesPath;
+
         windowManager.Init("SOLNCE", false);
         InitOpenGL();
+        shaderManager.Init(shadersPath);
         LoadInitialTextures();
+
         Render();
     }
 
@@ -39,13 +43,20 @@ public:
 
 private:
     string texturesPath;
+    string shadersPath;
     WindowManager windowManager;
-    Shader shader;
+    ShaderManager shaderManager;
     unordered_map<string, unsigned int> filenamesTextures;
 
     void InitOpenGL()
     {
         glViewport(0, 0, windowManager.GetContextWidth(), windowManager.GetContextHeight());
+
+        // set some texture parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
 
     void LoadInitialTextures()
@@ -75,12 +86,6 @@ private:
             return filenamesTextures[filename];
         }
         unsigned int texture;
-
-        // set some texture parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         // load the image file
         int imgWidth, imgHeight, nrChannels;

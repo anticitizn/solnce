@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <stdio.h>
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -18,7 +19,7 @@ class ShaderManager {
 public:
 	unsigned int programID;
 
-	Shader(string vertexPath, string fragmentPath)
+	void Init(string shadersPath)
 	{
         ifstream vShaderFile;
         ifstream fShaderFile;
@@ -30,8 +31,8 @@ public:
         fShaderFile.exceptions(ifstream::failbit | ifstream::badbit);
         try
         {
-            vShaderFile.open(vertexPath);
-            fShaderFile.open(fragmentPath);
+            vShaderFile.open(shadersPath + "vertex.glsl");
+            fShaderFile.open(shadersPath + "fragment.glsl");
             stringstream vShaderStream, fShaderStream;
             
             vShaderStream << vShaderFile.rdbuf();
@@ -42,6 +43,7 @@ public:
 
             const char* vertexCode = vShaderStream.str().c_str();
             const char* fragmentCode = fShaderStream.str().c_str();
+			
         }
         catch(ifstream::failure e)
         {
@@ -52,8 +54,10 @@ public:
 		unsigned int fShader = glCreateShader(GL_FRAGMENT_SHADER);
 
 		glShaderSource(vShader, 1, &vertexCode, NULL);
-		glShaderSource(fShader, 1, &fragmentCode, NULL);
 
+		// segfault here???
+		glShaderSource(fShader, 1, &fragmentCode, NULL);
+		
 		glCompileShader(vShader);
 		glCompileShader(fShader);
 
