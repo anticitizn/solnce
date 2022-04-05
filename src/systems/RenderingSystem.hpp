@@ -40,6 +40,7 @@ public:
 private:
     string texturesPath;
     WindowManager windowManager;
+    Shader shader;
     unordered_map<string, unsigned int> filenamesTextures;
 
     void InitOpenGL()

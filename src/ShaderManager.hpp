@@ -1,5 +1,5 @@
-#ifndef SHADER
-#define SHADER
+
+#pragma once
 
 #include <iostream>
 #include <sstream>
@@ -14,7 +14,7 @@
 
 using namespace std;
 
-class Shader {
+class ShaderManager {
 public:
 	unsigned int programID;
 
@@ -166,5 +166,3 @@ public:
 	}
 
 };
-
-#endif
