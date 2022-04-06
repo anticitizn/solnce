@@ -1,5 +1,6 @@
 
 #pragma once
+#define STB_IMAGE_IMPLEMENTATION
 
 #include <stdio.h>
 #include <iostream>
@@ -53,14 +54,13 @@ public:
         unsigned int vShader = glCreateShader(GL_VERTEX_SHADER);
 		unsigned int fShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-		glShaderSource(vShader, 1, &vertexCode, NULL);
-
 		// segfault here???
+		glShaderSource(vShader, 1, &vertexCode, NULL);
 		glShaderSource(fShader, 1, &fragmentCode, NULL);
 		
 		glCompileShader(vShader);
 		glCompileShader(fShader);
-
+		
 		int success;
 		char errorLog[512];
 		glGetShaderiv(vShader, GL_COMPILE_STATUS, &success);

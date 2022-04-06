@@ -29,9 +29,8 @@ public:
 
         windowManager.Init("SOLNCE", false);
         InitOpenGL();
-        shaderManager.Init(shadersPath);
         LoadInitialTextures();
-
+        shaderManager.Init(shadersPath);
         Render();
     }
 
