@@ -1,6 +1,5 @@
 
 #pragma once
-#define STB_IMAGE_IMPLEMENTATION
 
 #include <stdio.h>
 #include <iostream>
@@ -25,8 +24,8 @@ public:
         ifstream vShaderFile;
         ifstream fShaderFile;
 
-        const char* vertexCode;
-        const char* fragmentCode;
+        string vertexCode;
+        string fragmentCode;
 
         vShaderFile.exceptions(ifstream::failbit | ifstream::badbit);
         fShaderFile.exceptions(ifstream::failbit | ifstream::badbit);
@@ -42,8 +41,8 @@ public:
             vShaderFile.close();
             fShaderFile.close();
 
-            const char* vertexCode = vShaderStream.str().c_str();
-            const char* fragmentCode = fShaderStream.str().c_str();
+            vertexCode = vShaderStream.str();
+            fragmentCode = fShaderStream.str();
 			
         }
         catch(ifstream::failure e)
@@ -51,12 +50,15 @@ public:
             cout << "ERROR: SHADER FILE NOT SUCCESSFULLY READ" << endl;
         }
 
+		const char* vShaderCode = vertexCode.c_str();
+		const char* fShaderCode = fragmentCode.c_str();
+
         unsigned int vShader = glCreateShader(GL_VERTEX_SHADER);
 		unsigned int fShader = glCreateShader(GL_FRAGMENT_SHADER);
 
 		// segfault here???
-		glShaderSource(vShader, 1, &vertexCode, NULL);
-		glShaderSource(fShader, 1, &fragmentCode, NULL);
+		glShaderSource(vShader, 1, &vShaderCode, NULL);
+		glShaderSource(fShader, 1, &fShaderCode, NULL);
 		
 		glCompileShader(vShader);
 		glCompileShader(fShader);
