@@ -84,13 +84,14 @@ private:
         {
             return filenamesTextures[filename];
         }
+
         unsigned int texture;
 
         // load the image file
         int imgWidth, imgHeight, nrChannels;
         
         stbi_set_flip_vertically_on_load(true);
-        unsigned char* data = stbi_load((texturesPath + filename + ".jpg").c_str(), &imgWidth, &imgHeight, &nrChannels, 0);
+        unsigned char* data = stbi_load((texturesPath + filename + ".png").c_str(), &imgWidth, &imgHeight, &nrChannels, 0);
     
         if (data)
         {
@@ -104,7 +105,7 @@ private:
         else
         {
             // with texture = 1 the system won't try to load the texture anymore
-            cout << "ERROR: Failed to load texture " << filename << endl;
+            cout << "ERROR: Failed to load texture | " << filename  << " | at " << texturesPath + filename + ".png" << endl;
             return 1;
         }
 

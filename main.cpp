@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
         coordinator.SetSystemSignature<RenderingSystem>(signature);
     }
 
-    renderingSystem->Init("", "src/shaders/");
+    renderingSystem->Init("assets/", "src/shaders/");
 
     cout << coordinator.GetEntitiesCount() << endl;
 }
