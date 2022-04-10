@@ -15,5 +15,6 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 Makefile
-.vscode
+.vscode/**/*
+!.vscode/c_cpp_properties.json
 build

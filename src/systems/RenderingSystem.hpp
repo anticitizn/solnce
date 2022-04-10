@@ -37,7 +37,7 @@ public:
     void Render()
     {
         LoadTextures();
-
+        
     }
 
 private:
@@ -77,7 +77,7 @@ private:
             }
         }
     }
-
+    
     unsigned int LoadTexture(string filename)
     {
         if (!(filenamesTextures.find(filename) == filenamesTextures.end()))

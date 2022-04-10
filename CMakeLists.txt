@@ -5,7 +5,8 @@ file(GLOB SOURCES src/*.cpp)
 
 find_package(SDL2 REQUIRED)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/build/")
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}")
 set(EXT_SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/")
 
 add_executable(${PROJECT_NAME} ${SOURCES} main.cpp)
