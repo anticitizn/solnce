@@ -13,5 +13,3 @@ add_executable(${PROJECT_NAME} ${SOURCES} main.cpp)
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}" ${SDL2_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} "${EXT_SOURCE_DIR}/glad/glad.cpp" ${SDL2_LIBRARIES} ${CMAKE_DL_LIBS})
-
-
