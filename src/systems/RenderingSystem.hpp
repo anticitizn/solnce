@@ -49,8 +49,14 @@ public:
             {
                 texturesVectors[textureComp.id].push_back(vals[i]);
             }
-            
-            
+        }
+
+        for (const auto& item : texturesVectors)
+        {
+            // item.first is the texture id
+            glBindTexture(GL_TEXTURE_2D, item.first);
+            glBufferData(GL_ARRAY_BUFFER, texturesVectors[item.first].size() * sizeof(float), &texturesVectors[item.first][0], GL_DYNAMIC_DRAW);
+            glDrawArraysInstanced(GL_TRIANGLES, 0, 1, texturesVectors[item.first].size() / 9);
         }
     }
 
@@ -60,6 +66,8 @@ private:
     WindowManager windowManager;
     ShaderManager shaderManager;
     unordered_map<string, unsigned int> filenamesTextures;
+    unsigned int VBO;
+    unsigned int VAO;
 
     void InitOpenGL()
     {
@@ -70,6 +78,32 @@ private:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        InitVAO();
+    }
+
+    void InitVAO()
+    {
+        glGenBuffers(1, &VBO);
+        glGenVertexArrays(1, &VAO);
+        glBindVertexArray(VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); // position
+        glEnableVertexAttribArray(0);
+        glVertexAttribDivisor(0, 1);
+
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)(3 * sizeof(float))); // size
+        glEnableVertexAttribArray(1);
+        glVertexAttribDivisor(1, 1);
+
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(5 * sizeof(float))); // color
+        glEnableVertexAttribArray(2);
+        glVertexAttribDivisor(2, 1);
+
+        glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, 1 * sizeof(float), (void*)(8 * sizeof(float))); // rotation
+        glEnableVertexAttribArray(3);
+        glVertexAttribDivisor(3, 1);
     }
 
     void LoadInitialTextures()
@@ -111,6 +145,7 @@ private:
         {
             // only generate a texture if the file actually loaded
             glGenTextures(1, &texture);
+            glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
 
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imgWidth, imgHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
