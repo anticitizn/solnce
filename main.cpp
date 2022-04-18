@@ -8,8 +8,7 @@
 #include <src/ecs/ECS.hpp>
 #include <src/systems/RenderingSystem.hpp>
 #include <src/components/Texture.hpp>
-#include <src/components/Position.hpp>
-#include <src/components/Size.hpp>
+#include <src/components/Quad.hpp>
 
 using namespace std;
 
@@ -18,16 +17,14 @@ extern Coordinator coordinator;
 int main(int argc, char *argv[]) 
 {
     coordinator.RegisterComponent<Texture>();
-    coordinator.RegisterComponent<Position>();
-    coordinator.RegisterComponent<Size>();
+    coordinator.RegisterComponent<Quad>();
 
     shared_ptr<RenderingSystem> renderingSystem = coordinator.RegisterSystem<RenderingSystem>();
     
     {
         Signature signature;
         signature.set(coordinator.GetComponentType<Texture>());
-        signature.set(coordinator.GetComponentType<Position>());
-        signature.set(coordinator.GetComponentType<Size>());
+        signature.set(coordinator.GetComponentType<Quad>());
         coordinator.SetSystemSignature<RenderingSystem>(signature);
     }
 

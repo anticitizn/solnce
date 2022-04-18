@@ -8,9 +8,8 @@
 #include <src/ShaderManager.hpp>
 #include <src/WindowManager.hpp>
 #include <src/ecs/System.hpp>
-#include <src/components/Position.hpp>
-#include <src/components/Size.hpp>
 #include <src/components/Texture.hpp>
+#include <src/components/Quad.hpp>
 
 #include <external/stb/stb_image.h>
 #include <external/glad/glad.h>
@@ -37,7 +36,22 @@ public:
     void Render()
     {
         LoadTextures();
-        
+
+        unordered_map<unsigned int, vector<float>> texturesVectors;
+        for (const auto& entity : entities)
+        {
+            Quad& quadComp = coordinator.GetComponent<Quad>(entity);
+            Texture& textureComp = coordinator.GetComponent<Texture>(entity);
+
+            // fuck my life, there has to be a better way to do this
+            float vals[10] = {quadComp.posX, quadComp.posY, quadComp.posZ, quadComp.sizeX, quadComp.sizeY, quadComp.r, quadComp.g, quadComp.b, quadComp.rot};
+            for (int i = 0; i < 10; i++) 
+            {
+                texturesVectors[textureComp.id].push_back(vals[i]);
+            }
+            
+            
+        }
     }
 
 private:
@@ -70,10 +84,10 @@ private:
         for (const auto& entity : entities)
         {
             auto& textureComponent = coordinator.GetComponent<Texture>(entity);
-            if (textureComponent.textureId == 0)
+            if (textureComponent.id == 0)
             {
                 unsigned int texture = LoadTexture(textureComponent.filename);
-                textureComponent.textureId = texture;
+                textureComponent.id = texture;
             }
         }
     }
