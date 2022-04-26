@@ -29,6 +29,12 @@ int main(int argc, char *argv[])
     }
 
     renderingSystem->Init("assets/", "src/shaders/");
+    
+    Entity testEntity = coordinator.CreateEntity();
+    coordinator.AddComponent<Quad>(testEntity, Quad {100, 100, 1, 50, 50, 255, 255, 255, 0});
+    coordinator.AddComponent<Texture>(testEntity, Texture{"", 0});
+
+    renderingSystem->Render();
 
     cout << coordinator.GetEntitiesCount() << endl;
 }
