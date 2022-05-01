@@ -32,8 +32,8 @@ public:
     void InsertData(const Entity entity, const T component)
     {
         componentArray[dataSize] = component;
-        entityIndexMap.insert({entity, component});
-        indexEntityMap.insert({component, entity});
+        entityIndexMap.insert({entity, dataSize});
+        indexEntityMap.insert({dataSize, entity});
 
         dataSize++;
     }

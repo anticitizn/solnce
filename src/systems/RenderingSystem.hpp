@@ -30,6 +30,11 @@ public:
         InitOpenGL();
         LoadInitialTextures();
         shaderManager.Init(shadersPath);
+        for (unsigned int i = 0; i < 6; i++)
+        {
+            shaderManager.SetUniform(("quadVertices[" + std::to_string(i) + "]"), 
+                                      quadVertices[i*4], quadVertices[i*4 +1], quadVertices[i*4 + 2], quadVertices[i*4 + 3]);
+        }  
         Render();
     }
 
@@ -43,7 +48,6 @@ public:
             Quad& quadComp = coordinator.GetComponent<Quad>(entity);
             Texture& textureComp = coordinator.GetComponent<Texture>(entity);
 
-            // fuck my life, there has to be a better way to do this
             float vals[10] = {quadComp.posX, quadComp.posY, quadComp.posZ, quadComp.sizeX, quadComp.sizeY, quadComp.r, quadComp.g, quadComp.b, quadComp.rot};
             for (int i = 0; i < 10; i++) 
             {
@@ -56,7 +60,7 @@ public:
             // item.first is the texture id
             glBindTexture(GL_TEXTURE_2D, item.first);
             glBufferData(GL_ARRAY_BUFFER, texturesVectors[item.first].size() * sizeof(float), &texturesVectors[item.first][0], GL_DYNAMIC_DRAW);
-            glDrawArraysInstanced(GL_TRIANGLES, 0, 1, texturesVectors[item.first].size() / 9);
+            glDrawArraysInstanced(GL_TRIANGLES, 0, 1, texturesVectors[item.first].size() / 9); // divide by 9 because each quad has 9 float values
         }
     }
 
@@ -68,6 +72,16 @@ private:
     unordered_map<string, unsigned int> filenamesTextures;
     unsigned int VBO;
     unsigned int VAO;
+    float quadVertices[32] = {
+        // positions,  texture coordinates
+        -1.0f, -1.0f, -1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f, -1.0f,
+         1.0f,  1.0f,  1.0f,  1.0f,
+        
+        -1.0f, -1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f,  1.0f, -1.0f,
+         1.0f,  1.0f,  1.0f,  1.0f
+    };
 
     void InitOpenGL()
     {
