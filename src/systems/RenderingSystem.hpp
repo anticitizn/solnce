@@ -11,6 +11,7 @@
 #include <src/components/Texture.hpp>
 #include <src/components/Quad.hpp>
 
+#include <external/glm/glm.hpp>
 #include <external/stb/stb_image.h>
 #include <external/glad/glad.h>
 
@@ -30,11 +31,6 @@ public:
         InitOpenGL();
         LoadInitialTextures();
         shaderManager.Init(shadersPath);
-        for (unsigned int i = 0; i < 6; i++)
-        {
-            shaderManager.SetUniform(("quadVertices[" + std::to_string(i) + "]"), 
-                                      quadVertices[i*4], quadVertices[i*4 +1], quadVertices[i*4 + 2], quadVertices[i*4 + 3]);
-        }  
         Render();
     }
 
@@ -70,8 +66,11 @@ private:
     WindowManager windowManager;
     ShaderManager shaderManager;
     unordered_map<string, unsigned int> filenamesTextures;
-    unsigned int VBO;
+    unsigned int quadVBO;
+    unsigned int instanceVBO;
     unsigned int VAO;
+    int maxQuads = 1000;
+
     float quadVertices[32] = {
         // positions,  texture coordinates
         -1.0f, -1.0f, -1.0f, -1.0f,
@@ -98,26 +97,49 @@ private:
 
     void InitVAO()
     {
-        glGenBuffers(1, &VBO);
         glGenVertexArrays(1, &VAO);
         glBindVertexArray(VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); // position
+        // Shared quad vertex data
+        glGenBuffers(1, &quadVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+        glBufferData(GL_ARRAY_BUFFER, 32 * sizeof(float), &quadVertices[0], GL_STREAM_DRAW);
+
+        // Quad position vertices
         glEnableVertexAttribArray(0);
-        glVertexAttribDivisor(0, 1);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+        glVertexAttribDivisor(0, 0);
 
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)(3 * sizeof(float))); // size
+        // Quad texture coordinates
         glEnableVertexAttribArray(1);
-        glVertexAttribDivisor(1, 1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+        glVertexAttribDivisor(1, 0);
 
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(5 * sizeof(float))); // color
+        // Per-instance data
+        glGenBuffers(1, &instanceVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+        // Initialize with empty buffer; sizeof(Quad) should be the same as sizeof(float) * 9
+        glBufferData(GL_ARRAY_BUFFER, maxQuads * sizeof(Quad), NULL, GL_STREAM_DRAW);
+
+        // Position vertices
         glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(0 * sizeof(float)));
         glVertexAttribDivisor(2, 1);
 
-        glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, 1 * sizeof(float), (void*)(8 * sizeof(float))); // rotation
+        // Size vertices
         glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)(3 * sizeof(float)));
         glVertexAttribDivisor(3, 1);
+
+        // Color vertices
+        glEnableVertexAttribArray(4);
+        glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(5 * sizeof(float)));
+        glVertexAttribDivisor(4, 1);
+
+        // Rotation vertices
+        glEnableVertexAttribArray(5);
+        glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, 1 * sizeof(float), (void*)(8 * sizeof(float)));
+        glVertexAttribDivisor(5, 1);        
     }
 
     void LoadInitialTextures()
