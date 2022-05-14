@@ -9,7 +9,8 @@ uniform mat4 cameraProjection;
 
 void main()
 {
-    // gl_Position = vec4(quadPos.xy, 0.0f, 1.0f) * instanceMatrix;
-    gl_Position = vec4(quadPos.xy, 0.0f, 1.0f);
+    // camera projection is broken
+    gl_Position = instanceMatrix * vec4(quadPos, 0.0f, 1.0f);
+    //gl_Position = vec4(quadPos.xy, 0.0f, 1.0f);
     texCoords = quadTexCoords;
 }

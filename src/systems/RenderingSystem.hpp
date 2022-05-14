@@ -60,7 +60,7 @@ public:
         {
             // item.first is the texture id
             glBindTexture(GL_TEXTURE_2D, item.first);
-            //glBufferData(GL_ARRAY_BUFFER, textureMatrixes[item.first].size() * sizeof(glm::mat4), &textureMatrixes[item.first][0], GL_DYNAMIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, textureMatrixes[item.first].size() * sizeof(glm::mat4), &textureMatrixes[item.first][0], GL_DYNAMIC_DRAW);
             glDrawArraysInstanced(GL_TRIANGLES, 0, 6, textureMatrixes[item.first].size());
         }
 
@@ -103,7 +103,7 @@ private:
 
         InitVAO();
 
-        cameraProjection = glm::ortho(0.0f, (float)windowManager.GetContextWidth(), (float)windowManager.GetContextHeight(), 0.0f);
+        cameraProjection = glm::ortho(0.0f, (float)windowManager.GetContextWidth(), 0.0f, (float)windowManager.GetContextHeight());
         shaderManager.SetUniform("cameraProjection", cameraProjection);
     }
 
