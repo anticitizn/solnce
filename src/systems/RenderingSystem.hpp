@@ -76,9 +76,10 @@ private:
     unsigned int quadVBO;
     unsigned int instanceVBO;
     unsigned int VAO;
-    int maxQuads = 1000;
+    glm::mat4 cameraProjection;
+    int maxQuads = 100;
 
-    float quadVertices[32] = {
+    float quadVertices[24] = {
         // positions,  texture coordinates
         -1.0f, -1.0f, -1.0f, -1.0f,
         -1.0f,  1.0f, -1.0f, -1.0f,
@@ -100,6 +101,9 @@ private:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         InitVAO();
+
+        cameraProjection = glm::ortho(0.0f, (float)windowManager.GetContextWidth(), (float)windowManager.GetContextHeight(), 0.0f);
+        shaderManager.SetUniform("cameraProjection", cameraProjection);
     }
 
     void InitVAO()
@@ -110,15 +114,15 @@ private:
         // Shared quad vertex data
         glGenBuffers(1, &quadVBO);
         glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-        glBufferData(GL_ARRAY_BUFFER, 32 * sizeof(float), &quadVertices[0], GL_STREAM_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices[0], GL_STREAM_DRAW);
 
         // Quad position vertices
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
         
         // Quad texture coordinates
         glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
         glVertexAttribDivisor(0, 0);
         glVertexAttribDivisor(1, 0);
@@ -130,17 +134,17 @@ private:
         glBufferData(GL_ARRAY_BUFFER, maxQuads * sizeof(glm::mat4), NULL, GL_STREAM_DRAW);
 
         // Instance scale/transform/rotation matrix - divided into 4*vec4
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+
         glEnableVertexAttribArray(3);
-        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
 
         glEnableVertexAttribArray(4);
-        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
 
         glEnableVertexAttribArray(5);
-        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-
-        glEnableVertexAttribArray(6);
-        glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
 
         /* 
         // Temporarily disabled
@@ -149,10 +153,10 @@ private:
         glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(4 * sizeof(glm::vec4)));
         */
 
+        glVertexAttribDivisor(2, 1);
         glVertexAttribDivisor(3, 1);
         glVertexAttribDivisor(4, 1);
         glVertexAttribDivisor(5, 1);
-        glVertexAttribDivisor(6, 1);
         //glVertexAttribDivisor(7, 1);
         
     }
