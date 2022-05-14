@@ -112,7 +112,7 @@ private:
 
         // Quad texture coordinates
         glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
         glVertexAttribDivisor(1, 0);
 
         // Per-instance data
@@ -190,7 +190,7 @@ private:
         else
         {
             // with texture = 1 the system won't try to load the texture anymore
-            cout << "ERROR: Failed to load texture | " << filename  << " | at " << texturesPath + filename + ".png" << endl;
+            cout << "WARNING: Failed to load texture | " << filename  << " | at " << texturesPath + filename + ".png" << endl;
             return 1;
         }
 
