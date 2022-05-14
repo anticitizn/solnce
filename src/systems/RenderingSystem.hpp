@@ -31,12 +31,16 @@ public:
         InitOpenGL();
         LoadInitialTextures();
         shaderManager.Init(shadersPath);
+        shaderManager.Activate();
         Render();
     }
 
     void Render()
     {
         LoadTextures();
+
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         unordered_map<unsigned int, vector<glm::mat4>> textureMatrixes;
         for (const auto& entity : entities)
@@ -52,15 +56,12 @@ public:
             textureMatrixes[textureComp.id].push_back(instanceMatrix);
         }
 
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         for (const auto& item : textureMatrixes)
         {
             // item.first is the texture id
             glBindTexture(GL_TEXTURE_2D, item.first);
-            glBufferData(GL_ARRAY_BUFFER, textureMatrixes[item.first].size() * sizeof(glm::mat4), &textureMatrixes[item.first][0], GL_DYNAMIC_DRAW);
-            glDrawArraysInstanced(GL_TRIANGLES, 0, 1, textureMatrixes[item.first].size());
+            //glBufferData(GL_ARRAY_BUFFER, textureMatrixes[item.first].size() * sizeof(glm::mat4), &textureMatrixes[item.first][0], GL_DYNAMIC_DRAW);
+            glDrawArraysInstanced(GL_TRIANGLES, 0, 6, textureMatrixes[item.first].size());
         }
 
         windowManager.Refresh();
