@@ -32,9 +32,14 @@ int main(int argc, char *argv[])
     
     Entity testEntity = coordinator.CreateEntity();
     coordinator.AddComponent<Quad>(testEntity, Quad {100, 100, 1, 50, 50, 255, 255, 255, 0});
-    coordinator.AddComponent<Texture>(testEntity, Texture{"", 0});
-
-    renderingSystem->Render();
-
+    coordinator.AddComponent<Texture>(testEntity, Texture{"missing-texture", 0});
+    
+    for (int i = 0; i < 100; i++)
+    {
+        
+        renderingSystem->Render();
+    }
+    
     cout << coordinator.GetEntitiesCount() << endl;
+    
 }

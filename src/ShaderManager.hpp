@@ -56,7 +56,6 @@ public:
         unsigned int vShader = glCreateShader(GL_VERTEX_SHADER);
 		unsigned int fShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-		// segfault here???
 		glShaderSource(vShader, 1, &vShaderCode, NULL);
 		glShaderSource(fShader, 1, &fShaderCode, NULL);
 		

@@ -14,7 +14,7 @@ public:
     void Init(
         string windowName, bool fullscreen, unsigned int windowSizeX=800, unsigned int windowSizeY=600, 
         unsigned int windowPosX=100, unsigned int WindowPosY=100);
-    void Update();
+    void Refresh();
     void Exit();
     int GetContextWidth();
     int GetContextHeight();

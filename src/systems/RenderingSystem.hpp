@@ -38,26 +38,33 @@ public:
     {
         LoadTextures();
 
-        unordered_map<unsigned int, vector<float>> texturesVectors;
+        unordered_map<unsigned int, vector<glm::mat4>> textureMatrixes;
         for (const auto& entity : entities)
         {
             Quad& quadComp = coordinator.GetComponent<Quad>(entity);
             Texture& textureComp = coordinator.GetComponent<Texture>(entity);
 
-            float vals[10] = {quadComp.posX, quadComp.posY, quadComp.posZ, quadComp.sizeX, quadComp.sizeY, quadComp.r, quadComp.g, quadComp.b, quadComp.rot};
-            for (int i = 0; i < 10; i++) 
-            {
-                texturesVectors[textureComp.id].push_back(vals[i]);
-            }
+            glm::mat4 instanceMatrix = glm::mat4(1.0f);
+            instanceMatrix = glm::translate(instanceMatrix, glm::vec3(quadComp.posX, quadComp.posY, quadComp.posZ));
+            instanceMatrix = glm::scale(instanceMatrix, glm::vec3(quadComp.sizeX, quadComp.sizeY, 1.0f));
+            instanceMatrix = glm::rotate(instanceMatrix, quadComp.rot, glm::vec3(0.0f, 0.0f, 1.0f));
+
+            textureMatrixes[textureComp.id].push_back(instanceMatrix);
         }
 
-        for (const auto& item : texturesVectors)
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        for (const auto& item : textureMatrixes)
         {
             // item.first is the texture id
             glBindTexture(GL_TEXTURE_2D, item.first);
-            glBufferData(GL_ARRAY_BUFFER, texturesVectors[item.first].size() * sizeof(float), &texturesVectors[item.first][0], GL_DYNAMIC_DRAW);
-            glDrawArraysInstanced(GL_TRIANGLES, 0, 1, texturesVectors[item.first].size() / 9); // divide by 9 because each quad has 9 float values
+            glBufferData(GL_ARRAY_BUFFER, textureMatrixes[item.first].size() * sizeof(glm::mat4), &textureMatrixes[item.first][0], GL_DYNAMIC_DRAW);
+            glDrawArraysInstanced(GL_TRIANGLES, 0, 1, textureMatrixes[item.first].size());
         }
+
+        windowManager.Refresh();
+
     }
 
 private:
@@ -108,38 +115,46 @@ private:
         // Quad position vertices
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-        glVertexAttribDivisor(0, 0);
-
+        
         // Quad texture coordinates
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
+
+        glVertexAttribDivisor(0, 0);
         glVertexAttribDivisor(1, 0);
 
         // Per-instance data
         glGenBuffers(1, &instanceVBO);
         glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
         // Initialize with empty buffer; sizeof(Quad) should be the same as sizeof(float) * 9
-        glBufferData(GL_ARRAY_BUFFER, maxQuads * sizeof(Quad), NULL, GL_STREAM_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, maxQuads * sizeof(glm::mat4), NULL, GL_STREAM_DRAW);
 
-        // Position vertices
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(0 * sizeof(float)));
-        glVertexAttribDivisor(2, 1);
-
-        // Size vertices
+        // Instance scale/transform/rotation matrix - divided into 4*vec4
         glEnableVertexAttribArray(3);
-        glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)(3 * sizeof(float)));
-        glVertexAttribDivisor(3, 1);
+        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
 
-        // Color vertices
         glEnableVertexAttribArray(4);
-        glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(5 * sizeof(float)));
-        glVertexAttribDivisor(4, 1);
+        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
 
-        // Rotation vertices
         glEnableVertexAttribArray(5);
-        glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, 1 * sizeof(float), (void*)(8 * sizeof(float)));
-        glVertexAttribDivisor(5, 1);        
+        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+
+        glEnableVertexAttribArray(6);
+        glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+        /* 
+        // Temporarily disabled
+        // Color vertices
+        glEnableVertexAttribArray(7);
+        glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(4 * sizeof(glm::vec4)));
+        */
+
+        glVertexAttribDivisor(3, 1);
+        glVertexAttribDivisor(4, 1);
+        glVertexAttribDivisor(5, 1);
+        glVertexAttribDivisor(6, 1);
+        //glVertexAttribDivisor(7, 1);
+        
     }
 
     void LoadInitialTextures()

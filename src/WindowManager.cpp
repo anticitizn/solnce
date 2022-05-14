@@ -45,7 +45,7 @@ void WindowManager::Init(string windowName, bool fullscreen, unsigned int window
 	cout << "Resolution is " << contextWidth << "/" << contextHeight << endl;
 }
 
-void WindowManager::Update()
+void WindowManager::Refresh()
 {
     SDL_GL_SwapWindow(window);
 }
