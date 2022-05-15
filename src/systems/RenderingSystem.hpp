@@ -56,8 +56,12 @@ public:
 
             glm::mat4 instanceMatrix = glm::mat4(1.0f);
             instanceMatrix = glm::translate(instanceMatrix, glm::vec3(quadComp.posX, quadComp.posY, quadComp.posZ));
-            instanceMatrix = glm::scale(instanceMatrix, glm::vec3(quadComp.sizeX, quadComp.sizeY, 1.0f));
+            
+            instanceMatrix = glm::translate(instanceMatrix, glm::vec3(1, 1, 0));
             instanceMatrix = glm::rotate(instanceMatrix, glm::radians(quadComp.rot), glm::vec3(0.0f, 0.0f, 1.0f));
+            instanceMatrix = glm::translate(instanceMatrix, glm::vec3(-1, -1, 0));
+
+            instanceMatrix = glm::scale(instanceMatrix, glm::vec3(quadComp.sizeX / 2, quadComp.sizeY / 2, 1.0f));
 
             textureMatrixes[textureComp.id].push_back(instanceMatrix);
         }
@@ -65,7 +69,6 @@ public:
         for (const auto& item : textureMatrixes)
         {
             // item.first is the texture id
-            glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, item.first);
             glBufferData(GL_ARRAY_BUFFER, textureMatrixes[item.first].size() * sizeof(glm::mat4), &textureMatrixes[item.first][0], GL_DYNAMIC_DRAW);
             glDrawArraysInstanced(GL_TRIANGLES, 0, 6, textureMatrixes[item.first].size());
