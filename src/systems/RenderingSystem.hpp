@@ -32,6 +32,12 @@ public:
         LoadInitialTextures();
         shaderManager.Init(shadersPath);
         shaderManager.Activate();
+
+        cameraProjection = glm::ortho(0.0f, (float)windowManager.GetContextWidth(), (float)windowManager.GetContextHeight(), 0.0f);
+        shaderManager.SetUniform("projection", cameraProjection);
+
+        shaderManager.SetUniform("texture", 0);
+
         Render();
     }
 
@@ -51,7 +57,7 @@ public:
             glm::mat4 instanceMatrix = glm::mat4(1.0f);
             instanceMatrix = glm::translate(instanceMatrix, glm::vec3(quadComp.posX, quadComp.posY, quadComp.posZ));
             instanceMatrix = glm::scale(instanceMatrix, glm::vec3(quadComp.sizeX, quadComp.sizeY, 1.0f));
-            instanceMatrix = glm::rotate(instanceMatrix, quadComp.rot, glm::vec3(0.0f, 0.0f, 1.0f));
+            instanceMatrix = glm::rotate(instanceMatrix, glm::radians(quadComp.rot), glm::vec3(0.0f, 0.0f, 1.0f));
 
             textureMatrixes[textureComp.id].push_back(instanceMatrix);
         }
@@ -59,6 +65,7 @@ public:
         for (const auto& item : textureMatrixes)
         {
             // item.first is the texture id
+            glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, item.first);
             glBufferData(GL_ARRAY_BUFFER, textureMatrixes[item.first].size() * sizeof(glm::mat4), &textureMatrixes[item.first][0], GL_DYNAMIC_DRAW);
             glDrawArraysInstanced(GL_TRIANGLES, 0, 6, textureMatrixes[item.first].size());
@@ -82,29 +89,19 @@ private:
 
     float quadVertices[24] = {
         // positions,  texture coordinates
-        -1.0f, -1.0f, -1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f, -1.0f,
-         1.0f,  1.0f,  1.0f,  1.0f,
+        -1.0f, -1.0f,  0.0f,  0.0f, // lower left
+        -1.0f,  1.0f,  0.0f,  1.0f, // upper left
+         1.0f,  1.0f,  1.0f,  1.0f, // upper right
         
-        -1.0f, -1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f,  1.0f, -1.0f,
-         1.0f,  1.0f,  1.0f,  1.0f
+        -1.0f, -1.0f,  0.0f,  0.0f, // lower left
+         1.0f, -1.0f,  1.0f,  0.0f, // lower right
+         1.0f,  1.0f,  1.0f,  1.0f  // upper right
     };
 
     void InitOpenGL()
     {
         glViewport(0, 0, windowManager.GetContextWidth(), windowManager.GetContextHeight());
-
-        // set some texture parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
         InitVAO();
-
-        cameraProjection = glm::ortho(0.0f, (float)windowManager.GetContextWidth(), 0.0f, (float)windowManager.GetContextHeight());
-        shaderManager.SetUniform("cameraProjection", cameraProjection);
     }
 
     void InitVAO()
@@ -164,8 +161,7 @@ private:
 
     void LoadInitialTextures()
     {
-        // textures 0 and 1 serve as missing texture images
-        LoadTexture("missing-texture");
+        // texture 1 serves as missing texture image
         LoadTexture("missing-texture");
     }
 
@@ -199,10 +195,17 @@ private:
     
         if (data)
         {
-            // only generate a texture if the file actually loaded
+            // only generate a texture if the file actually loads
             glGenTextures(1, &texture);
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
+            glBindTexture(GL_TEXTURE_2D, texture);
+
+            // set some texture parameters
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imgWidth, imgHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
             glGenerateMipmap(GL_TEXTURE_2D);
@@ -217,7 +220,7 @@ private:
         stbi_image_free(data);
 
         filenamesTextures.insert({filename, texture});
-
+        cout << "Texture: " << texture << endl;
         return texture;
     }
 };

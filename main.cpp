@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     renderingSystem->Init("assets/", "src/shaders/");
     
     Entity testEntity = coordinator.CreateEntity();
-    coordinator.AddComponent<Quad>(testEntity, Quad {0.0, 0.0, 100, 100, 1, 255, 255, 255, 0});
+    coordinator.AddComponent<Quad>(testEntity, Quad {200, 200, 0, 100, 100, 255, 255, 255, 0});
     coordinator.AddComponent<Texture>(testEntity, Texture{"", 0});
     
     for (int i = 0; i < 100; i++)
