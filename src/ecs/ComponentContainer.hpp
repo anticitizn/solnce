@@ -4,6 +4,8 @@
 #include <array>
 #include <iostream>
 #include <unordered_map>
+#include <cassert>
+
 #include "Utils.hpp"
 
 using namespace std;
@@ -40,18 +42,23 @@ public:
 
     void RemoveData(const Entity entity)
     {
-        // Removes the component data of the entity and moves last entry of array 
-        // into the gap to keep the array packed and cache-friendly
+		assert(entityIndexMap.find(entity) != entityIndexMap.end() && "Removing non-existent component.");
 
-        int removedIndex = entityIndexMap[entity];
-        entityIndexMap.erase(entity);
-        componentArray[removedIndex] = componentArray[dataSize - 1];
+		// Copy element at end into deleted element's place to maintain density
+		size_t indexOfRemovedEntity = entityIndexMap[entity];
+		size_t indexOfLastElement = dataSize - 1;
+		componentArray[indexOfRemovedEntity] = componentArray[indexOfLastElement];
 
-        Entity replacedEntity = indexEntityMap[dataSize - 1];
-        entityIndexMap.at(replacedEntity) = removedIndex;
-        indexEntityMap.at(removedIndex) = replacedEntity;
+		// Update map to point to moved spot
+		Entity entityOfLastElement = indexEntityMap[indexOfLastElement];
+		entityIndexMap[entityOfLastElement] = indexOfRemovedEntity;
+		indexEntityMap[indexOfRemovedEntity] = entityOfLastElement;
 
-        dataSize--;
+		entityIndexMap.erase(entity);
+		indexEntityMap.erase(indexOfLastElement);
+
+		--dataSize;
+
     }
 
     T& GetData(const Entity entity) 
@@ -62,7 +69,10 @@ public:
 
     void EntityDestroyed(const Entity entity) override 
     {
-        RemoveData(entity);
+        if (entityIndexMap.find(entity) != entityIndexMap.end())
+		{
+			RemoveData(entity);
+		}
     }
 
 private:
