@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 #include <memory>
+#include <math.h>
+#include <typeinfo>
 
 #include <src/ecs/ECS.hpp>
 #include <src/systems/RenderingSystem.hpp>
@@ -34,9 +36,8 @@ int main(int argc, char *argv[])
     coordinator.AddComponent<Quad>(testEntity, Quad {200, 200, 0, 100, 100, 255, 255, 255, 45});
     coordinator.AddComponent<Texture>(testEntity, Texture{"", 0});
     
-    for (int i = 0; i < 500; i++)
+    while(true)
     {
-        
         renderingSystem->Render();
     }
     

@@ -10,6 +10,7 @@
 #include <src/ecs/System.hpp>
 #include <src/components/Texture.hpp>
 #include <src/components/Quad.hpp>
+#include <src/ui/Window.hpp>
 
 #include <external/glm/glm.hpp>
 #include <external/stb/stb_image.h>
@@ -28,6 +29,8 @@ public:
         texturesPath = TexturesPath;
 
         windowManager.Init("SOLNCE", false);
+        Window newWindow;
+        windowManager.AddWindow(newWindow);
         InitOpenGL();
         LoadInitialTextures();
         shaderManager.Init(shadersPath);
