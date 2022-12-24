@@ -168,7 +168,7 @@ private:
     void LoadInitialTextures()
     {
         // texture 1 serves as missing texture image
-        LoadTexture("missing-texture");
+        LoadTexture("missing-texture.png");
     }
 
     void LoadTextures()
@@ -196,8 +196,8 @@ private:
         // load the image file
         int imgWidth, imgHeight, nrChannels;
         
-        stbi_set_flip_vertically_on_load(true);
-        unsigned char* data = stbi_load((texturesPath + filename + ".png").c_str(), &imgWidth, &imgHeight, &nrChannels, 0);
+        stbi_set_flip_vertically_on_load(false);
+        unsigned char* data = stbi_load((texturesPath + filename).c_str(), &imgWidth, &imgHeight, &nrChannels, 0);
     
         if (data)
         {

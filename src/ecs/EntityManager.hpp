@@ -36,6 +36,8 @@ public:
 
     void DestroyEntity(Entity entity)
     {
+        assert(entity < MAX_ENTITIES && "Entity out of range.");
+
         signatures[entity].reset();
         unusedEntities.push(entity);
         livingEntities--;
@@ -48,6 +50,8 @@ public:
 
     Signature GetSignature(Entity entity)
     {
+        assert(entity < MAX_ENTITIES && "Entity out of range.");
+        
         return signatures[entity];
     }
 

@@ -2,6 +2,9 @@ solnce
 assets
 imgui.ini
 
+/*.xml
+/*.json
+
 *.a
 *.o
 CMakeLists.txt.user

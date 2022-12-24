@@ -6,6 +6,10 @@
 #include <unordered_map>
 #include <cassert>
 
+#include <external/cereal/cereal.hpp>
+#include <cereal/archives/xml.hpp>
+#include <external/cereal/types/set.hpp>
+
 #include "Utils.hpp"
 
 using namespace std;
@@ -20,17 +24,6 @@ template <class T>
 class ComponentContainer : public IComponentContainer
 {
 public:
-    void InsertData(const Entity entity)
-    {
-        T component;
-
-        componentArray[dataSize] = component;
-        entityIndexMap.insert({entity, component});
-        indexEntityMap.insert({component, entity});
-
-        dataSize++;
-    }
-
     void InsertData(const Entity entity, const T component)
     {
         componentArray[dataSize] = component;
@@ -58,13 +51,19 @@ public:
 		indexEntityMap.erase(indexOfLastElement);
 
 		--dataSize;
-
     }
 
     T& GetData(const Entity entity) 
     {
-        int index = entityIndexMap[entity];
-        return componentArray[index];
+        assert(entityIndexMap.find(entity) != entityIndexMap.end() && "Retrieving non-existent component.");
+
+        ofstream filestream("entity_test.xml");
+        {
+            cereal::XMLOutputArchive archive(filestream);
+            archive(componentArray[entityIndexMap[entity]]);
+        }
+
+        return componentArray[entityIndexMap[entity]];
     }
 
     void EntityDestroyed(const Entity entity) override 

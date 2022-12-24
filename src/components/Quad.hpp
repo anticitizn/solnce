@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <external/cereal/cereal.hpp>
+
 struct Quad
 {
     float posX;
@@ -12,4 +14,10 @@ struct Quad
     float g;
     float b;
     float rot;
+
+    template<class Archive>
+    void serialize(Archive& archive)
+    {
+        archive(posX, posY, posZ, sizeX, sizeY, r, g, b, rot);
+    }
 };
