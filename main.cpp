@@ -11,8 +11,12 @@
 #include <src/systems/SaveSystem.hpp>
 #include <src/components/Texture.hpp>
 #include <src/components/Quad.hpp>
+#include <src/Foo.hpp>
+#include <src/Bar.hpp>
 
-#include <external/cereal/cereal.hpp>
+#include <fstream>
+
+#include <cereal/archives/xml.hpp>
 
 using namespace std;
 
@@ -20,6 +24,19 @@ extern Coordinator coordinator;
 
 int main(int argc, char *argv[])
 {
+    Foo<Bar> foo;
+
+    ofstream filestream("test.xml");
+    {
+        cereal::XMLOutputArchive archive(filestream);
+        archive(CEREAL_NVP(foo));
+    }
+
+    filestream.flush();
+    filestream.close();
+
+    cout << "Archived" << endl;
+
     coordinator.RegisterComponent<Texture>();
     coordinator.RegisterComponent<Quad>();
 

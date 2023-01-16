@@ -12,6 +12,9 @@ struct Texture
     template<class Archive>
     void serialize(Archive& archive)
     {
-        archive(filename, id);
+        archive(
+            CEREAL_NVP(filename), 
+            CEREAL_NVP(id)
+        );
     }
 };

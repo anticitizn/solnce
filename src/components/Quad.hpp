@@ -18,6 +18,16 @@ struct Quad
     template<class Archive>
     void serialize(Archive& archive)
     {
-        archive(posX, posY, posZ, sizeX, sizeY, r, g, b, rot);
+        archive(
+            CEREAL_NVP(posX), 
+            CEREAL_NVP(posY), 
+            CEREAL_NVP(posZ), 
+            CEREAL_NVP(sizeX), 
+            CEREAL_NVP(sizeY), 
+            CEREAL_NVP(r), 
+            CEREAL_NVP(g), 
+            CEREAL_NVP(b), 
+            CEREAL_NVP(rot)
+        );
     }
 };
