@@ -20,14 +20,6 @@ extern Coordinator coordinator;
 
 int main(int argc, char *argv[])
 {
-    pugi::xml_document doc;
-    auto declarationNode = doc.append_child(pugi::node_declaration);
-
-    auto root = doc.append_child("root");
-    auto nodeChild = root.append_child("child1");
-    nodeChild.append_child(pugi::node_pcdata).set_value(to_string(15.374).c_str());
-    doc.save_file("test2.xml", PUGIXML_TEXT("  "));
-
     coordinator.RegisterComponent<Texture>();
     coordinator.RegisterComponent<Quad>();
 
@@ -50,13 +42,22 @@ int main(int argc, char *argv[])
         coordinator.SetSystemSignature<MovingSystem>(signature); 
     }
     
+    Entity testEntity;
     for (int i = 0; i < 10; i++)
     {
         Entity entity = coordinator.CreateEntity();
+        testEntity = entity;
         coordinator.AddComponent<Quad>(entity, Quad {50.0f * i, 50.0f * i, 0, 50, 50, 255, 255, 255, 0});
         coordinator.AddComponent<Texture>(entity, Texture{"", 0});
     }
 
+    Quad& quad = coordinator.GetComponent<Quad>(testEntity);
+    pugi::xml_document doc;
+    auto declarationNode = doc.append_child(pugi::node_declaration);
+
+    auto root = doc.append_child("root");
+    quad.archive(root);
+    doc.save_file("test.xml", PUGIXML_TEXT("  "));
     while(true)
     {
         movingSystem->Update();
