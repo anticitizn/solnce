@@ -6,10 +6,6 @@
 #include <unordered_map>
 #include <cassert>
 
-#include <external/cereal/cereal.hpp>
-#include <cereal/archives/xml.hpp>
-#include <external/cereal/types/set.hpp>
-
 #include "Utils.hpp"
 
 using namespace std;
@@ -56,12 +52,6 @@ public:
     T& GetData(const Entity entity) 
     {
         assert(entityIndexMap.find(entity) != entityIndexMap.end() && "Retrieving non-existent component.");
-
-        ofstream filestream("entity_test.xml");
-        {
-            cereal::XMLOutputArchive archive(filestream);
-            archive(componentArray[entityIndexMap[entity]]);
-        }
 
         return componentArray[entityIndexMap[entity]];
     }
