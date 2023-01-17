@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
     for (int i = 0; i < 10; i++)
     {
         Entity entity = coordinator.CreateEntity();
-        coordinator.AddComponent<Quad>(entity, Quad {50*i, 50*i, 0, 50, 50, 255, 255, 255, 0});
+        coordinator.AddComponent<Quad>(entity, Quad {50.0f * i, 50.0f * i, 0, 50, 50, 255, 255, 255, 0});
         coordinator.AddComponent<Texture>(entity, Texture{"", 0});
     }
 
