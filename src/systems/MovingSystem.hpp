@@ -22,7 +22,7 @@ public:
             auto& quad = coordinator.GetComponent<Quad>(entity);
             if (quad.posX <= limitX)
             {
-                quad.posX += 5;
+                quad.posX += 1;
             }
             else
             {

@@ -29,10 +29,13 @@ public:
         texturesPath = TexturesPath;
 
         windowManager.Init("SOLNCE", false);
+        
         Window newWindow;
         windowManager.AddWindow(newWindow);
+
         InitOpenGL();
         LoadInitialTextures();
+
         shaderManager.Init(shadersPath);
         shaderManager.Activate();
 

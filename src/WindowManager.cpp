@@ -21,9 +21,11 @@ void WindowManager::Init(string windowName, bool fullscreen, unsigned int window
 
 	atexit(SDL_Quit);
 
+	SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "1");
+
     Uint32 windowedFlag = fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_SHOWN;
-	sdl_window = SDL_CreateWindow("Solnce", windowPosX, windowPosY, windowSizeX, windowSizeY, SDL_WINDOW_OPENGL | windowedFlag);
-	SDL_MaximizeWindow(sdl_window);
+	sdl_window = SDL_CreateWindow("Solnce", windowPosX, windowPosY, windowSizeX, windowSizeY, SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI | windowedFlag);
+	//SDL_MaximizeWindow(sdl_window);
 	
 	if (sdl_window == NULL)
 	{
@@ -43,7 +45,7 @@ void WindowManager::Init(string windowName, bool fullscreen, unsigned int window
 
 	SDL_SetRelativeMouseMode(SDL_FALSE);
 
-	SDL_GetWindowSize(sdl_window, &contextWidth, &contextHeight);
+	SDL_GL_GetDrawableSize(sdl_window, &contextWidth, &contextHeight);
 	cout << "Resolution is " << contextWidth << "/" << contextHeight << endl;
 
 	IMGUI_CHECKVERSION();
@@ -58,7 +60,6 @@ void WindowManager::Init(string windowName, bool fullscreen, unsigned int window
 
 void WindowManager::Refresh()
 {
-    
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
 	{
