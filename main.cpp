@@ -52,12 +52,14 @@ int main(int argc, char *argv[])
     }
 
     Quad& quad = coordinator.GetComponent<Quad>(testEntity);
+
     pugi::xml_document doc;
     auto declarationNode = doc.append_child(pugi::node_declaration);
 
     auto root = doc.append_child("root");
     quad.archive(root);
     doc.save_file("test.xml", PUGIXML_TEXT("  "));
+
     while(true)
     {
         movingSystem->Update();
