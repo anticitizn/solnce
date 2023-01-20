@@ -8,12 +8,15 @@
 
 #include "Utils.hpp"
 
+#include <external/pugixml/pugixml.hpp>
+
 using namespace std;
 
 class IComponentContainer
 {
 public:
     virtual void EntityDestroyed(const Entity entity) = 0;
+    virtual void ArchiveEntity(pugi::xml_node& root, const Entity entity) = 0;
 };
 
 template <class T>
@@ -62,6 +65,14 @@ public:
 		{
 			RemoveData(entity);
 		}
+    }
+
+    void ArchiveEntity(pugi::xml_node& root, const Entity entity)
+    {
+        if (entityIndexMap.find(entity) != entityIndexMap.end())
+        {
+            GetData(entity).archive(root);
+        }
     }
 
 private:

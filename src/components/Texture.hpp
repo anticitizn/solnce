@@ -15,6 +15,5 @@ struct Texture
         pugi::xml_node quad = root.append_child("texture");
         
         ARCHIVE_VAR(quad, filename);
-        ARCHIVE_VAR(quad, id);
     }
 };

@@ -3,8 +3,11 @@
 
 #include <memory>
 #include <unordered_map>
+
 #include "Utils.hpp"
 #include "ComponentContainer.hpp"
+
+#include <external/pugixml/pugixml.hpp>
 
 using namespace std;
 
@@ -15,7 +18,8 @@ public:
     void RegisterComponent()
     {
         const char* typeName = typeid(T).name();
-        componentTypes.insert({typeName, nextComponentType});;
+        componentTypes.insert({typeName, nextComponentType});
+        typeComponents.insert({nextComponentType, typeName});
         componentContainers.insert({typeName, make_shared<ComponentContainer<T>>()});
 
         nextComponentType++;
@@ -55,8 +59,18 @@ public:
         }
     }
 
+    void ArchiveEntity(pugi::xml_node& root, Entity entity)
+    {
+        for (auto const& pair : componentContainers)
+        {
+            auto const& component = pair.second;
+            component->ArchiveEntity(root, entity);
+        }
+    }
+
 private:
     unordered_map<const char*, ComponentType> componentTypes {};
+    unordered_map<ComponentType, const char*> typeComponents {};
     unordered_map<const char *, shared_ptr<IComponentContainer>> componentContainers {};
     ComponentType nextComponentType = 0;
 

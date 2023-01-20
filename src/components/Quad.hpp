@@ -3,6 +3,8 @@
 
 #include <src/utils/macros.hpp>
 
+#include <external/pugixml/pugixml.hpp>
+
 struct Quad
 {
     float posX;

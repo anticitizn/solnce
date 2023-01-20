@@ -1,10 +1,13 @@
 #pragma once
 
 #include <memory>
+
 #include "Utils.hpp"
 #include "ComponentManager.hpp"
 #include "EntityManager.hpp"
 #include "SystemManager.hpp"
+
+#include <external/pugixml/pugixml.hpp>
 
 class Coordinator
 {
@@ -85,6 +88,12 @@ public:
     int GetEntitiesCount()
     {
         return entityManager->GetEntitiesCount();
+    }
+
+    void ArchiveEntity(pugi::xml_node& root, Entity entity)
+    {
+        pugi::xml_node entityNode = root.append_child("entity");
+        componentManager->ArchiveEntity(entityNode, entity);
     }
 
 private:
