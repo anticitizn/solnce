@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <external/cereal/cereal.hpp>
+#include <src/utils/macros.hpp>
 
 struct Quad
 {
@@ -15,9 +15,18 @@ struct Quad
     float b;
     float rot;
 
-    template<class Archive>
-    void serialize(Archive& archive)
+    void archive(pugi::xml_node& root)
     {
-        archive(posX, posY, posZ, sizeX, sizeY, r, g, b, rot);
+        pugi::xml_node quad = root.append_child("quad");
+
+        ARCHIVE_VAR(quad, posX);
+        ARCHIVE_VAR(quad, posY);
+        ARCHIVE_VAR(quad, posZ);
+        ARCHIVE_VAR(quad, sizeX);
+        ARCHIVE_VAR(quad, sizeY);
+        ARCHIVE_VAR(quad, r);
+        ARCHIVE_VAR(quad, g);
+        ARCHIVE_VAR(quad, b);
+        ARCHIVE_VAR(quad, rot);
     }
 };

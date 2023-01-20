@@ -33,4 +33,4 @@ target_compile_definitions(imgui PUBLIC GL_GLEXT_PROTOTYPES=1)
 add_executable(${PROJECT_NAME} ${SOURCES} main.cpp)
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}" ${SDL2_INCLUDE_DIRS} external)
-target_link_libraries(${PROJECT_NAME} "${EXT_SOURCE_DIR}/glad/glad.cpp" ${SDL2_LIBRARIES} ${CMAKE_DL_LIBS} imgui)
+target_link_libraries(${PROJECT_NAME} "${EXT_SOURCE_DIR}/glad/glad.cpp" "${EXT_SOURCE_DIR}/pugixml/pugixml.cpp" ${SDL2_LIBRARIES} ${CMAKE_DL_LIBS} imgui)

@@ -2,16 +2,19 @@
 #pragma once
 
 #include <string>
-#include <external/cereal/cereal.hpp>
+
+#include <src/utils/macros.hpp>
 
 struct Texture
 {
     string filename;
     unsigned int id = 0;
 
-    template<class Archive>
-    void serialize(Archive& archive)
+    void archive(pugi::xml_node& root)
     {
-        archive(filename, id);
+        pugi::xml_node quad = root.append_child("texture");
+        
+        ARCHIVE_VAR(quad, filename);
+        ARCHIVE_VAR(quad, id);
     }
 };
