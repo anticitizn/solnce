@@ -1,18 +1,11 @@
 
 #pragma once
 
-#include <string>
-#include <iostream>
-
-#include <src/components/Quad.hpp>
-
 #include <src/ecs/System.hpp>
 
 using namespace std;
 
-extern Coordinator coordinator;
-
-class MovingSystem : public System
+class OrbitalSystem : public System
 {
 public:
     void Update()
@@ -33,7 +26,6 @@ public:
     }
 
 private:
-    int limitX = 800;
-};
 
 
+}

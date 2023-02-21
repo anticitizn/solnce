@@ -12,7 +12,7 @@ struct Texture
 
     void archive(pugi::xml_node& root)
     {
-        pugi::xml_node quad = root.append_child("texture");
+        pugi::xml_node arch = root.append_child("texture");
         
         ARCHIVE_VAR(quad, filename);
     }

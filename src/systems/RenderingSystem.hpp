@@ -106,14 +106,19 @@ public:
 private:
     string texturesPath;
     string shadersPath;
+    
     WindowManager windowManager;
     ShaderManager shaderManager;
+
     unordered_map<string, unsigned int> filenamesTextures;
+
     unsigned int quadVBO;
     unsigned int instanceVBO;
     unsigned int VAO;
+
     glm::mat4 cameraProjection;
     int maxQuads = 100;
+
     vector<shared_ptr<Window>> windows;
 
     float quadVertices[24] = {

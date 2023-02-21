@@ -3,8 +3,6 @@
 
 #include <src/utils/macros.hpp>
 
-#include <external/pugixml/pugixml.hpp>
-
 struct Quad
 {
     float posX;
@@ -19,16 +17,16 @@ struct Quad
 
     void archive(pugi::xml_node& root)
     {
-        pugi::xml_node quad = root.append_child("quad");
+        pugi::xml_node arch = root.append_child("Quad");
 
-        ARCHIVE_VAR(quad, posX);
-        ARCHIVE_VAR(quad, posY);
-        ARCHIVE_VAR(quad, posZ);
-        ARCHIVE_VAR(quad, sizeX);
-        ARCHIVE_VAR(quad, sizeY);
-        ARCHIVE_VAR(quad, r);
-        ARCHIVE_VAR(quad, g);
-        ARCHIVE_VAR(quad, b);
-        ARCHIVE_VAR(quad, rot);
+        ARCHIVE_VAR(arch, posX);
+        ARCHIVE_VAR(arch, posY);
+        ARCHIVE_VAR(arch, posZ);
+        ARCHIVE_VAR(arch, sizeX);
+        ARCHIVE_VAR(arch, sizeY);
+        ARCHIVE_VAR(arch, r);
+        ARCHIVE_VAR(arch, g);
+        ARCHIVE_VAR(arch, b);
+        ARCHIVE_VAR(arch, rot);
     }
 };
