@@ -21,12 +21,10 @@ public:
     void Exit();
     int GetContextWidth();
     int GetContextHeight();
-    void AddWindow(Window window);
+    void SwapBuffers();
 
 private:
     SDL_Window* sdl_window;
     int contextWidth;
     int contextHeight;
-
-    vector<Window> windows;
 };

@@ -1,6 +1,7 @@
 #include "WindowManager.hpp"
 
 #include <iostream>
+
 #include <external/imgui/imgui.h>
 #include <external/imgui/imgui_impl_sdl.h>
 #include <external/imgui/imgui_impl_opengl3.h>
@@ -67,23 +68,11 @@ void WindowManager::Refresh()
 			Exit();
 		if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(sdl_window))
 			Exit();
-	}
+	}	
+}
 
-	// Start the Dear ImGui frame
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplSDL2_NewFrame();
-	ImGui::NewFrame();
-
-	for (int i = 0; i < windows.size(); i++)
-	{
-		windows[i].Draw();
-	}
-	bool showDemoWindow = true;
-	ImGui::ShowDemoWindow(&showDemoWindow);
-
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
+void WindowManager::SwapBuffers()
+{
 	SDL_GL_SwapWindow(sdl_window);
 }
 
@@ -102,9 +91,4 @@ int WindowManager::GetContextWidth()
 int WindowManager::GetContextHeight()
 {
 	return contextHeight;
-}
-
-void WindowManager::AddWindow(Window window)
-{
-	windows.push_back(window);
 }

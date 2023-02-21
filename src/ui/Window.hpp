@@ -9,15 +9,7 @@ class Window
 {
 public:
     bool display = true;
-    virtual void Draw()
-    {
-        if (display)
-        {
-            ImGui::Begin("Window");
-            ImGui::Text("This is an empty window");
-            ImGui::End();
-        }
-    }
+    virtual void Draw() = 0;
 
 private:
     

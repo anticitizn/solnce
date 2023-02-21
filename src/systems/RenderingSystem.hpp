@@ -16,6 +16,10 @@
 #include <external/stb/stb_image.h>
 #include <external/glad/glad.h>
 
+#include <external/imgui/imgui.h>
+#include <external/imgui/imgui_impl_sdl.h>
+#include <external/imgui/imgui_impl_opengl3.h>
+
 using namespace std;
 
 extern Coordinator coordinator;
@@ -29,8 +33,6 @@ public:
         texturesPath = TexturesPath;
 
         windowManager.Init("SOLNCE", false);
-        Window newWindow;
-        windowManager.AddWindow(newWindow);
         InitOpenGL();
         LoadInitialTextures();
         shaderManager.Init(shadersPath);
@@ -79,6 +81,26 @@ public:
 
         windowManager.Refresh();
 
+        // Render UI
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplSDL2_NewFrame();
+        ImGui::NewFrame();
+
+        for (int i = 0; i < windows.size(); i++)
+        {
+            windows[i]->Draw();
+        }
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        windowManager.SwapBuffers();
+
+    }
+
+    void AddWindow(shared_ptr<Window> window)
+    {
+        windows.push_back(window);
     }
 
 private:
@@ -92,6 +114,7 @@ private:
     unsigned int VAO;
     glm::mat4 cameraProjection;
     int maxQuads = 100;
+    vector<shared_ptr<Window>> windows;
 
     float quadVertices[24] = {
         // positions,  texture coordinates

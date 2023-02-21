@@ -12,6 +12,8 @@
 #include <src/components/Texture.hpp>
 #include <src/components/Quad.hpp>
 
+#include <src/ui/TestWindow.hpp>
+
 #include <external/pugixml/pugixml.hpp>
 
 using namespace std;
@@ -57,6 +59,9 @@ int main(int argc, char *argv[])
     auto root = doc.append_child("root");
     coordinator.ArchiveEntity(root, testEntity);
     doc.save_file("test.xml", PUGIXML_TEXT("  "));
+
+    shared_ptr<Window> testWindow = make_shared<TestWindow>(coordinator.GetComponent<Quad>(testEntity));
+    renderingSystem->AddWindow(testWindow);
 
     while(true)
     {
