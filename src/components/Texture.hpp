@@ -14,6 +14,6 @@ struct Texture
     {
         pugi::xml_node arch = root.append_child("texture");
         
-        ARCHIVE_VAR(quad, filename);
+        ARCHIVE_VAR(arch, filename);
     }
 };
