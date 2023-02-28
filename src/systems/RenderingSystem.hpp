@@ -86,7 +86,7 @@ public:
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
 
-        for (int i = 0; i < windows.size(); i++)
+        for (long unsigned int i = 0; i < windows.size(); i++)
         {
             windows[i]->Draw();
         }

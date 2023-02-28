@@ -49,12 +49,12 @@ int main(int argc, char *argv[])
     {
         Entity entity = coordinator.CreateEntity();
         testEntity = entity;
-        coordinator.AddComponent<Quad>(entity, Quad {50*i, 50*i, 0, 50, 50, 255, 255, 255, 0});
+        coordinator.AddComponent<Quad>(entity, Quad {50.0f*i, 50.0f*i, 0, 50, 50, 255, 255, 255, 0});
         coordinator.AddComponent<Texture>(entity, Texture{"", 0});
     }
 
     pugi::xml_document doc;
-    auto declarationNode = doc.append_child(pugi::node_declaration);
+    doc.append_child(pugi::node_declaration);
 
     auto root = doc.append_child("root");
     coordinator.ArchiveEntity(root, testEntity);

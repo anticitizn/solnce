@@ -45,7 +45,7 @@ public:
             fragmentCode = fShaderStream.str();
 			
         }
-        catch(ifstream::failure e)
+        catch(ifstream::failure& e)
         {
             cout << "ERROR: SHADER FILE NOT SUCCESSFULLY READ" << endl;
         }
