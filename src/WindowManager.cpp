@@ -14,7 +14,7 @@ void WindowManager::Init(string windowName, bool fullscreen, unsigned int window
 {
     cout << "Initializing SDL" << endl;
 
-	if (SDL_Init(SDL_INIT_VIDEO || SDL_INIT_AUDIO) == -1)
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == -1)
 	{
 		cout << "SDL initialization failed " << SDL_GetError();
 		exit(-1);

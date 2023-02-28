@@ -67,7 +67,7 @@ public:
 		}
     }
 
-    void ArchiveEntity(pugi::xml_node& root, const Entity entity)
+    void ArchiveEntity(pugi::xml_node& root, const Entity entity) override
     {
         if (entityIndexMap.find(entity) != entityIndexMap.end())
         {
