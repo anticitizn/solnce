@@ -1,0 +1,4 @@
+services:
+  solnce-build:
+    build: .
+    container_name: solnce_build
