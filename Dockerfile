@@ -8,5 +8,3 @@ RUN apt update \
     apt-utils build-essential clang cmake libsdl2-dev libc6 libc-bin
 
 WORKDIR /usr/src/solnce/
-
-CMD ["bash", "./build.sh"]

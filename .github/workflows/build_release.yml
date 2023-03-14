@@ -21,4 +21,4 @@ jobs:
           prerelease: false
           title: "Development Build"
           files: |
-            solnce
+            solnce.zip
