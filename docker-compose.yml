@@ -2,5 +2,5 @@ services:
   solnce-build:
     build: .
     container_name: solnce_build
-  volumes:
-    - .:/usr/src/solnce/
+    volumes:
+      - .:/usr/src/solnce/
