@@ -9,7 +9,7 @@ apt install build-essential clang cmake libsdl2-dev libc6 libc-bin
 ```
 2. Run the build script
 ```
-sh ./build.sh`
+sh ./build.sh
 ```
 An executable named `solnce` will be generated. Beware when packaging that the executable expects `assets/` and `src/shaders/` to be present in the same directory.
 
