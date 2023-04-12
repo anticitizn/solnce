@@ -4,6 +4,6 @@ if [ ! -d "build" ]; then
 fi
 
 cd build
-cmake ../
+cmake ../ -DCMAKE_TOOLCHAIN_FILE="../windows.cmake"
 make -j $(nproc)
 cd ..

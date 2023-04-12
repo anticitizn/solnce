@@ -14,6 +14,8 @@ set(SDL_SHARED OFF CACHE BOOL "" FORCE)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}")
 set(EXT_SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/")
 
+set(SDL2_LIBRARIES "${CMAKE_CURRENT_LIST_DIR}/lib/x64/SDL2.lib;${CMAKE_CURRENT_LIST_DIR}/lib/x64/SDL2main.lib")
+
 add_library(imgui
     # Main Imgui files
     external/imgui/imgui.cpp external/imgui/imgui_draw.cpp
