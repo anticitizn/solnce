@@ -5,7 +5,7 @@ file(GLOB SOURCES src/*.cpp)
 
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O -pthread -static-libstdc++ -static-libgcc -static")
 
 set(SDL_STATIC ON CACHE BOOL "" FORCE)
 set(SDL_SHARED OFF CACHE BOOL "" FORCE)
@@ -21,7 +21,7 @@ endif()
 #add_library(SDL2 SHARED IMPORTED)
 #set_target_properties(SDL2 PROPERTIES IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/lib/x64/SDL2.lib;${CMAKE_CURRENT_LIST_DIR}/lib/x64/SDL2main.lib")
 
-set(SDL2_DIR "${EXT_SOURCE_DIR}/sdl/x86_64-w64-mingw32/lib/cmake/SDL2")
+set(SDL2_DIR "${EXT_SOURCE_DIR}/sdl/cmake")
 set(SDL2_INCLUDE_DIRS "${EXT_SOURCE_DIR}/sdl/x86_64-w64-mingw32/include/SDL2")
 
 find_package(SDL2 REQUIRED)

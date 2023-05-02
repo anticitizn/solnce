@@ -20,7 +20,7 @@ using namespace std;
 
 extern Coordinator coordinator;
 
-int main(int argc, char *argv[])
+int WinMain(int argc, char *argv[])
 {
     coordinator.RegisterComponent<Texture>();
     coordinator.RegisterComponent<Quad>();
