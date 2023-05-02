@@ -3,6 +3,8 @@ name: Windows Build
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    branches:
+      - windows
 
 jobs:
   build_and_release:
