@@ -1,0 +1,26 @@
+name: Windows Build
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    branches:
+      - windows
+
+jobs:
+  build_and_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+          
+      - name: Compile project
+        run: docker-compose up
+        
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "windows-latest"
+          prerelease: false
+          title: "Windows Dev Build"
+          files: |
+            solnce.zip
