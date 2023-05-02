@@ -3,8 +3,7 @@ project(solnce)
 
 file(GLOB SOURCES src/*.cpp)
 
-find_package(SDL2 REQUIRED)
-
+set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O -pthread")
 
@@ -12,9 +11,20 @@ set(SDL_STATIC ON CACHE BOOL "" FORCE)
 set(SDL_SHARED OFF CACHE BOOL "" FORCE)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}")
-set(EXT_SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/")
+set(EXT_SOURCE_DIR "${CMAKE_SOURCE_DIR}/external")
 
-set(SDL2_LIBRARIES "${CMAKE_CURRENT_LIST_DIR}/lib/x64/SDL2.lib;${CMAKE_CURRENT_LIST_DIR}/lib/x64/SDL2main.lib")
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  set(MINGW_INCLUDE_PATH /usr/x86_64-w64-mingw32/include)
+  include_directories(${MINGW_INCLUDE_PATH})
+endif()
+
+#add_library(SDL2 SHARED IMPORTED)
+#set_target_properties(SDL2 PROPERTIES IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/lib/x64/SDL2.lib;${CMAKE_CURRENT_LIST_DIR}/lib/x64/SDL2main.lib")
+
+set(SDL2_DIR "${EXT_SOURCE_DIR}/sdl/x86_64-w64-mingw32/lib/cmake/SDL2")
+set(SDL2_INCLUDE_DIRS "${EXT_SOURCE_DIR}/sdl/x86_64-w64-mingw32/include/SDL2")
+
+find_package(SDL2 REQUIRED)
 
 add_library(imgui
     # Main Imgui files
@@ -34,4 +44,4 @@ target_compile_definitions(imgui PUBLIC GL_GLEXT_PROTOTYPES=1)
 add_executable(${PROJECT_NAME} ${SOURCES} main.cpp)
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}" ${SDL2_INCLUDE_DIRS} external)
-target_link_libraries(${PROJECT_NAME} "${EXT_SOURCE_DIR}/glad/glad.cpp" "${EXT_SOURCE_DIR}/pugixml/pugixml.cpp" ${SDL2_LIBRARIES} ${CMAKE_DL_LIBS} imgui)
+target_link_libraries(${PROJECT_NAME} "${EXT_SOURCE_DIR}/glad/glad.cpp" "${EXT_SOURCE_DIR}/pugixml/pugixml.cpp" SDL2::SDL2-static ${CMAKE_DL_LIBS} imgui)
