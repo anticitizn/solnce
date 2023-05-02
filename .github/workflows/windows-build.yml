@@ -1,4 +1,4 @@
-name: CI Build and Release
+name: Windows Build
 
 on:
   # Allows you to run this workflow manually from the Actions tab
@@ -17,8 +17,8 @@ jobs:
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
+          automatic_release_tag: "windows-latest"
           prerelease: false
-          title: "Development Build"
+          title: "Windows Dev Build"
           files: |
             solnce.zip
