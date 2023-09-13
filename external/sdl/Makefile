@@ -9,7 +9,7 @@ all install:
 	@echo "Type \"make cross\" to install 32-bit and 64-bit to $(CROSS_PATH)"
 
 native:
-	make install-package arch=x86_64-w64-mingw32 prefix=/usr
+	make install-package arch=i686-w64-mingw32 prefix=/usr
 
 cross:
 	for arch in $(ARCHITECTURES); do \
