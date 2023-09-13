@@ -6,11 +6,11 @@ RUN apt update \
     && apt install -y --no-install-recommends \
     apt-utils zip build-essential cmake mingw-w64
 
-#RUN mkdir /usr/local/x86_64-w64-mingw32
+RUN mkdir /usr/local/x86_64-w64-mingw32
 
 WORKDIR /usr/src/solnce/external/sdl
 COPY external/sdl ./
 
-RUN make native
+RUN make cross
 
 WORKDIR /usr/src/solnce/
