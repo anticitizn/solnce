@@ -4,4 +4,4 @@ services:
     container_name: solnce_build
     volumes:
       - .:/usr/src/solnce/
-    command: bash -c "./build.sh && zip -r solnce.zip assets/ src/shaders/ solnce"
+    command: bash -c "./build.sh && zip -r solnce.zip assets/ src/shaders/ solnce.exe"
