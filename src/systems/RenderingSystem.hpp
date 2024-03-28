@@ -247,7 +247,7 @@ private:
         else
         {
             // with texture = 1 the system won't try to load the texture anymore
-            cout << "WARNING: Failed to load texture | " << filename  << " | at " << texturesPath + filename + ".png" << endl;
+            cout << "WARNING: Failed to load texture | " << filename  << " | at " << texturesPath + filename << endl;
             return 1;
         }
 
