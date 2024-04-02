@@ -49,7 +49,6 @@ void WindowManager::Init(string windowName, bool fullscreen, unsigned int window
 
 	IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
 
 	ImGui::StyleColorsDark();
 

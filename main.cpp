@@ -29,8 +29,6 @@ extern Coordinator coordinator;
 
 int main(int argc, char *argv[])
 {
-    InputManager inputManager;
-
     coordinator.RegisterComponent<Texture>();
     coordinator.RegisterComponent<Quad>();
     coordinator.RegisterComponent<ResourceStorage>();
@@ -48,6 +46,8 @@ int main(int argc, char *argv[])
     }
 
     renderingSystem->Init("assets/", "src/shaders/");
+
+    InputManager inputManager;
 
     shared_ptr<ResourceSystem> resourceSystem = coordinator.RegisterSystem<ResourceSystem>();
     {
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
     coordinator.AddComponent<ResourceStorage>(playerData, ResourceStorage {0, 0, 0});
 
     Entity farm = coordinator.CreateEntity();
-    coordinator.AddComponent<Quad>(farm, Quad {50.0f, 50.0f, 0, 50, 50, 255, 255, 255, 0});
+    coordinator.AddComponent<Quad>(farm, Quad {50.0f, 50.0f, 0, 100, 100, 255, 255, 255, 45});
     coordinator.AddComponent<Texture>(farm, Texture{"wall.jpg", 0});
     coordinator.AddComponent<ResourceGenerator>(farm, ResourceGenerator {0, 1, 0, 5, playerData});
 

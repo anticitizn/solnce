@@ -28,6 +28,18 @@ public:
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
+            auto& io = ImGui::GetIO();
+            ImGui_ImplSDL2_ProcessEvent(&event);
+            if (io.WantCaptureMouse || io.WantCaptureKeyboard)
+            {
+                continue;
+            }
+
+            if(event.type == SDL_QUIT)
+            {
+                exit(0);
+            }
+
             events.push_back(event);
         }
     }
