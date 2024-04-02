@@ -7,13 +7,17 @@
 #include <typeinfo>
 
 #include <src/ecs/ECS.hpp>
+#include <src/systems/InputSystem.hpp>
 #include <src/systems/RenderingSystem.hpp>
 #include <src/systems/MovingSystem.hpp>
 #include <src/systems/ResourceSystem.hpp>
 #include <src/components/Texture.hpp>
 #include <src/components/Quad.hpp>
+#include <src/components/Selected.hpp>
+#include <src/components/Dragged.hpp>
 #include <src/components/ResourceStorage.hpp>
 #include <src/components/ResourceGenerator.hpp>
+#include <src/InputManager.hpp>
 
 #include <src/ui/TestWindow.hpp>
 
@@ -25,10 +29,14 @@ extern Coordinator coordinator;
 
 int main(int argc, char *argv[])
 {
+    InputManager inputManager;
+
     coordinator.RegisterComponent<Texture>();
     coordinator.RegisterComponent<Quad>();
     coordinator.RegisterComponent<ResourceStorage>();
     coordinator.RegisterComponent<ResourceGenerator>();
+    coordinator.RegisterComponent<Selected>();
+    coordinator.RegisterComponent<Dragged>();
 
     shared_ptr<RenderingSystem> renderingSystem = coordinator.RegisterSystem<RenderingSystem>();
     
@@ -41,22 +49,30 @@ int main(int argc, char *argv[])
 
     renderingSystem->Init("assets/", "src/shaders/");
 
-    shared_ptr<MovingSystem> movingSystem = coordinator.RegisterSystem<MovingSystem>();
-
-    {
-        Signature signature;
-        signature.set(coordinator.GetComponentType<Quad>());
-        coordinator.SetSystemSignature<MovingSystem>(signature);
-    }
-
     shared_ptr<ResourceSystem> resourceSystem = coordinator.RegisterSystem<ResourceSystem>();
-    
     {
         Signature signature;
         signature.set(coordinator.GetComponentType<ResourceGenerator>());
         coordinator.SetSystemSignature<ResourceSystem>(signature);
     }
+
+    shared_ptr<MovingSystem> movingSystem = coordinator.RegisterSystem<MovingSystem>();
+    {
+        Signature signature;
+        signature.set(coordinator.GetComponentType<Quad>());
+        signature.set(coordinator.GetComponentType<Dragged>());
+        coordinator.SetSystemSignature<MovingSystem>(signature);
+    }
+    movingSystem->Init(inputManager.GetEvents());
     
+    shared_ptr<InputSystem> inputSystem = coordinator.RegisterSystem<InputSystem>();
+    {
+        Signature signature;
+        signature.set(coordinator.GetComponentType<Quad>());
+        coordinator.SetSystemSignature<InputSystem>(signature);
+    }
+    inputSystem->Init(inputManager.GetEvents());
+
     /*
     Entity testEntity;
     for (int i = 0; i < 10; i++)
@@ -88,6 +104,8 @@ int main(int argc, char *argv[])
 
     while(true)
     {
+        inputManager.Update();
+        inputSystem->Update();
         movingSystem->Update();
         renderingSystem->Render();
         resourceSystem->Update();

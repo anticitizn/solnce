@@ -34,8 +34,12 @@ public:
 
     void RemoveData(const Entity entity)
     {
-		assert(entityIndexMap.find(entity) != entityIndexMap.end() && "Removing non-existent component.");
-
+		//assert(entityIndexMap.find(entity) != entityIndexMap.end() && "Removing non-existent component.");
+        if (entityIndexMap.find(entity) == entityIndexMap.end())
+        {
+            return;
+        }
+        
 		// Copy element at end into deleted element's place to maintain density
 		size_t indexOfRemovedEntity = entityIndexMap[entity];
 		size_t indexOfLastElement = dataSize - 1;

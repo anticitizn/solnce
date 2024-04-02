@@ -12,7 +12,7 @@ using namespace std;
 
 extern Coordinator coordinator;
 
-class MovingSystem : public System
+class MovingSystem : public System, public InputEventListener
 {
 public:
     void Update()
@@ -20,20 +20,16 @@ public:
         for (const auto& entity : entities)
         {
             auto& quad = coordinator.GetComponent<Quad>(entity);
-            if (quad.posX <= limitX)
+            for (const auto& event : *events)
             {
-                quad.posX += 1;
+                if (event.type == SDL_MOUSEMOTION)
+                {
+                    quad.posX += event.motion.xrel;
+                    quad.posY += event.motion.yrel;
+                }
             }
-            else
-            {
-                quad.posX = 0;
-            }
-            
         }
     }
-
-private:
-    int limitX = 800;
 };
 
 
