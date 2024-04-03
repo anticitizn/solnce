@@ -9,7 +9,7 @@ using namespace std;
 class TestWindow : public Window
 {
 public:
-    TestWindow(ResourceStorage& resourceStorage) : resourceStorage(resourceStorage) {};
+    TestWindow(ResourceStorage& resourceStorage, MouseState& mouseState) : resourceStorage(resourceStorage), mouseState(mouseState) {};
     virtual void Draw()
     {
         if (display)
@@ -19,10 +19,13 @@ public:
             ImGui::SliderFloat("Ore", &resourceStorage.ore, 0.0f, 1000.0f);
             ImGui::SliderFloat("Food", &resourceStorage.food, 0.0f, 1000.0f);
             ImGui::SliderFloat("Alloys", &resourceStorage.alloys, 0.0f, 1000.0f);
+            ImGui::Text("X: %d", mouseState.x);
+            ImGui::Text("X: %d", mouseState.y);
             ImGui::End();
         }
     }
 
 private:
     ResourceStorage& resourceStorage;
+    MouseState& mouseState;
 };

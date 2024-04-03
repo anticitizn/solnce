@@ -4,6 +4,7 @@
 #include <list>
 
 #include <SDL.h>
+#include <src/MouseState.hpp>
 
 using namespace std;
 
@@ -42,6 +43,11 @@ public:
 
             events.push_back(event);
         }
+
+        uint32_t mouseStateBitmask = SDL_GetMouseState(&mouseState.x, &mouseState.y);
+        mouseState.lmb = mouseStateBitmask & SDL_BUTTON_LMASK;
+        mouseState.mmb = mouseStateBitmask & SDL_BUTTON_MMASK;
+        mouseState.rmb = mouseStateBitmask & SDL_BUTTON_RMASK;
     }
 
     list<SDL_Event>* GetEvents()
@@ -49,6 +55,12 @@ public:
         return &events;
     }
 
+    MouseState& GetMouseState()
+    {
+        return mouseState;
+    }
+
 private:
     list<SDL_Event> events;
+    MouseState mouseState;
 };
