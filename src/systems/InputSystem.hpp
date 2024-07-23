@@ -36,7 +36,7 @@ public:
                 {
                     auto& quad = coordinator.GetComponent<Quad>(entity);
 
-                    if (IsClicked(mouseX, mouseY, quad.posX, quad.posY, quad.sizeX, quad.sizeY, quad.rot))
+                    if (IsClicked(mouseX, mouseY, quad))
                     {
                         anyEntityClicked = true;
 
@@ -67,29 +67,27 @@ public:
     }
 
 private:
-    bool IsClicked(const float mouseX, const float mouseY, const float posX, const float posY, const float sizeX, const float sizeY, const float rot)
+    bool IsClicked(const float mouseX, const float mouseY, struct Quad quad)
     {
         // Move vector origin to the center of the quad
-        float rotMouseX = mouseX - posX;
-        float rotMouseY = mouseY - posY;
+        float translatedX = mouseX - quad.posX;
+        float translatedY = mouseY - quad.posY;
 
-        // Rotate vector by the quad's rotation in the inverse direction
-        rotMouseX = cos(-rot)*rotMouseX - sin(-rot)*rotMouseY;
-        rotMouseY = sin(-rot)*rotMouseX + cos(-rot)*rotMouseY;
+        // Inverse the quad's rotation
+        float angleRad = -quad.rot * (M_PI / 180.0f);
+        float cosAngle = cosf(angleRad);
+        float sinAngle = sinf(angleRad);
 
         // Restore vector origin
-        rotMouseX += posX;
-        rotMouseY += posY;
+        float rotatedX = translatedX * cosAngle - translatedY * sinAngle;
+        float rotatedY = translatedX * sinAngle + translatedY * cosAngle;
 
-        // Check if the rotated mouse click coordinates are within the quad
-        if ((rotMouseX < posX + sizeX && rotMouseX > posX - sizeX) && (rotMouseY < posY + sizeY && rotMouseY > posY - sizeY))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        // Check if the point is inside the "unrotated" quad
+        float halfWidth = quad.sizeX / 2.0f;
+        float halfHeight = quad.sizeY / 2.0f;
+
+        return (rotatedX >= -halfWidth && rotatedX <= halfWidth &&
+                rotatedY >= -halfHeight && rotatedY <= halfHeight);
     }
 };
 
