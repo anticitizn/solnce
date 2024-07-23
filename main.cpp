@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
     coordinator.AddComponent<ResourceStorage>(playerData, ResourceStorage {0, 0, 0});
 
     Entity farm = coordinator.CreateEntity();
-    coordinator.AddComponent<Quad>(farm, Quad {50.0f, 50.0f, 0, 100, 100, 255, 255, 255, 45});
+    coordinator.AddComponent<Quad>(farm, Quad {50.0f, 50.0f, 0, 100, 100, 255, 255, 255, 0});
     coordinator.AddComponent<Texture>(farm, Texture{"wall.jpg", 0});
     coordinator.AddComponent<ResourceGenerator>(farm, ResourceGenerator {0, 1, 0, 5, playerData});
 
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
     coordinator.ArchiveEntity(root, farm);
     doc.save_file("test.xml", PUGIXML_TEXT("  "));
 
-    shared_ptr<Window> testWindow = make_shared<TestWindow>(coordinator.GetComponent<ResourceStorage>(playerData));
+    shared_ptr<Window> testWindow = make_shared<TestWindow>(coordinator.GetComponent<ResourceStorage>(playerData), inputManager.GetMouseState());
     renderingSystem->AddWindow(testWindow);
 
     while(true)
