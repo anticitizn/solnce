@@ -10,7 +10,7 @@ struct ResourceGenerator
     float food;
     float alloys;
     int tickrate;
-    Entity resourceStorage;
+    EntityID resourceStorage;
 
     void archive(pugi::xml_node& root)
     {

@@ -19,6 +19,7 @@
 #include <src/components/ResourceGenerator.hpp>
 #include <src/InputManager.hpp>
 
+
 #include <src/ui/TestWindow.hpp>
 
 #include <external/pugixml/pugixml.hpp>
@@ -37,7 +38,6 @@ int main(int argc, char *argv[])
     coordinator.RegisterComponent<Dragged>();
 
     shared_ptr<RenderingSystem> renderingSystem = coordinator.RegisterSystem<RenderingSystem>();
-    
     {
         Signature signature;
         signature.set(coordinator.GetComponentType<Texture>());
@@ -73,33 +73,26 @@ int main(int argc, char *argv[])
     }
     inputSystem->Init(inputManager.GetEvents());
 
-    /*
-    Entity testEntity;
-    for (int i = 0; i < 10; i++)
-    {
-        Entity entity = coordinator.CreateEntity();
-        testEntity = entity;
-        coordinator.AddComponent<Quad>(entity, Quad {50.0f*i, 50.0f*i, 0, 50, 50, 255, 255, 255, 0});
-        coordinator.AddComponent<Texture>(entity, Texture{"wall.jpg", 0});
-    }
-    */
-
     Entity playerData = coordinator.CreateEntity();
-    coordinator.AddComponent<ResourceStorage>(playerData, ResourceStorage {0, 0, 0});
+    playerData.Assign<ResourceStorage>(ResourceStorage {0, 0, 0});
 
     Entity farm = coordinator.CreateEntity();
-    coordinator.AddComponent<Quad>(farm, Quad {50.0f, 50.0f, 0, 100, 100, 255, 255, 255, 0});
-    coordinator.AddComponent<Texture>(farm, Texture{"wall.jpg", 0});
-    coordinator.AddComponent<ResourceGenerator>(farm, ResourceGenerator {0, 1, 0, 5, playerData});
+    farm.Assign<Quad>(Quad {50.0f, 50.0f, 0, 100, 100, 255, 255, 255, 0});
+    farm.Assign<Texture>(Texture{"wall.jpg", 0});
+    farm.Assign<ResourceGenerator>(ResourceGenerator {0, 1, 0, 5, playerData.GetId()});
+
+    Entity test = coordinator.CreateEntity();
+    test.Assign<Quad>(Quad {150.0f, 150.0f, 0, 100, 100, 255, 255, 255, 45});
+    test.Assign<Texture>(Texture{"wall.jpg", 0});
 
     pugi::xml_document doc;
     doc.append_child(pugi::node_declaration);
 
     auto root = doc.append_child("root");
-    coordinator.ArchiveEntity(root, farm);
+    coordinator.ArchiveEntity(root, farm.GetId());
     doc.save_file("test.xml", PUGIXML_TEXT("  "));
 
-    shared_ptr<Window> testWindow = make_shared<TestWindow>(coordinator.GetComponent<ResourceStorage>(playerData), inputManager.GetMouseState());
+    shared_ptr<Window> testWindow = make_shared<TestWindow>(playerData.GetComponent<ResourceStorage>(), inputManager.GetMouseState());
     renderingSystem->AddWindow(testWindow);
 
     while(true)

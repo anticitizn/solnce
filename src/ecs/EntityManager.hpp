@@ -19,7 +19,7 @@ public:
         }
     }
 
-    Entity CreateEntity() 
+    EntityID CreateEntity() 
     {
         if (livingEntities >= MAX_ENTITIES) 
         {
@@ -27,14 +27,14 @@ public:
             // amazing error handling, right?
         }
 
-        Entity newEntity = unusedEntities.front();
+        EntityID newEntity = unusedEntities.front();
         unusedEntities.pop();
         livingEntities++;
 
         return newEntity;
     }
 
-    void DestroyEntity(Entity entity)
+    void DestroyEntity(EntityID entity)
     {
         assert(entity < MAX_ENTITIES && "Entity out of range.");
 
@@ -43,12 +43,12 @@ public:
         livingEntities--;
     }
 
-    void SetSignature(Entity entity, Signature signature)
+    void SetSignature(EntityID entity, Signature signature)
     {
         signatures[entity] = signature;
     }
 
-    Signature GetSignature(Entity entity)
+    Signature GetSignature(EntityID entity)
     {
         assert(entity < MAX_ENTITIES && "Entity out of range.");
         
@@ -63,6 +63,6 @@ public:
 
 private:
     int livingEntities = 0;
-    queue<Entity> unusedEntities;
+    queue<EntityID> unusedEntities;
     array<Signature, MAX_ENTITIES> signatures;
 };

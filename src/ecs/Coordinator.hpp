@@ -9,6 +9,8 @@
 
 #include <external/pugixml/pugixml.hpp>
 
+class Entity;
+
 class Coordinator
 {
 public:
@@ -19,12 +21,9 @@ public:
         systemManager = make_unique<SystemManager>();
     }
 
-    Entity CreateEntity()
-    {
-        return entityManager->CreateEntity();
-    }
+    Entity CreateEntity();
 
-    void DestroyEntity(Entity entity)
+    void DestroyEntity(EntityID entity)
     {
         entityManager->DestroyEntity(entity);
         componentManager->EntityDestroyed(entity);
@@ -32,7 +31,7 @@ public:
     }
 
     template <typename T>
-    void AddComponent(Entity entity, T component)
+    void AddComponent(EntityID entity, T component)
     {
         componentManager->AddComponent<T>(entity, component);
 
@@ -44,7 +43,7 @@ public:
     }
 
     template <typename T>
-    void RemoveComponent(Entity entity)
+    void RemoveComponent(EntityID entity)
     {
         componentManager->RemoveComponent<T>(entity);
 
@@ -56,7 +55,7 @@ public:
     }
 
     template <typename T>
-    T& GetComponent(Entity entity)
+    T& GetComponent(EntityID entity)
     {
         return componentManager->GetComponent<T>(entity);
     }
@@ -90,7 +89,7 @@ public:
         return entityManager->GetEntitiesCount();
     }
 
-    void ArchiveEntity(pugi::xml_node& root, Entity entity)
+    void ArchiveEntity(pugi::xml_node& root, EntityID entity)
     {
         pugi::xml_node entityNode = root.append_child("entity");
         componentManager->ArchiveEntity(entityNode, entity);

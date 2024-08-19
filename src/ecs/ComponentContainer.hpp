@@ -15,15 +15,15 @@ using namespace std;
 class IComponentContainer
 {
 public:
-    virtual void EntityDestroyed(const Entity entity) = 0;
-    virtual void ArchiveEntity(pugi::xml_node& root, const Entity entity) = 0;
+    virtual void EntityDestroyed(const EntityID entity) = 0;
+    virtual void ArchiveEntity(pugi::xml_node& root, const EntityID entity) = 0;
 };
 
 template <class T>
 class ComponentContainer : public IComponentContainer
 {
 public:
-    void InsertData(const Entity entity, const T component)
+    void InsertData(const EntityID entity, const T component)
     {
         componentArray[dataSize] = component;
         entityIndexMap.insert({entity, dataSize});
@@ -32,7 +32,7 @@ public:
         dataSize++;
     }
 
-    void RemoveData(const Entity entity)
+    void RemoveData(const EntityID entity)
     {
 		//assert(entityIndexMap.find(entity) != entityIndexMap.end() && "Removing non-existent component.");
         if (entityIndexMap.find(entity) == entityIndexMap.end())
@@ -46,7 +46,7 @@ public:
 		componentArray[indexOfRemovedEntity] = componentArray[indexOfLastElement];
 
 		// Update map to point to moved spot
-		Entity entityOfLastElement = indexEntityMap[indexOfLastElement];
+		EntityID entityOfLastElement = indexEntityMap[indexOfLastElement];
 		entityIndexMap[entityOfLastElement] = indexOfRemovedEntity;
 		indexEntityMap[indexOfRemovedEntity] = entityOfLastElement;
 
@@ -56,14 +56,14 @@ public:
 		--dataSize;
     }
 
-    T& GetData(const Entity entity) 
+    T& GetData(const EntityID entity) 
     {
         assert(entityIndexMap.find(entity) != entityIndexMap.end() && "Retrieving non-existent component.");
 
         return componentArray[entityIndexMap[entity]];
     }
 
-    void EntityDestroyed(const Entity entity) override 
+    void EntityDestroyed(const EntityID entity) override 
     {
         if (entityIndexMap.find(entity) != entityIndexMap.end())
 		{
@@ -71,7 +71,7 @@ public:
 		}
     }
 
-    void ArchiveEntity(pugi::xml_node& root, const Entity entity) override
+    void ArchiveEntity(pugi::xml_node& root, const EntityID entity) override
     {
         if (entityIndexMap.find(entity) != entityIndexMap.end())
         {
@@ -81,7 +81,7 @@ public:
 
 private:
     array<T, MAX_ENTITIES> componentArray;
-    unordered_map<Entity, int> entityIndexMap;
-    unordered_map<int, Entity> indexEntityMap;
+    unordered_map<EntityID, int> entityIndexMap;
+    unordered_map<int, EntityID> indexEntityMap;
     int dataSize = 0;
 };
