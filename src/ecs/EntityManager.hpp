@@ -43,12 +43,12 @@ public:
         livingEntities--;
     }
 
-    void SetSignature(EntityID entity, Signature signature)
+    void SetSignature(EntityID entity, std::bitset<MAX_COMPONENTS> signature)
     {
         signatures[entity] = signature;
     }
 
-    Signature GetSignature(EntityID entity)
+    std::bitset<MAX_COMPONENTS> GetSignature(EntityID entity)
     {
         assert(entity < MAX_ENTITIES && "Entity out of range.");
         
@@ -64,5 +64,5 @@ public:
 private:
     int livingEntities = 0;
     queue<EntityID> unusedEntities;
-    array<Signature, MAX_ENTITIES> signatures;
+    array<std::bitset<MAX_COMPONENTS>, MAX_ENTITIES> signatures;
 };

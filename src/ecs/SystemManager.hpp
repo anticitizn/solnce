@@ -28,13 +28,13 @@ public:
     }
 
     template <typename T>
-    void SetSignature(Signature signature)
+    void SetSignature(std::bitset<MAX_COMPONENTS> signature)
     {
         const char* typeName = typeid(T).name();
         signatures.insert({typeName, signature});
     }
 
-    void EntitySignatureChanged(EntityID entity, Signature signature)
+    void EntitySignatureChanged(EntityID entity, std::bitset<MAX_COMPONENTS> signature)
     {
         for (auto const& pair : systems)
         {
@@ -65,6 +65,6 @@ public:
 
 
 private:
-    unordered_map<const char*, Signature> signatures {};
+    unordered_map<const char*, std::bitset<MAX_COMPONENTS>> signatures {};
     unordered_map<const char*, shared_ptr<System>> systems {};
 };

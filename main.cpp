@@ -39,9 +39,7 @@ int main(int argc, char *argv[])
 
     shared_ptr<RenderingSystem> renderingSystem = coordinator.RegisterSystem<RenderingSystem>();
     {
-        Signature signature;
-        signature.set(coordinator.GetComponentType<Texture>());
-        signature.set(coordinator.GetComponentType<Quad>());
+        Signature<Texture, Quad> signature(&coordinator);
         coordinator.SetSystemSignature<RenderingSystem>(signature);
     }
 
@@ -51,24 +49,20 @@ int main(int argc, char *argv[])
 
     shared_ptr<ResourceSystem> resourceSystem = coordinator.RegisterSystem<ResourceSystem>();
     {
-        Signature signature;
-        signature.set(coordinator.GetComponentType<ResourceGenerator>());
+        Signature<ResourceGenerator> signature(&coordinator);
         coordinator.SetSystemSignature<ResourceSystem>(signature);
     }
 
     shared_ptr<MovingSystem> movingSystem = coordinator.RegisterSystem<MovingSystem>();
     {
-        Signature signature;
-        signature.set(coordinator.GetComponentType<Quad>());
-        signature.set(coordinator.GetComponentType<Dragged>());
+        Signature<Quad, Dragged> signature(&coordinator);
         coordinator.SetSystemSignature<MovingSystem>(signature);
     }
     movingSystem->Init(inputManager.GetEvents());
     
     shared_ptr<InputSystem> inputSystem = coordinator.RegisterSystem<InputSystem>();
     {
-        Signature signature;
-        signature.set(coordinator.GetComponentType<Quad>());
+        Signature<Quad> signature(&coordinator);
         coordinator.SetSystemSignature<InputSystem>(signature);
     }
     inputSystem->Init(inputManager.GetEvents());

@@ -1,102 +1,95 @@
 #pragma once
 
-#include <memory>
+#include "Coordinator.inc.hpp"
+#include "Entity.inc.hpp"
+#include "Signature.inc.hpp"
 
 #include "Utils.hpp"
 #include "ComponentManager.hpp"
 #include "EntityManager.hpp"
 #include "SystemManager.hpp"
 
-#include <external/pugixml/pugixml.hpp>
-
-class Entity;
-
-class Coordinator
+Coordinator::Coordinator()
 {
-public:
-    Coordinator()
-    {
-        componentManager = make_unique<ComponentManager>();
-        entityManager = make_unique<EntityManager>();
-        systemManager = make_unique<SystemManager>();
-    }
+    componentManager = std::make_unique<ComponentManager>();
+    entityManager = std::make_unique<EntityManager>();
+    systemManager = std::make_unique<SystemManager>();
+}
 
-    Entity CreateEntity();
+Entity Coordinator::CreateEntity()
+{
+    uint32_t entity_id = entityManager->CreateEntity();
+    return Entity(this, entity_id);
+}
 
-    void DestroyEntity(EntityID entity)
-    {
-        entityManager->DestroyEntity(entity);
-        componentManager->EntityDestroyed(entity);
-        systemManager->EntityDestroyed(entity);
-    }
+void Coordinator::DestroyEntity(uint32_t entity)
+{
+    entityManager->DestroyEntity(entity);
+    componentManager->EntityDestroyed(entity);
+    systemManager->EntityDestroyed(entity);
+}
 
-    template <typename T>
-    void AddComponent(EntityID entity, T component)
-    {
-        componentManager->AddComponent<T>(entity, component);
+template <typename T>
+void Coordinator::AddComponent(uint32_t entity, T component)
+{
+    componentManager->AddComponent<T>(entity, component);
 
-        auto signature = entityManager->GetSignature(entity);
-        signature.set(componentManager->GetComponentType<T>(), true);
-        entityManager->SetSignature(entity, signature);
+    auto signature = entityManager->GetSignature(entity);
+    signature.set(componentManager->GetComponentType<T>(), true);
+    entityManager->SetSignature(entity, signature);
 
-        systemManager->EntitySignatureChanged(entity, signature);
-    }
+    systemManager->EntitySignatureChanged(entity, signature);
+}
 
-    template <typename T>
-    void RemoveComponent(EntityID entity)
-    {
-        componentManager->RemoveComponent<T>(entity);
+template <typename T>
+void Coordinator::RemoveComponent(uint32_t entity)
+{
+    componentManager->RemoveComponent<T>(entity);
 
-        auto signature = entityManager->GetSignature(entity);
-        signature.set(componentManager->GetComponentType<T>(), false);
-        entityManager->SetSignature(entity, signature);
+    auto signature = entityManager->GetSignature(entity);
+    signature.set(componentManager->GetComponentType<T>(), false);
+    entityManager->SetSignature(entity, signature);
 
-        systemManager->EntitySignatureChanged(entity, signature);
-    }
+    systemManager->EntitySignatureChanged(entity, signature);
+}
 
-    template <typename T>
-    T& GetComponent(EntityID entity)
-    {
-        return componentManager->GetComponent<T>(entity);
-    }
+template <typename T>
+T& Coordinator::GetComponent(uint32_t entity)
+{
+    return componentManager->GetComponent<T>(entity);
+}
 
-    template <typename T>
-    void RegisterComponent()
-    {
-        componentManager->RegisterComponent<T>();
-    }
+template <typename T>
+void Coordinator::RegisterComponent()
+{
+    componentManager->RegisterComponent<T>();
+}
 
-    template <typename T>
-    ComponentType GetComponentType()
-    {
-        return componentManager->GetComponentType<T>();
-    }
+template <typename T>
+uint32_t Coordinator::GetComponentType()
+{
+    return componentManager->GetComponentType<T>();
+}
 
-    template <typename T>
-    shared_ptr<T> RegisterSystem()
-    {
-        return systemManager->RegisterSystem<T>();
-    }
+template <typename T>
+std::shared_ptr<T> Coordinator::RegisterSystem()
+{
+    return systemManager->RegisterSystem<T>();
+}
 
-    template <typename T>
-    void SetSystemSignature(Signature signature)
-    {
-        systemManager->SetSignature<T>(signature);
-    }
+template <typename T, typename... Args>
+void Coordinator::SetSystemSignature(Signature<Args...> signature)
+{
+    systemManager->SetSignature<T>(signature);
+}
 
-    int GetEntitiesCount()
-    {
-        return entityManager->GetEntitiesCount();
-    }
+int Coordinator::GetEntitiesCount()
+{
+    return entityManager->GetEntitiesCount();
+}
 
-    void ArchiveEntity(pugi::xml_node& root, EntityID entity)
-    {
-        pugi::xml_node entityNode = root.append_child("entity");
-        componentManager->ArchiveEntity(entityNode, entity);
-    }
-
-private:
-    unique_ptr<ComponentManager> componentManager;
-    unique_ptr<EntityManager> entityManager;
-    unique_ptr<SystemManager> systemManager;
-};
+void Coordinator::ArchiveEntity(pugi::xml_node& root, uint32_t entity)
+{
+    pugi::xml_node entityNode = root.append_child("entity");
+    componentManager->ArchiveEntity(entityNode, entity);
+}
