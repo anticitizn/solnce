@@ -32,6 +32,7 @@
 using namespace std;
 
 extern Coordinator coordinator;
+extern InputManager inputManager;
 
 class Game
 {
@@ -66,21 +67,18 @@ public:
             Signature<Quad, Dragged> signature(&coordinator);
             coordinator.SetSystemSignature<DraggingSystem>(signature);
         }
-        draggingSystem->Init(inputManager.GetEvents());
         
         inputSystem = coordinator.RegisterSystem<InputSystem>();
         {
             Signature<Quad> signature(&coordinator);
             coordinator.SetSystemSignature<InputSystem>(signature);
         }
-        inputSystem->Init(inputManager.GetEvents());
 
         playerMovementSystem = coordinator.RegisterSystem<PlayerMovementSystem>();
         {
             Signature<Player, Pos2D> signature(&coordinator);
             coordinator.SetSystemSignature<PlayerMovementSystem>(signature);
         }
-        playerMovementSystem->Init(inputManager.GetEvents());
 
 
         Entity playerData = coordinator.CreateEntity();
@@ -133,7 +131,6 @@ public:
 private:
     bool running;
 
-    InputManager inputManager;
     shared_ptr<RenderingSystem> renderingSystem;
     shared_ptr<InputSystem> inputSystem;
     shared_ptr<ResourceSystem> resourceSystem;

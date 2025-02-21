@@ -4,15 +4,18 @@
 #include <list>
 
 #include <SDL.h>
+#include <src/InputManager.hpp>
 
 using namespace std;
+
+extern InputManager inputManager;
 
 class InputEventListener 
 {
 public:
-    void Init(list<SDL_Event>* _events)
+    InputEventListener()
     {
-        events = _events;
+        events = inputManager.GetEvents();
     }
     
 protected:

@@ -4,6 +4,9 @@
 #include <list>
 
 #include <SDL.h>
+#include <external/imgui/imgui.h>
+#include <external/imgui/imgui_impl_sdl.h>
+
 #include <src/MouseState.hpp>
 
 using namespace std;
@@ -64,3 +67,5 @@ private:
     list<SDL_Event> events;
     MouseState mouseState;
 };
+
+InputManager inputManager;
