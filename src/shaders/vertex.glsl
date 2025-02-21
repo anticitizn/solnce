@@ -10,6 +10,6 @@ uniform mat4 view;
 
 void main()
 {
-    gl_Position = projection * instanceMatrix * vec4(quadPos, 0.0f, 1.0f);
+    gl_Position = projection * view * instanceMatrix * vec4(quadPos, 0.0f, 1.0f);
     texCoords = quadTexCoords;
 }

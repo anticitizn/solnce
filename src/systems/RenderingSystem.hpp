@@ -11,6 +11,7 @@
 #include <src/components/Texture.hpp>
 #include <src/components/Quad.hpp>
 #include <src/ui/Window.hpp>
+#include <src/context/GameContext.hpp>
 
 #include <external/glm/glm.hpp>
 #include <external/stb/stb_image.h>
@@ -41,6 +42,9 @@ public:
         cameraProjection = glm::ortho(0.0f, (float)windowManager.GetContextWidth(), (float)windowManager.GetContextHeight(), 0.0f);
         shaderManager.SetUniform("projection", cameraProjection);
 
+        viewMatrix = glm::mat4(1.0f);
+        shaderManager.SetUniform("view", viewMatrix);
+
         shaderManager.SetUniform("texture", 0);
 
         Render();
@@ -52,6 +56,10 @@ public:
 
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        viewMatrix = glm::mat4(1.0f);
+        viewMatrix = glm::translate(viewMatrix, -GameContext::Instance().camera.position);
+        shaderManager.SetUniform("view", viewMatrix);
 
         unordered_map<unsigned int, vector<glm::mat4>> textureMatrixes;
         for (const auto& entity : entities)
@@ -116,6 +124,7 @@ private:
     unsigned int instanceVBO;
     unsigned int VAO;
 
+    glm::mat4 viewMatrix;
     glm::mat4 cameraProjection;
     int maxQuads = 100;
 

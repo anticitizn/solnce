@@ -12,7 +12,7 @@ using namespace std;
 
 extern Coordinator coordinator;
 
-class MovingSystem : public System, public InputEventListener
+class DraggingSystem : public System, public InputEventListener
 {
 public:
     void Update()

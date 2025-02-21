@@ -12,10 +12,13 @@
 #include <src/ecs/ECS.hpp>
 #include <src/systems/InputSystem.hpp>
 #include <src/systems/RenderingSystem.hpp>
-#include <src/systems/MovingSystem.hpp>
+#include <src/systems/DraggingSystem.hpp>
 #include <src/systems/ResourceSystem.hpp>
+#include <src/systems/PlayerMovementSystem.hpp>
 #include <src/components/Texture.hpp>
 #include <src/components/Quad.hpp>
+#include <src/components/Player.hpp>
+#include <src/components/Pos2D.hpp>
 #include <src/components/Selected.hpp>
 #include <src/components/Dragged.hpp>
 #include <src/components/ResourceStorage.hpp>
@@ -36,6 +39,8 @@ public:
     Game()
     {
         coordinator.RegisterComponent<Texture>();
+        coordinator.RegisterComponent<Pos2D>();
+        coordinator.RegisterComponent<Player>();
         coordinator.RegisterComponent<Quad>();
         coordinator.RegisterComponent<ResourceStorage>();
         coordinator.RegisterComponent<ResourceGenerator>();
@@ -56,12 +61,12 @@ public:
             coordinator.SetSystemSignature<ResourceSystem>(signature);
         }
 
-        movingSystem = coordinator.RegisterSystem<MovingSystem>();
+        draggingSystem = coordinator.RegisterSystem<DraggingSystem>();
         {
             Signature<Quad, Dragged> signature(&coordinator);
-            coordinator.SetSystemSignature<MovingSystem>(signature);
+            coordinator.SetSystemSignature<DraggingSystem>(signature);
         }
-        movingSystem->Init(inputManager.GetEvents());
+        draggingSystem->Init(inputManager.GetEvents());
         
         inputSystem = coordinator.RegisterSystem<InputSystem>();
         {
@@ -69,6 +74,14 @@ public:
             coordinator.SetSystemSignature<InputSystem>(signature);
         }
         inputSystem->Init(inputManager.GetEvents());
+
+        playerMovementSystem = coordinator.RegisterSystem<PlayerMovementSystem>();
+        {
+            Signature<Player, Pos2D> signature(&coordinator);
+            coordinator.SetSystemSignature<PlayerMovementSystem>(signature);
+        }
+        playerMovementSystem->Init(inputManager.GetEvents());
+
 
         Entity playerData = coordinator.CreateEntity();
         playerData.Assign<ResourceStorage>(ResourceStorage {0, 0, 0});
@@ -82,6 +95,10 @@ public:
         test.Assign<Quad>(Quad {150.0f, 150.0f, 0, 100, 100, 255, 255, 255, 45});
         test.Assign<Texture>(Texture{"wall.jpg", 0});
 
+        Entity player = coordinator.CreateEntity();
+        player.Assign<Player>(Player {});
+        player.Assign<Pos2D>(Pos2D {0.0f, 0.0f, 0.0f});
+
         pugi::xml_document doc;
         doc.append_child(pugi::node_declaration);
 
@@ -93,7 +110,7 @@ public:
         renderingSystem->AddWindow(testWindow);
     }
 
-    int StartLoop()
+    int Start()
     {
         running = true;
 
@@ -101,7 +118,8 @@ public:
         {
             inputManager.Update();
             inputSystem->Update();
-            movingSystem->Update();
+            playerMovementSystem->Update();
+            draggingSystem->Update();
             renderingSystem->Render();
             resourceSystem->Update();
         }
@@ -121,5 +139,6 @@ private:
     shared_ptr<RenderingSystem> renderingSystem;
     shared_ptr<InputSystem> inputSystem;
     shared_ptr<ResourceSystem> resourceSystem;
-    shared_ptr<MovingSystem> movingSystem;
+    shared_ptr<DraggingSystem> draggingSystem;
+    shared_ptr<PlayerMovementSystem> playerMovementSystem;
 };
