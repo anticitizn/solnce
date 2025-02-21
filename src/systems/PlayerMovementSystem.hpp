@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include <src/components/Pos2D.hpp>
+#include <src/components/Player.hpp>
 #include <src/ecs/System.hpp>
 #include <external/glm/glm.hpp>
 
@@ -22,25 +23,26 @@ public:
         for (const auto& entity : entities)
         {
             auto& pos2d = coordinator.GetComponent<Pos2D>(entity);
+            auto& player = coordinator.GetComponent<Player>(entity);
             for (const auto& event : *events)
             {
                 if (event.type == SDL_KEYDOWN)
                 {
-                    if (event.key.keysym.sym == SDLK_UP)
+                    if (event.key.keysym.sym == SDLK_w)
                     {
-                        pos2d.posY -= 1;
+                        pos2d.posY -= player.speed;
                     }
-                    if (event.key.keysym.sym == SDLK_DOWN)
+                    if (event.key.keysym.sym == SDLK_s)
                     {
-                        pos2d.posY += 1;
+                        pos2d.posY += player.speed;
                     }
-                    if (event.key.keysym.sym == SDLK_RIGHT)
+                    if (event.key.keysym.sym == SDLK_d)
                     {
-                        pos2d.posX += 1;
+                        pos2d.posX += player.speed;
                     }
-                    if (event.key.keysym.sym == SDLK_LEFT)
+                    if (event.key.keysym.sym == SDLK_a)
                     {
-                        pos2d.posX -= 1;
+                        pos2d.posX -= player.speed;
                     }
                 }
             }

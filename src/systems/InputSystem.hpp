@@ -6,12 +6,14 @@
 #include <list>
 
 #include <SDL.h>
+#include <external/glm/glm.hpp>
 
 #include <src/InputEventListener.hpp>
 #include <src/components/Quad.hpp>
 #include <src/ecs/System.hpp>
 #include <src/components/Selected.hpp>
 #include <src/components/Dragged.hpp>
+#include <src/context/GameContext.hpp>
 
 using namespace std;
 
@@ -69,10 +71,10 @@ public:
 private:
     bool IsClicked(const float mouseX, const float mouseY, struct Quad quad)
     {
-
+        glm::vec3 camPos = GameContext::Instance().camera.position;
         // Move vector origin to the center of the quad
-        float translatedX = mouseX - quad.posX;
-        float translatedY = mouseY - quad.posY;
+        float translatedX = mouseX - quad.posX + camPos[0];
+        float translatedY = mouseY - quad.posY + camPos[1];
 
         // Inverse the quad's rotation
         float angleRad = -quad.rot * (M_PI / 180.0f);
