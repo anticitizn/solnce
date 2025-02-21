@@ -110,7 +110,7 @@ public:
         renderingSystem->AddWindow(testWindow);
     }
 
-    int Start()
+    void Start()
     {
         running = true;
 
@@ -123,8 +123,6 @@ public:
             renderingSystem->Render();
             resourceSystem->Update();
         }
-
-        return 0;
     }
 
     void Stop()
