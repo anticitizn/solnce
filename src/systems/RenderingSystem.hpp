@@ -58,7 +58,7 @@ public:
 	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         viewMatrix = glm::mat4(1.0f);
-        viewMatrix = glm::translate(viewMatrix, -GameContext::Instance().camera.position);
+        viewMatrix = glm::translate(viewMatrix, -gameContext.camera.position);
         shaderManager.SetUniform("view", viewMatrix);
 
         unordered_map<unsigned int, vector<glm::mat4>> textureMatrixes;

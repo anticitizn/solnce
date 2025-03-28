@@ -71,7 +71,7 @@ public:
 private:
     bool IsClicked(const float mouseX, const float mouseY, struct Quad quad)
     {
-        glm::vec3 camPos = GameContext::Instance().camera.position;
+        glm::vec3 camPos = gameContext.camera.position;
         // Move vector origin to the center of the quad
         float translatedX = mouseX - quad.posX + camPos[0];
         float translatedY = mouseY - quad.posY + camPos[1];
