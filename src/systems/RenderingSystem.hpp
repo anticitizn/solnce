@@ -48,6 +48,8 @@ public:
         shaderManager.SetUniform("texture", 0);
 
         Render();
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
     void Render()
@@ -250,7 +252,13 @@ private:
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imgWidth, imgHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            uint32_t colorspace = GL_RGBA;
+            if (nrChannels == 3)
+            {
+                colorspace = GL_RGB;
+            }
+
+            glTexImage2D(GL_TEXTURE_2D, 0, colorspace, imgWidth, imgHeight, 0, colorspace, GL_UNSIGNED_BYTE, data);
             glGenerateMipmap(GL_TEXTURE_2D);
         }
         else

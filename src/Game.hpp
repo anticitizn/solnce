@@ -86,12 +86,12 @@ public:
 
         Entity farm = coordinator.CreateEntity();
         farm.Assign<Quad>(Quad {50.0f, 50.0f, 0, 100, 100, 255, 255, 255, 0});
-        farm.Assign<Texture>(Texture{"wall.jpg", 0});
+        farm.Assign<Texture>(Texture{"ship.png", 0});
         farm.Assign<ResourceGenerator>(ResourceGenerator {0, 1, 0, 5, playerData.GetId()});
 
         Entity test = coordinator.CreateEntity();
         test.Assign<Quad>(Quad {150.0f, 150.0f, 0, 100, 100, 255, 255, 255, 45});
-        test.Assign<Texture>(Texture{"wall.jpg", 0});
+        test.Assign<Texture>(Texture{"ship.png", 0});
 
         Entity player = coordinator.CreateEntity();
         player.Assign<Player>(Player {});
