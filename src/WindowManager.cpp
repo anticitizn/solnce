@@ -86,7 +86,6 @@ int WindowManager::GetContextWidth()
 	return contextWidth;
 }
 
-
 int WindowManager::GetContextHeight()
 {
 	return contextHeight;

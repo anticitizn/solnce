@@ -3,12 +3,10 @@
 
 #include <string>
 #include <iostream>
-#include <list>
 
 #include <SDL.h>
 #include <external/glm/glm.hpp>
 
-#include <src/InputEventListener.hpp>
 #include <src/components/Quad.hpp>
 #include <src/ecs/System.hpp>
 #include <src/components/Selected.hpp>
@@ -19,7 +17,7 @@ using namespace std;
 
 extern Coordinator coordinator;
 
-class InputSystem : public System, public InputEventListener
+class InputSystem : public System
 {
 public:
     void Update()

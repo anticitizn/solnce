@@ -8,6 +8,7 @@
 #include "ComponentManager.hpp"
 #include "EntityManager.hpp"
 #include "SystemManager.hpp"
+#include "ResourceManager.hpp"
 
 Coordinator::Coordinator()
 {
@@ -86,6 +87,18 @@ void Coordinator::SetSystemSignature(Signature<Args...> signature)
 int Coordinator::GetEntitiesCount()
 {
     return entityManager->GetEntitiesCount();
+}
+
+template<typename T, typename... Args>
+void Coordinator::RegisterResource(Args&&... args)
+{
+    resourceManager->Register(args);
+}
+
+template<typename T>
+T& Coordinator::GetResource()
+{
+    return resourceManager->Get<T>();
 }
 
 void Coordinator::ArchiveEntity(pugi::xml_node& root, uint32_t entity)

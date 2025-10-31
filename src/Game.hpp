@@ -23,7 +23,7 @@
 #include <src/components/Dragged.hpp>
 #include <src/components/ResourceStorage.hpp>
 #include <src/components/ResourceGenerator.hpp>
-#include <src/InputManager.hpp>
+#include <src/io/InputManager.hpp>
 
 #include <src/ui/TestWindow.hpp>
 
@@ -32,7 +32,6 @@
 using namespace std;
 
 extern Coordinator coordinator;
-extern InputManager inputManager;
 
 class Game
 {
@@ -104,8 +103,8 @@ public:
         coordinator.ArchiveEntity(root, farm.GetId());
         doc.save_file("test.xml", PUGIXML_TEXT("  "));
 
-        shared_ptr<Window> testWindow = make_shared<TestWindow>(playerData.GetComponent<ResourceStorage>(), inputManager.GetMouseState());
-        renderingSystem->AddWindow(testWindow);
+        //shared_ptr<Window> testWindow = make_shared<TestWindow>(playerData.GetComponent<ResourceStorage>(), inputManager.GetMouseState());
+        //renderingSystem->AddWindow(testWindow);
     }
 
     void Start()
@@ -114,7 +113,7 @@ public:
 
         while(running)
         {
-            inputManager.Update();
+            std::vector<Action> actions = inputManager.Update();
             inputSystem->Update();
             playerMovementSystem->Update();
             draggingSystem->Update();
@@ -136,4 +135,6 @@ private:
     shared_ptr<ResourceSystem> resourceSystem;
     shared_ptr<DraggingSystem> draggingSystem;
     shared_ptr<PlayerMovementSystem> playerMovementSystem;
+
+    InputManager inputManager;
 };
