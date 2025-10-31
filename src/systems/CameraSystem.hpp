@@ -16,7 +16,7 @@ using namespace std;
 
 extern Coordinator coordinator;
 
-class PlayerMovementSystem : public System
+class CameraSystem : public System
 {
 public:
     void Update()

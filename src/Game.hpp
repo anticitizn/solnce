@@ -14,7 +14,7 @@
 #include <src/systems/RenderingSystem.hpp>
 #include <src/systems/DraggingSystem.hpp>
 #include <src/systems/ResourceSystem.hpp>
-#include <src/systems/PlayerMovementSystem.hpp>
+#include <src/systems/CameraSystem.hpp>
 #include <src/components/Texture.hpp>
 #include <src/components/Quad.hpp>
 #include <src/components/Player.hpp>
@@ -73,10 +73,10 @@ public:
             coordinator.SetSystemSignature<SelectionSystem>(signature);
         }
 
-        playerMovementSystem = coordinator.RegisterSystem<PlayerMovementSystem>();
+        cameraSystem = coordinator.RegisterSystem<CameraSystem>();
         {
             Signature<Player, Pos2D> signature(&coordinator);
-            coordinator.SetSystemSignature<PlayerMovementSystem>(signature);
+            coordinator.SetSystemSignature<CameraSystem>(signature);
         }
 
 
@@ -118,7 +118,7 @@ public:
             std::vector<Action> actions = inputManager.Update();
             coordinator.SetResource<std::vector<Action>>(actions);
             selectionSystem->Update();
-            playerMovementSystem->Update();
+            cameraSystem->Update();
             draggingSystem->Update();
             renderingSystem->Render();
             resourceSystem->Update();
@@ -137,7 +137,7 @@ private:
     shared_ptr<SelectionSystem> selectionSystem;
     shared_ptr<ResourceSystem> resourceSystem;
     shared_ptr<DraggingSystem> draggingSystem;
-    shared_ptr<PlayerMovementSystem> playerMovementSystem;
+    shared_ptr<CameraSystem> cameraSystem;
 
     InputManager inputManager;
 };
