@@ -16,11 +16,10 @@ public:
         resources[typeid(T).hash_code()] = std::make_shared<T>(std::forward<Args>(args)...);
     }
 
-    // Directly set or replace the resource value
     template<typename T>
     void Set(const T& value)
     {
-        resources[typeid(T).hash_code()] = std::make_shared<T>(value);
+        Get<T>() = value; // modify existing instance
     }
 
     // Retrieve a reference to the stored resource
