@@ -12,6 +12,7 @@
 #include <src/components/Selected.hpp>
 #include <src/components/Dragged.hpp>
 #include <src/context/GameContext.hpp>
+#include <src/io/Action.hpp>
 
 using namespace std;
 
@@ -22,12 +23,15 @@ class InputSystem : public System
 public:
     void Update()
     {
-        for (const auto& event : *events)
+        std::vector<Action> actions = coordinator.GetResource<std::vector<Action>>();
+
+        for (const auto& action : actions)
         {
-            if (event.type == SDL_MOUSEBUTTONDOWN)
+            if (action.type == Select && action.phase == Started)
             {
                 int mouseX, mouseY;
-                SDL_GetMouseState(&mouseX, &mouseY);
+                mouseX = action.position.x;
+                mouseY = action.position.y;
 
                 // If empty space was clicked, we remove all entities from the selection
                 bool anyEntityClicked = false;
@@ -53,10 +57,11 @@ public:
                     }
                 }
             }
-            else if (event.type == SDL_MOUSEBUTTONUP)
+            else if (action.type == Select && action.phase == Stopped)
             {
                 int mouseX, mouseY;
-                SDL_GetMouseState(&mouseX, &mouseY);
+                mouseX = action.position.x;
+                mouseY = action.position.y;
                 
                 for (const auto& entity : entities)
                 {

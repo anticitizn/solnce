@@ -37,44 +37,59 @@ public:
             switch (event.type)
             {
                 case SDL_KEYDOWN:
+                {
+
                     if (event.key.repeat == 0)
                     {
                         SDL_Scancode sc = event.key.keysym.scancode;
                         inputState.pressed.set(sc);
                     }
+                }
                 break;
 
                 case SDL_KEYUP:
+                {
                     SDL_Scancode sc = event.key.keysym.scancode;
                     inputState.down.reset(sc);
                     inputState.released.set(sc);
+                }
                 break;
 
                 case SDL_MOUSEBUTTONDOWN:
+                {    
                     inputState.mouseDown |= SDL_BUTTON(event.button.button);
                     inputState.mousePressed |= SDL_BUTTON(event.button.button);
+                }
                 break;
 
                 case SDL_MOUSEBUTTONUP:
+                {
                     inputState.mouseDown &= ~SDL_BUTTON(event.button.button);
                     inputState.mousePressed |= SDL_BUTTON(event.button.button);
+                }
                 break;
 
                 case SDL_MOUSEWHEEL:
+                {
                     inputState.wheelX += event.wheel.x;
                     inputState.wheelY += event.wheel.y;
+                }
                 break;
 
                 case SDL_MOUSEMOTION:
+                {
                     inputState.mouseX = event.motion.x;
                     inputState.mouseY = event.motion.y;
 
                     inputState.dx += event.motion.xrel;
                     inputState.dy += event.motion.yrel;
+                }
                 break;
 
                 case SDL_QUIT:
+                {
                     exit(0);
+                }
                 break;
             }
         }

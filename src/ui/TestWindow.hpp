@@ -9,9 +9,16 @@ using namespace std;
 class TestWindow : public Window
 {
 public:
-    TestWindow(ResourceStorage& resourceStorage, MouseState& mouseState) : resourceStorage(resourceStorage), mouseState(mouseState) {};
+    TestWindow(ResourceStorage& resourceStorage, const std::vector<Action>& actions) : resourceStorage(resourceStorage), actions(actions) {};
     virtual void Draw()
     {
+        for (auto action : actions)
+        {
+            if (action.type == CursorMotion)
+            {
+                mousePos = action.position;
+            }
+        }
         if (display)
         {
             ImGui::Begin("TestWindow");
@@ -19,13 +26,14 @@ public:
             ImGui::SliderFloat("Ore", &resourceStorage.ore, 0.0f, 1000.0f);
             ImGui::SliderFloat("Food", &resourceStorage.food, 0.0f, 1000.0f);
             ImGui::SliderFloat("Alloys", &resourceStorage.alloys, 0.0f, 1000.0f);
-            ImGui::Text("X: %d", mouseState.x);
-            ImGui::Text("X: %d", mouseState.y);
+            ImGui::Text("X: %f", mousePos.x);
+            ImGui::Text("X: %f", mousePos.y);
             ImGui::End();
         }
     }
 
 private:
     ResourceStorage& resourceStorage;
-    MouseState& mouseState;
+    std::vector<Action> actions;
+    glm::vec2 mousePos;
 };

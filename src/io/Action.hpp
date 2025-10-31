@@ -7,7 +7,8 @@ enum ActionType
 {
     Select, 
     DragCamera,
-    MoveCamera
+    MoveCamera,
+    CursorMotion
 };
 
 enum ActionPhase

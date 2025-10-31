@@ -96,15 +96,17 @@ public:
         player.Assign<Player>(Player {});
         player.Assign<Pos2D>(Pos2D {0.0f, 0.0f, 0.0f});
 
-        pugi::xml_document doc;
-        doc.append_child(pugi::node_declaration);
+        coordinator.RegisterResource<std::vector<Action>>();
 
-        auto root = doc.append_child("root");
-        coordinator.ArchiveEntity(root, farm.GetId());
-        doc.save_file("test.xml", PUGIXML_TEXT("  "));
+        // pugi::xml_document doc;
+        // doc.append_child(pugi::node_declaration);
 
-        //shared_ptr<Window> testWindow = make_shared<TestWindow>(playerData.GetComponent<ResourceStorage>(), inputManager.GetMouseState());
-        //renderingSystem->AddWindow(testWindow);
+        // auto root = doc.append_child("root");
+        // coordinator.ArchiveEntity(root, farm.GetId());
+        // doc.save_file("test.xml", PUGIXML_TEXT("  "));
+
+        shared_ptr<Window> testWindow = make_shared<TestWindow>(playerData.GetComponent<ResourceStorage>(), coordinator.GetResource<std::vector<Action>>());
+        renderingSystem->AddWindow(testWindow);
     }
 
     void Start()
@@ -114,6 +116,7 @@ public:
         while(running)
         {
             std::vector<Action> actions = inputManager.Update();
+            coordinator.SetResource<std::vector<Action>>(actions);
             inputSystem->Update();
             playerMovementSystem->Update();
             draggingSystem->Update();

@@ -44,6 +44,9 @@ public:
     template<typename T>
     T& GetResource();
 
+    template<typename T>
+    void SetResource(const T& value);
+
     void ArchiveEntity(pugi::xml_node& root, uint32_t entity);
 
 private:

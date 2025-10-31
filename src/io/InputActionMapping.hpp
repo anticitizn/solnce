@@ -23,8 +23,44 @@ static const std::unordered_map<uint8_t, ActionType> mouseToAction =
     {SDL_BUTTON_MIDDLE, ActionType::DragCamera}
 };
 
+// Helper to compute WASD axis from InputState::down (held keys)
+static inline glm::vec2 ComputeMoveAxis(const InputState& input) 
+{
+    float x = 0.f, y = 0.f;
+
+    if (input.down.test(SDL_SCANCODE_D)) 
+    {
+        x += 1.f;
+    }
+    if (input.down.test(SDL_SCANCODE_A))
+    {
+        x -= 1.f;
+    }
+    
+    if (input.down.test(SDL_SCANCODE_W)) 
+    {
+        y -= 1.f;
+    }
+    
+    if (input.down.test(SDL_SCANCODE_S))
+    {
+        y += 1.f;
+    }
+
+    // Normalize diagonals so speed is consistent
+    if (x != 0.f || y != 0.f) 
+    {
+        float len = std::sqrt(x*x + y*y);
+        x /= len; 
+        y /= len;
+    }
+    return {x, y};
+}
+
+
 std::vector<Action> MapInputToActions(const InputState& input)
 {
+    static glm::vec2 prevAxis{0.f, 0.f};
     std::vector<Action> actions;
 
     // Keyboard
@@ -75,6 +111,32 @@ std::vector<Action> MapInputToActions(const InputState& input)
             actions.push_back( {actionType, ActionPhase::Stopped, {input.mouseX, input.mouseY}, {}, 0.0f} );
         }
     }
+
+    if (input.dx != 0.0f || input.dy != 0.0f)
+    {
+        actions.push_back( {ActionType::CursorMotion, ActionPhase::Held, {input.mouseX, input.mouseY}, {input.dx, input.dy}, 0.0f} );
+    }
+
+    // Calculate delta for WASD MoveCamera actions
+    glm::vec2 axis = ComputeMoveAxis(input);
+    bool wasZero = prevAxis.x == 0.f && prevAxis.y == 0.f;
+    bool isZero  = axis.x == 0.f && axis.y == 0.f;
+
+    if (!isZero && wasZero) 
+    {
+        actions.push_back({ ActionType::MoveCamera, ActionPhase::Started, {}, axis, 0.0f });
+    } 
+    else if (!isZero && !wasZero) 
+    {
+        actions.push_back({ ActionType::MoveCamera, ActionPhase::Held,    {}, axis, 0.0f });
+    } 
+    else if (isZero && !wasZero) 
+    {
+        actions.push_back({ ActionType::MoveCamera, ActionPhase::Stopped, {}, {},   0.0f });
+    }
+
+    prevAxis = axis;
+
 
     return actions;
 }

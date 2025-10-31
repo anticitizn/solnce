@@ -12,7 +12,7 @@ using namespace std;
 
 extern Coordinator coordinator;
 
-class DraggingSystem : public System, public InputEventListener
+class DraggingSystem : public System
 {
 public:
     void Update()
@@ -20,12 +20,14 @@ public:
         for (const auto& entity : entities)
         {
             auto& quad = coordinator.GetComponent<Quad>(entity);
-            for (const auto& event : *events)
+
+            std::vector<Action> actions = coordinator.GetResource<std::vector<Action>>();
+            for (const auto& action : actions)
             {
-                if (event.type == SDL_MOUSEMOTION)
+                if (action.type == Select)
                 {
-                    quad.posX += event.motion.xrel;
-                    quad.posY += event.motion.yrel;
+                    quad.posX += action.delta.x;
+                    quad.posY += action.delta.y;
                 }
             }
         }
