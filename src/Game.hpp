@@ -10,11 +10,11 @@
 #include <typeinfo>
 
 #include <src/ecs/ECS.hpp>
-#include <src/systems/InputSystem.hpp>
+#include <src/systems/SelectionSystem.hpp>
 #include <src/systems/RenderingSystem.hpp>
 #include <src/systems/DraggingSystem.hpp>
 #include <src/systems/ResourceSystem.hpp>
-#include <src/systems/PlayerMovementSystem.hpp>
+#include <src/systems/CameraSystem.hpp>
 #include <src/components/Texture.hpp>
 #include <src/components/Quad.hpp>
 #include <src/components/Player.hpp>
@@ -23,7 +23,7 @@
 #include <src/components/Dragged.hpp>
 #include <src/components/ResourceStorage.hpp>
 #include <src/components/ResourceGenerator.hpp>
-#include <src/InputManager.hpp>
+#include <src/io/InputManager.hpp>
 
 #include <src/ui/TestWindow.hpp>
 
@@ -32,7 +32,6 @@
 using namespace std;
 
 extern Coordinator coordinator;
-extern InputManager inputManager;
 
 class Game
 {
@@ -68,16 +67,16 @@ public:
             coordinator.SetSystemSignature<DraggingSystem>(signature);
         }
         
-        inputSystem = coordinator.RegisterSystem<InputSystem>();
+        selectionSystem = coordinator.RegisterSystem<SelectionSystem>();
         {
             Signature<Quad> signature(&coordinator);
-            coordinator.SetSystemSignature<InputSystem>(signature);
+            coordinator.SetSystemSignature<SelectionSystem>(signature);
         }
 
-        playerMovementSystem = coordinator.RegisterSystem<PlayerMovementSystem>();
+        cameraSystem = coordinator.RegisterSystem<CameraSystem>();
         {
             Signature<Player, Pos2D> signature(&coordinator);
-            coordinator.SetSystemSignature<PlayerMovementSystem>(signature);
+            coordinator.SetSystemSignature<CameraSystem>(signature);
         }
 
 
@@ -97,14 +96,16 @@ public:
         player.Assign<Player>(Player {});
         player.Assign<Pos2D>(Pos2D {0.0f, 0.0f, 0.0f});
 
-        pugi::xml_document doc;
-        doc.append_child(pugi::node_declaration);
+        coordinator.RegisterResource<std::vector<Action>>();
 
-        auto root = doc.append_child("root");
-        coordinator.ArchiveEntity(root, farm.GetId());
-        doc.save_file("test.xml", PUGIXML_TEXT("  "));
+        // pugi::xml_document doc;
+        // doc.append_child(pugi::node_declaration);
 
-        shared_ptr<Window> testWindow = make_shared<TestWindow>(playerData.GetComponent<ResourceStorage>(), inputManager.GetMouseState());
+        // auto root = doc.append_child("root");
+        // coordinator.ArchiveEntity(root, farm.GetId());
+        // doc.save_file("test.xml", PUGIXML_TEXT("  "));
+
+        shared_ptr<Window> testWindow = make_shared<TestWindow>(playerData.GetComponent<ResourceStorage>(), coordinator.GetResource<std::vector<Action>>());
         renderingSystem->AddWindow(testWindow);
     }
 
@@ -114,9 +115,22 @@ public:
 
         while(running)
         {
-            inputManager.Update();
-            inputSystem->Update();
-            playerMovementSystem->Update();
+            std::vector<Action> actions = inputManager.Update();
+            for (const auto action : actions)
+            {
+                if (action.type == Exit)
+                {
+                    exit(0);
+                }
+            }
+            coordinator.SetResource<std::vector<Action>>(actions);
+
+            InputState inputState = inputManager.GetInputState();
+            CursorPos cursorPos { {inputState.mouseX, inputState.mouseY} };
+            coordinator.SetResource<CursorPos>(cursorPos);
+
+            selectionSystem->Update();
+            cameraSystem->Update();
             draggingSystem->Update();
             renderingSystem->Render();
             resourceSystem->Update();
@@ -132,8 +146,10 @@ private:
     bool running;
 
     shared_ptr<RenderingSystem> renderingSystem;
-    shared_ptr<InputSystem> inputSystem;
+    shared_ptr<SelectionSystem> selectionSystem;
     shared_ptr<ResourceSystem> resourceSystem;
     shared_ptr<DraggingSystem> draggingSystem;
-    shared_ptr<PlayerMovementSystem> playerMovementSystem;
+    shared_ptr<CameraSystem> cameraSystem;
+
+    InputManager inputManager;
 };

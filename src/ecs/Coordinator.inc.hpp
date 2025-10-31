@@ -38,10 +38,20 @@ public:
 
     int GetEntitiesCount();
 
+    template<typename T, typename... Args>
+    void RegisterResource(Args&&... args);
+
+    template<typename T>
+    T& GetResource();
+
+    template<typename T>
+    void SetResource(const T& value);
+
     void ArchiveEntity(pugi::xml_node& root, uint32_t entity);
 
 private:
     std::unique_ptr<class ComponentManager> componentManager;
     std::unique_ptr<class EntityManager> entityManager;
     std::unique_ptr<class SystemManager> systemManager;
+    std::unique_ptr<class ResourceManager> resourceManager;
 };

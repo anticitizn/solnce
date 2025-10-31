@@ -8,12 +8,14 @@
 #include "ComponentManager.hpp"
 #include "EntityManager.hpp"
 #include "SystemManager.hpp"
+#include "ResourceManager.hpp"
 
 Coordinator::Coordinator()
 {
     componentManager = std::make_unique<ComponentManager>();
     entityManager = std::make_unique<EntityManager>();
     systemManager = std::make_unique<SystemManager>();
+    resourceManager = std::make_unique<ResourceManager>();
 }
 
 Entity Coordinator::CreateEntity()
@@ -86,6 +88,24 @@ void Coordinator::SetSystemSignature(Signature<Args...> signature)
 int Coordinator::GetEntitiesCount()
 {
     return entityManager->GetEntitiesCount();
+}
+
+template<typename T, typename... Args>
+void Coordinator::RegisterResource(Args&&... args)
+{
+    resourceManager->Register<T>(std::forward<Args>(args)...);
+}
+
+template<typename T>
+T& Coordinator::GetResource()
+{
+    return resourceManager->Get<T>();
+}
+
+template<typename T>
+void Coordinator::SetResource(const T& value)
+{
+    resourceManager->Set<T>(value);
 }
 
 void Coordinator::ArchiveEntity(pugi::xml_node& root, uint32_t entity)

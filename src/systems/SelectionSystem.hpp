@@ -3,33 +3,34 @@
 
 #include <string>
 #include <iostream>
-#include <list>
 
-#include <SDL.h>
 #include <external/glm/glm.hpp>
 
-#include <src/InputEventListener.hpp>
 #include <src/components/Quad.hpp>
 #include <src/ecs/System.hpp>
 #include <src/components/Selected.hpp>
 #include <src/components/Dragged.hpp>
-#include <src/context/GameContext.hpp>
+#include <src/io/Action.hpp>
+#include <src/context/Camera.hpp>
 
 using namespace std;
 
 extern Coordinator coordinator;
 
-class InputSystem : public System, public InputEventListener
+class SelectionSystem : public System
 {
 public:
     void Update()
     {
-        for (const auto& event : *events)
+        std::vector<Action> actions = coordinator.GetResource<std::vector<Action>>();
+
+        for (const auto& action : actions)
         {
-            if (event.type == SDL_MOUSEBUTTONDOWN)
+            if (action.type == Select && action.phase == Started)
             {
                 int mouseX, mouseY;
-                SDL_GetMouseState(&mouseX, &mouseY);
+                mouseX = action.position.x;
+                mouseY = action.position.y;
 
                 // If empty space was clicked, we remove all entities from the selection
                 bool anyEntityClicked = false;
@@ -55,10 +56,11 @@ public:
                     }
                 }
             }
-            else if (event.type == SDL_MOUSEBUTTONUP)
+            else if (action.type == Select && action.phase == Stopped)
             {
                 int mouseX, mouseY;
-                SDL_GetMouseState(&mouseX, &mouseY);
+                mouseX = action.position.x;
+                mouseY = action.position.y;
                 
                 for (const auto& entity : entities)
                 {
@@ -71,10 +73,11 @@ public:
 private:
     bool IsClicked(const float mouseX, const float mouseY, struct Quad quad)
     {
-        glm::vec3 camPos = gameContext.camera.position;
+        Camera camera = coordinator.GetResource<Camera>();
+        
         // Move vector origin to the center of the quad
-        float translatedX = mouseX - quad.posX + camPos[0];
-        float translatedY = mouseY - quad.posY + camPos[1];
+        float translatedX = mouseX - quad.posX + camera.position[0];
+        float translatedY = mouseY - quad.posY + camera.position[1];
 
         // Inverse the quad's rotation
         float angleRad = -quad.rot * (M_PI / 180.0f);
