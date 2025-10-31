@@ -20,6 +20,9 @@ public:
 
     std::vector<Action> Update()
     {
+        // Clear all leftover data from the last frame in the input state
+        inputState.Reset();
+
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
@@ -31,17 +34,14 @@ public:
                 continue;
             }
 
-            // Clear all leftover data from the last frame in the input state
-            inputState.Reset();
-
             switch (event.type)
             {
                 case SDL_KEYDOWN:
                 {
-
                     if (event.key.repeat == 0)
                     {
                         SDL_Scancode sc = event.key.keysym.scancode;
+                        inputState.down.set(sc);
                         inputState.pressed.set(sc);
                     }
                 }
@@ -65,7 +65,7 @@ public:
                 case SDL_MOUSEBUTTONUP:
                 {
                     inputState.mouseDown &= ~SDL_BUTTON(event.button.button);
-                    inputState.mousePressed |= SDL_BUTTON(event.button.button);
+                    inputState.mouseReleased |= SDL_BUTTON(event.button.button);
                 }
                 break;
 
