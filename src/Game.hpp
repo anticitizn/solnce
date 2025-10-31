@@ -117,6 +117,11 @@ public:
         {
             std::vector<Action> actions = inputManager.Update();
             coordinator.SetResource<std::vector<Action>>(actions);
+
+            InputState inputState = inputManager.GetInputState();
+            CursorPos cursorPos { {inputState.mouseX, inputState.mouseY} };
+            coordinator.SetResource<CursorPos>(cursorPos);
+
             selectionSystem->Update();
             cameraSystem->Update();
             draggingSystem->Update();

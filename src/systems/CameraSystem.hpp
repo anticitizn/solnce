@@ -55,6 +55,11 @@ public:
                         
                     pos2d.posZ = glm::clamp(pos2d.posZ, 0.1f, 20.0f);
                 }
+                if (action.type == DragCamera && action.phase != Stopped)
+                {
+                    pos2d.posX -= action.delta.x / pos2d.posZ;
+                    pos2d.posY -= action.delta.y / pos2d.posZ;
+                }
             }
 
             pos2d.posX += player.velocity.x;

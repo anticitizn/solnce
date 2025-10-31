@@ -100,6 +100,11 @@ public:
         return actions;
     }
 
+    InputState GetInputState()
+    {
+        return inputState;
+    }
+
 private:
     InputState inputState;
     std::vector<Action> actions;
