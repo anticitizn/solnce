@@ -10,8 +10,8 @@
 #include <src/ecs/System.hpp>
 #include <src/components/Selected.hpp>
 #include <src/components/Dragged.hpp>
-#include <src/context/GameContext.hpp>
 #include <src/io/Action.hpp>
+#include <src/context/Camera.hpp>
 
 using namespace std;
 
@@ -73,10 +73,11 @@ public:
 private:
     bool IsClicked(const float mouseX, const float mouseY, struct Quad quad)
     {
-        glm::vec3 camPos = gameContext.camera.position;
+        Camera camera = coordinator.GetResource<Camera>();
+        
         // Move vector origin to the center of the quad
-        float translatedX = mouseX - quad.posX + camPos[0];
-        float translatedY = mouseY - quad.posY + camPos[1];
+        float translatedX = mouseX - quad.posX + camera.position[0];
+        float translatedY = mouseY - quad.posY + camera.position[1];
 
         // Inverse the quad's rotation
         float angleRad = -quad.rot * (M_PI / 180.0f);

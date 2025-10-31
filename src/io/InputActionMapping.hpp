@@ -137,6 +137,10 @@ std::vector<Action> MapInputToActions(const InputState& input)
 
     prevAxis = axis;
 
+    if (input.wheelY != 0)
+    {
+        actions.push_back( { ActionType::Zoom, ActionPhase::Started, {}, {}, (float)input.wheelY} );
+    }
 
     return actions;
 }

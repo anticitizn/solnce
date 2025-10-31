@@ -8,7 +8,6 @@
 #include <src/components/Pos2D.hpp>
 #include <src/components/Player.hpp>
 #include <src/ecs/System.hpp>
-#include <src/context/GameContext.hpp>
 
 #include <external/glm/glm.hpp>
 
@@ -19,6 +18,11 @@ extern Coordinator coordinator;
 class CameraSystem : public System
 {
 public:
+    CameraSystem()
+    {
+        coordinator.RegisterResource<Camera>();
+    }
+
     void Update()
     {
         for (const auto& entity : entities)
@@ -37,12 +41,30 @@ public:
                     player.velocity.x += action.delta.x * player.speed;
                     player.velocity.y += action.delta.y * player.speed;
                 }
+                if (action.type == Zoom)
+                {
+                    float zoomSpeed = 1.1f;
+                    if (action.value > 0)
+                    {
+                        pos2d.posZ *= zoomSpeed;  // zoom in
+                    }
+                    else if (action.value < 0)
+                    {
+                        pos2d.posZ /= zoomSpeed;  // zoom out
+                    }
+                        
+                    pos2d.posZ = glm::clamp(pos2d.posZ, 0.1f, 20.0f);
+                }
             }
 
             pos2d.posX += player.velocity.x;
             pos2d.posY += player.velocity.y;
 
-            gameContext.camera.position = glm::vec3(pos2d.posX, pos2d.posY, 0);
+            Camera camera = coordinator.GetResource<Camera>();
+
+            camera.position = glm::vec3(pos2d.posX, pos2d.posY, pos2d.posZ);
+
+            coordinator.SetResource<Camera>(camera);
         }
     }
 };

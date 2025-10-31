@@ -11,7 +11,6 @@
 #include <src/components/Texture.hpp>
 #include <src/components/Quad.hpp>
 #include <src/ui/Window.hpp>
-#include <src/context/GameContext.hpp>
 
 #include <external/glm/glm.hpp>
 #include <external/stb/stb_image.h>
@@ -47,7 +46,7 @@ public:
 
         shaderManager.SetUniform("texture", 0);
 
-        Render();
+        //Render();
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
@@ -59,9 +58,21 @@ public:
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        glm::vec3 camPos = coordinator.GetResource<Camera>().position;
         viewMatrix = glm::mat4(1.0f);
-        viewMatrix = glm::translate(viewMatrix, -gameContext.camera.position);
+        
+        // viewMatrix = glm::translate(glm::mat4(1.0f), -glm::vec3(camPos.x, camPos.y, 0.0f));
         shaderManager.SetUniform("view", viewMatrix);
+
+        auto& cam = coordinator.GetResource<Camera>();
+        float w = (float)windowManager.GetContextWidth();
+        float h = (float)windowManager.GetContextHeight();
+
+        float half_w = (w * 0.5f) / camPos.z;
+        float half_h = (h * 0.5f) / camPos.z;
+
+        cameraProjection = glm::ortho(camPos.x - half_w, camPos.x + half_w, camPos.y + half_h, camPos.y - half_h, -1.0f, 1.0f);
+        shaderManager.SetUniform("projection", cameraProjection);
 
         unordered_map<unsigned int, vector<glm::mat4>> textureMatrixes;
         for (const auto& entity : entities)

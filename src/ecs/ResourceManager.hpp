@@ -24,10 +24,20 @@ public:
     }
 
     // Retrieve a reference to the stored resource
+    // If not registered yet, register a default-constructed instance first
     template<typename T>
     T& Get()
     {
-        return *std::static_pointer_cast<T>(resources.at(typeid(T).hash_code()));
+        auto key = typeid(T).hash_code();
+        auto it = resources.find(key);
+
+        if (it == resources.end()) {
+            // Automatically register a default instance if not found
+            Register<T>();
+            it = resources.find(key);
+        }
+
+        return *std::static_pointer_cast<T>(it->second);
     }
 
 private:
