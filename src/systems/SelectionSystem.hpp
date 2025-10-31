@@ -4,7 +4,6 @@
 #include <string>
 #include <iostream>
 
-#include <SDL.h>
 #include <external/glm/glm.hpp>
 
 #include <src/components/Quad.hpp>
@@ -18,7 +17,7 @@ using namespace std;
 
 extern Coordinator coordinator;
 
-class InputSystem : public System
+class SelectionSystem : public System
 {
 public:
     void Update()

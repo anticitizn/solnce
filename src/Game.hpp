@@ -10,7 +10,7 @@
 #include <typeinfo>
 
 #include <src/ecs/ECS.hpp>
-#include <src/systems/InputSystem.hpp>
+#include <src/systems/SelectionSystem.hpp>
 #include <src/systems/RenderingSystem.hpp>
 #include <src/systems/DraggingSystem.hpp>
 #include <src/systems/ResourceSystem.hpp>
@@ -67,10 +67,10 @@ public:
             coordinator.SetSystemSignature<DraggingSystem>(signature);
         }
         
-        inputSystem = coordinator.RegisterSystem<InputSystem>();
+        selectionSystem = coordinator.RegisterSystem<SelectionSystem>();
         {
             Signature<Quad> signature(&coordinator);
-            coordinator.SetSystemSignature<InputSystem>(signature);
+            coordinator.SetSystemSignature<SelectionSystem>(signature);
         }
 
         playerMovementSystem = coordinator.RegisterSystem<PlayerMovementSystem>();
@@ -117,7 +117,7 @@ public:
         {
             std::vector<Action> actions = inputManager.Update();
             coordinator.SetResource<std::vector<Action>>(actions);
-            inputSystem->Update();
+            selectionSystem->Update();
             playerMovementSystem->Update();
             draggingSystem->Update();
             renderingSystem->Render();
@@ -134,7 +134,7 @@ private:
     bool running;
 
     shared_ptr<RenderingSystem> renderingSystem;
-    shared_ptr<InputSystem> inputSystem;
+    shared_ptr<SelectionSystem> selectionSystem;
     shared_ptr<ResourceSystem> resourceSystem;
     shared_ptr<DraggingSystem> draggingSystem;
     shared_ptr<PlayerMovementSystem> playerMovementSystem;

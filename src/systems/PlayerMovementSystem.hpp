@@ -11,7 +11,6 @@
 #include <src/context/GameContext.hpp>
 
 #include <external/glm/glm.hpp>
-#include <SDL.h>
 
 using namespace std;
 
