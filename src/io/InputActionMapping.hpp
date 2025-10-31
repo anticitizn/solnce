@@ -13,7 +13,8 @@ static const std::unordered_map<SDL_Scancode, ActionType> keyToAction =
     {SDL_SCANCODE_W, ActionType::MoveCamera},
     {SDL_SCANCODE_S, ActionType::MoveCamera},
     {SDL_SCANCODE_A, ActionType::MoveCamera},
-    {SDL_SCANCODE_D, ActionType::MoveCamera}
+    {SDL_SCANCODE_D, ActionType::MoveCamera},
+    {SDL_SCANCODE_ESCAPE, ActionType::Exit},
 };
 
 // Maps mouse button clicks to logical actions

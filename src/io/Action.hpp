@@ -9,7 +9,8 @@ enum ActionType
     DragCamera,
     MoveCamera,
     CursorMotion,
-    Zoom
+    Zoom,
+    Exit
 };
 
 enum ActionPhase

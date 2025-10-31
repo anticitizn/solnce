@@ -20,7 +20,9 @@ class CameraSystem : public System
 public:
     CameraSystem()
     {
-        coordinator.RegisterResource<Camera>();
+        Camera camera;
+        camera.position.z = 0.9;
+        coordinator.RegisterResource<Camera>(camera);
     }
 
     void Update()

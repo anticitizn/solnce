@@ -116,6 +116,13 @@ public:
         while(running)
         {
             std::vector<Action> actions = inputManager.Update();
+            for (const auto action : actions)
+            {
+                if (action.type == Exit)
+                {
+                    exit(0);
+                }
+            }
             coordinator.SetResource<std::vector<Action>>(actions);
 
             InputState inputState = inputManager.GetInputState();
