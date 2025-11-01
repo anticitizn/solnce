@@ -31,7 +31,8 @@ public:
         auto key = typeid(T).hash_code();
         auto it = resources.find(key);
 
-        if (it == resources.end()) {
+        if (it == resources.end()) 
+        {
             // Automatically register a default instance if not found
             Register<T>();
             it = resources.find(key);
