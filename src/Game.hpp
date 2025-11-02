@@ -90,7 +90,7 @@ public:
 
         Entity test = coordinator.CreateEntity();
         test.Assign<Quad>(Quad {150.0f, 150.0f, 0, 100, 100, 255, 255, 255, 45});
-        test.Assign<Texture>(Texture{"ship.png", 0});
+        test.Assign<Texture>(Texture{"missing-texture.png", 0});
 
         Entity player = coordinator.CreateEntity();
         player.Assign<Player>(Player {});

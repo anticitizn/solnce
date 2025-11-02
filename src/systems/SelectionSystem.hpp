@@ -71,30 +71,42 @@ public:
     }
 
 private:
-    bool IsClicked(const float mouseX, const float mouseY, struct Quad quad)
+    bool IsClicked(float mouseX, float mouseY, const Quad& quad)
     {
-        Camera camera = coordinator.GetResource<Camera>();
-        
-        // Move vector origin to the center of the quad
-        float translatedX = mouseX - quad.posX + camera.position[0];
-        float translatedY = mouseY - quad.posY + camera.position[1];
+        const Camera& camera = coordinator.GetResource<Camera>();
+        glm::vec2 worldClick = ScreenToWorld(mouseX, mouseY, camera);
 
-        // Inverse the quad's rotation
-        float angleRad = -quad.rot * (M_PI / 180.0f);
-        float cosAngle = cosf(angleRad);
-        float sinAngle = sinf(angleRad);
+        // Compare click position in world space
+        glm::vec2 quadCenter(quad.posX, quad.posY);
+        glm::vec2 halfSize(quad.sizeX / 2.f, quad.sizeY / 2.f);
 
-        // Restore vector origin
-        float rotatedX = translatedX * cosAngle - translatedY * sinAngle;
-        float rotatedY = translatedX * sinAngle + translatedY * cosAngle;
+        // Translate to quad local space
+        glm::vec2 local = worldClick - quadCenter;
 
-        // Check if the point is inside the "unrotated" quad
-        float halfWidth = quad.sizeX / 2.0f;
-        float halfHeight = quad.sizeY / 2.0f;
+        // Invert the rotation of the quad
+        float rad = -glm::radians(quad.rot);
+        glm::mat2 rot(cos(rad), -sin(rad), sin(rad),  cos(rad));
+        local = rot * local;
 
-        return (rotatedX >= -halfWidth && rotatedX <= halfWidth &&
-                rotatedY >= -halfHeight && rotatedY <= halfHeight);
+        return (local.x >= -halfSize.x && local.x <= halfSize.x &&
+                local.y >= -halfSize.y && local.y <= halfSize.y);
     }
+
+    glm::vec2 ScreenToWorld(float mouseX, float mouseY, const Camera& camera)
+    {
+        // Convert position to NDC (-1 to +1)
+        float ndcX = (2.0f * mouseX / camera.viewportSize.x) - 1.0f;
+        float ndcY = 1.0f - (2.0f * mouseY / camera.viewportSize.y); // flip Y
+
+        glm::vec4 ndcPos(ndcX, ndcY, 0.0f, 1.0f);
+
+        // Transform to world position using the inverted projection matrix
+        glm::vec4 worldPos = camera.inverseProjection * ndcPos;
+        worldPos /= worldPos.w;
+
+        return { worldPos.x, worldPos.y };
+    }
+
 };
 
 
