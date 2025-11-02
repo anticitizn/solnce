@@ -11,7 +11,7 @@
 #include <src/components/Selected.hpp>
 #include <src/components/Dragged.hpp>
 #include <src/io/Action.hpp>
-#include <src/context/Camera.hpp>
+#include <src/resources/Camera.hpp>
 
 using namespace std;
 

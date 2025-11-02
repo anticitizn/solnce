@@ -47,14 +47,6 @@ public:
         coordinator.RegisterComponent<Selected>();
         coordinator.RegisterComponent<Dragged>();
 
-        renderingSystem = coordinator.RegisterSystem<RenderingSystem>();
-        {
-            Signature<Texture, Quad> signature(&coordinator);
-            coordinator.SetSystemSignature<RenderingSystem>(signature);
-        }
-
-        renderingSystem->Init("assets/", "src/shaders/");
-
         resourceSystem = coordinator.RegisterSystem<ResourceSystem>();
         {
             Signature<ResourceGenerator> signature(&coordinator);
@@ -78,6 +70,14 @@ public:
             Signature<Player, Pos2D> signature(&coordinator);
             coordinator.SetSystemSignature<CameraSystem>(signature);
         }
+
+        renderingSystem = coordinator.RegisterSystem<RenderingSystem>();
+        {
+            Signature<Texture, Quad> signature(&coordinator);
+            coordinator.SetSystemSignature<RenderingSystem>(signature);
+        }
+
+        renderingSystem->Init("assets/", "src/shaders/");
 
 
         Entity playerData = coordinator.CreateEntity();

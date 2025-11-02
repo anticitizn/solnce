@@ -59,6 +59,20 @@ public:
                 camera.position.y -= action.delta.y / camera.position.z;
             }
         }
+
+        camera.view = glm::mat4(1.0f);
+
+        float w = camera.viewportSize.x;
+        float h = camera.viewportSize.y;
+
+        glm::vec2 cursorPos = coordinator.GetResource<CursorPos>().position;
+        float half_w = (w * 0.5f) / camera.position.z;
+        float half_h = (h * 0.5f) / camera.position.z;
+
+        camera.projection = glm::ortho(camera.position.x - half_w, camera.position.x + half_w, 
+                                       camera.position.y + half_h, camera.position.y - half_h, 
+                                       -1.0f                     , 1.0f);
+        camera.inverseProjection = glm::inverse(camera.projection);
     }
 };
 

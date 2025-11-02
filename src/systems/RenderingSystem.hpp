@@ -11,7 +11,7 @@
 #include <src/components/Texture.hpp>
 #include <src/components/Quad.hpp>
 #include <src/ui/Window.hpp>
-#include <src/context/CursorPos.hpp>
+#include <src/resources/CursorPos.hpp>
 
 #include <external/glm/glm.hpp>
 #include <external/stb/stb_image.h>
@@ -39,15 +39,11 @@ public:
         shaderManager.Init(shadersPath);
         shaderManager.Activate();
 
-        cameraProjection = glm::ortho(0.0f, (float)windowManager.GetContextWidth(), (float)windowManager.GetContextHeight(), 0.0f);
-        shaderManager.SetUniform("projection", cameraProjection);
-
-        viewMatrix = glm::mat4(1.0f);
-        shaderManager.SetUniform("view", viewMatrix);
+        Camera& camera = coordinator.GetResource<Camera>();
+        camera.viewportSize = {windowManager.GetContextWidth(), windowManager.GetContextHeight()};
 
         shaderManager.SetUniform("texture", 0);
 
-        //Render();
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
@@ -59,23 +55,10 @@ public:
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Calculate view and projection camera
-        glm::vec3 camPos = coordinator.GetResource<Camera>().position;
+        const Camera& camera = coordinator.GetResource<Camera>();
 
-        viewMatrix = glm::mat4(1.0f);
-        
-        shaderManager.SetUniform("view", viewMatrix);
-
-        auto& cam = coordinator.GetResource<Camera>();
-        float w = (float)windowManager.GetContextWidth();
-        float h = (float)windowManager.GetContextHeight();
-
-        glm::vec2 cursorPos = coordinator.GetResource<CursorPos>().position;
-        float half_w = (w * 0.5f) / camPos.z;
-        float half_h = (h * 0.5f) / camPos.z;
-
-        cameraProjection = glm::ortho(camPos.x - half_w, camPos.x + half_w, camPos.y + half_h, camPos.y - half_h, -1.0f, 1.0f);
-        shaderManager.SetUniform("projection", cameraProjection);
+        shaderManager.SetUniform("view", camera.view);
+        shaderManager.SetUniform("projection", camera.projection);
 
         unordered_map<unsigned int, vector<glm::mat4>> textureMatrixes;
         for (const auto& entity : entities)
@@ -146,7 +129,8 @@ private:
 
     vector<shared_ptr<Window>> windows;
 
-    float quadVertices[24] = {
+    float quadVertices[24] = 
+    {
         // positions,  texture coordinates
         -1.0f, -1.0f,  0.0f,  0.0f, // lower left
         -1.0f,  1.0f,  0.0f,  1.0f, // upper left
@@ -220,7 +204,7 @@ private:
 
     void LoadInitialTextures()
     {
-        // texture 1 serves as missing texture image
+        // Texture 1 serves as missing texture image
         LoadTexture("missing-texture.png");
     }
 
@@ -254,12 +238,12 @@ private:
     
         if (data)
         {
-            // only generate a texture if the file actually loads
+            // Only generate a texture if the file actually loads
             glGenTextures(1, &texture);
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, texture);
 
-            // set some texture parameters
+            // Set some texture parameters
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -277,7 +261,7 @@ private:
         }
         else
         {
-            // with texture = 1 the system won't try to load the texture anymore
+            // With texture = 1 the system won't try to load the texture any more
             cout << "WARNING: Failed to load texture | " << filename  << " | at " << texturesPath + filename << endl;
             return 1;
         }

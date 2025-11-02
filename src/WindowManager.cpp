@@ -83,10 +83,12 @@ void WindowManager::Exit()
 
 int WindowManager::GetContextWidth()
 {
+	SDL_GetWindowSize(sdl_window, &contextWidth, &contextHeight);
 	return contextWidth;
 }
 
 int WindowManager::GetContextHeight()
 {
+	SDL_GetWindowSize(sdl_window, &contextWidth, &contextHeight);
 	return contextHeight;
 }
