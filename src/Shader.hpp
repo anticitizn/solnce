@@ -15,12 +15,14 @@
 
 using namespace std;
 
-class ShaderManager {
+class Shader 
+{
 public:
 	unsigned int programID;
 
-	void Init(string shadersPath)
+	void Init(string vShaderPath, string fShaderPath)
 	{
+		cout << vShaderPath << " " << fShaderPath << std::endl;
         ifstream vShaderFile;
         ifstream fShaderFile;
 
@@ -31,8 +33,8 @@ public:
         fShaderFile.exceptions(ifstream::failbit | ifstream::badbit);
         try
         {
-            vShaderFile.open(shadersPath + "vertex.glsl");
-            fShaderFile.open(shadersPath + "fragment.glsl");
+            vShaderFile.open(vShaderPath);
+            fShaderFile.open(fShaderPath);
             stringstream vShaderStream, fShaderStream;
             
             vShaderStream << vShaderFile.rdbuf();
@@ -48,6 +50,7 @@ public:
         catch(ifstream::failure& e)
         {
             cout << "ERROR: SHADER FILE NOT SUCCESSFULLY READ" << endl;
+			return;
         }
 
 		const char* vShaderCode = vertexCode.c_str();
@@ -70,6 +73,7 @@ public:
 		{
 			glGetShaderInfoLog(vShader, 512, NULL, errorLog);
 			cout << "ERROR: Shader compilation failed" << endl << errorLog << endl;
+			return;
 		}
 
 		programID = glCreateProgram();
@@ -78,11 +82,12 @@ public:
 
 		glLinkProgram(programID);
 
-		glGetShaderiv(programID, GL_LINK_STATUS, &success);
+		glGetProgramiv(programID, GL_LINK_STATUS, &success);
 		if (!success)
 		{
 			glGetProgramInfoLog(programID, 512, NULL, errorLog);
 			cout << "ERROR: Shader to program linking failed" << endl << errorLog << endl;
+			return;
 		}
 
 		glDetachShader(programID, vShader);

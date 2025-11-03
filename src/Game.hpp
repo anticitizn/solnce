@@ -11,7 +11,7 @@
 
 #include <src/ecs/ECS.hpp>
 #include <src/systems/SelectionSystem.hpp>
-#include <src/systems/RenderingSystem.hpp>
+#include <src/systems/RenderSystem.hpp>
 #include <src/systems/DraggingSystem.hpp>
 #include <src/systems/ResourceSystem.hpp>
 #include <src/systems/CameraSystem.hpp>
@@ -69,14 +69,8 @@ public:
             coordinator.SetSystemSignature<CameraSystem>(signature);
         }
 
-        renderingSystem = coordinator.RegisterSystem<RenderingSystem>();
-        {
-            Signature<Texture, Quad> signature(&coordinator);
-            coordinator.SetSystemSignature<RenderingSystem>(signature);
-        }
-
-        renderingSystem->Init("assets/", "src/shaders/");
-
+        renderSystem = coordinator.RegisterSystem<RenderSystem>();        
+        renderSystem->Init();
 
         Entity playerData = coordinator.CreateEntity();
         playerData.Assign<ResourceStorage>(ResourceStorage {0, 0, 0});
@@ -100,7 +94,7 @@ public:
         // doc.save_file("test.xml", PUGIXML_TEXT("  "));
 
         shared_ptr<Window> testWindow = make_shared<TestWindow>(playerData.GetComponent<ResourceStorage>(), coordinator.GetResource<std::vector<Action>>());
-        renderingSystem->AddWindow(testWindow);
+        renderSystem->AddWindow(testWindow);
     }
 
     void Start()
@@ -126,7 +120,7 @@ public:
             selectionSystem->Update();
             cameraSystem->Update();
             draggingSystem->Update();
-            renderingSystem->Render();
+            renderSystem->Render();
             resourceSystem->Update();
         }
     }
@@ -139,7 +133,7 @@ public:
 private:
     bool running;
 
-    shared_ptr<RenderingSystem> renderingSystem;
+    shared_ptr<RenderSystem> renderSystem;
     shared_ptr<SelectionSystem> selectionSystem;
     shared_ptr<ResourceSystem> resourceSystem;
     shared_ptr<DraggingSystem> draggingSystem;

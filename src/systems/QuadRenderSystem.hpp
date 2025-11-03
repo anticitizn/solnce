@@ -5,60 +5,42 @@
 #include <unordered_map>
 #include <iostream>
 
-#include <src/ShaderManager.hpp>
-#include <src/WindowManager.hpp>
+#include <src/Shader.hpp>
 #include <src/ecs/System.hpp>
 #include <src/components/Texture.hpp>
 #include <src/components/Quad.hpp>
-#include <src/ui/Window.hpp>
-#include <src/resources/CursorPos.hpp>
 
 #include <external/glm/glm.hpp>
 #include <external/stb/stb_image.h>
 #include <external/glad/glad.h>
 
-#include <external/imgui/imgui.h>
-#include <external/imgui/imgui_impl_sdl.h>
-#include <external/imgui/imgui_impl_opengl3.h>
-
 using namespace std;
 
 extern Coordinator coordinator;
 
-class RenderingSystem : public System
+class QuadRenderSystem : public System
 {
 public:
-    void Init(string TexturesPath, string ShadersPath)
+    void Init(string texturesPath, string shadersPath)
     {
-        shadersPath = ShadersPath;
-        texturesPath = TexturesPath;
+        this->texturesPath = texturesPath;
 
-        windowManager.Init("SOLNCE", false);
-        InitOpenGL();
+        InitVAO();
         LoadInitialTextures();
-        shaderManager.Init(shadersPath);
-        shaderManager.Activate();
+        shader.Init(shadersPath + "quad_vertex.glsl", shadersPath + "quad_fragment.glsl");
+        shader.Activate();
 
-        Camera& camera = coordinator.GetResource<Camera>();
-        camera.viewportSize = {windowManager.GetContextWidth(), windowManager.GetContextHeight()};
-
-        shaderManager.SetUniform("texture", 0);
-
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        shader.SetUniform("texture", 0);
     }
 
     void Render()
     {
         LoadTextures();
 
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         const Camera& camera = coordinator.GetResource<Camera>();
 
-        shaderManager.SetUniform("view", camera.view);
-        shaderManager.SetUniform("projection", camera.projection);
+        shader.SetUniform("view", camera.view);
+        shader.SetUniform("projection", camera.projection);
 
         unordered_map<unsigned int, vector<glm::mat4>> textureMatrixes;
         for (const auto& entity : entities)
@@ -85,37 +67,12 @@ public:
             glBufferData(GL_ARRAY_BUFFER, textureMatrixes[item.first].size() * sizeof(glm::mat4), &textureMatrixes[item.first][0], GL_DYNAMIC_DRAW);
             glDrawArraysInstanced(GL_TRIANGLES, 0, 6, textureMatrixes[item.first].size());
         }
-
-        windowManager.Refresh();
-
-        // Render UI
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplSDL2_NewFrame();
-        ImGui::NewFrame();
-
-        for (long unsigned int i = 0; i < windows.size(); i++)
-        {
-            windows[i]->Draw();
-        }
-
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-        windowManager.SwapBuffers();
-
-    }
-
-    void AddWindow(shared_ptr<Window> window)
-    {
-        windows.push_back(window);
     }
 
 private:
+    Shader shader;
+
     string texturesPath;
-    string shadersPath;
-    
-    WindowManager windowManager;
-    ShaderManager shaderManager;
 
     unordered_map<string, unsigned int> filenamesTextures;
 
@@ -123,13 +80,9 @@ private:
     unsigned int instanceVBO;
     unsigned int VAO;
 
-    glm::mat4 viewMatrix;
-    glm::mat4 cameraProjection;
     int maxQuads = 100;
 
-    vector<shared_ptr<Window>> windows;
-
-    float quadVertices[24] = 
+    const float quadVertices[24] = 
     {
         // positions,  texture coordinates
         -1.0f, -1.0f,  0.0f,  0.0f, // lower left
@@ -140,12 +93,6 @@ private:
          1.0f, -1.0f,  1.0f,  0.0f, // lower right
          1.0f,  1.0f,  1.0f,  1.0f  // upper right
     };
-
-    void InitOpenGL()
-    {
-        glViewport(0, 0, windowManager.GetContextWidth(), windowManager.GetContextHeight());
-        InitVAO();
-    }
 
     void InitVAO()
     {
@@ -235,7 +182,7 @@ private:
         
         stbi_set_flip_vertically_on_load(false);
         unsigned char* data = stbi_load((texturesPath + filename).c_str(), &imgWidth, &imgHeight, &nrChannels, 0);
-    
+
         if (data)
         {
             // Only generate a texture if the file actually loads

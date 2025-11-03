@@ -21,7 +21,8 @@ static const std::unordered_map<SDL_Scancode, ActionType> keyToAction =
 static const std::unordered_map<uint8_t, ActionType> mouseToAction = 
 {
     {SDL_BUTTON_LEFT, ActionType::Select},
-    {SDL_BUTTON_MIDDLE, ActionType::DragCamera}
+    {SDL_BUTTON_MIDDLE, ActionType::DragCamera},
+    {SDL_BUTTON_RIGHT, ActionType::DragCamera}
 };
 
 // Helper to compute WASD axis from InputState::down (held keys)
