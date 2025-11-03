@@ -17,7 +17,6 @@
 #include <src/systems/CameraSystem.hpp>
 #include <src/components/Texture.hpp>
 #include <src/components/Quad.hpp>
-#include <src/components/Player.hpp>
 #include <src/components/Pos2D.hpp>
 #include <src/components/Selected.hpp>
 #include <src/components/Dragged.hpp>
@@ -40,7 +39,6 @@ public:
     {
         coordinator.RegisterComponent<Texture>();
         coordinator.RegisterComponent<Pos2D>();
-        coordinator.RegisterComponent<Player>();
         coordinator.RegisterComponent<Quad>();
         coordinator.RegisterComponent<ResourceStorage>();
         coordinator.RegisterComponent<ResourceGenerator>();
@@ -67,7 +65,7 @@ public:
 
         cameraSystem = coordinator.RegisterSystem<CameraSystem>();
         {
-            Signature<Player, Pos2D> signature(&coordinator);
+            Signature<Pos2D> signature(&coordinator);
             coordinator.SetSystemSignature<CameraSystem>(signature);
         }
 
@@ -91,10 +89,6 @@ public:
         Entity test = coordinator.CreateEntity();
         test.Assign<Quad>(Quad {150.0f, 150.0f, 0, 100, 100, 255, 255, 255, 45});
         test.Assign<Texture>(Texture{"missing-texture.png", 0});
-
-        Entity player = coordinator.CreateEntity();
-        player.Assign<Player>(Player {});
-        player.Assign<Pos2D>(Pos2D {0.0f, 0.0f, 0.0f});
 
         coordinator.RegisterResource<std::vector<Action>>();
 

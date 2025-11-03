@@ -6,7 +6,6 @@
 #include <unordered_set>
 
 #include <src/components/Pos2D.hpp>
-#include <src/components/Player.hpp>
 #include <src/ecs/System.hpp>
 
 #include <external/glm/glm.hpp>
