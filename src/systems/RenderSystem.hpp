@@ -10,6 +10,7 @@
 #include <src/ui/Window.hpp>
 #include <src/resources/CursorPos.hpp>
 #include <src/systems/QuadRenderSystem.hpp>
+#include <src/systems/LineRenderSystem.hpp>
 
 #include <external/glm/glm.hpp>
 #include <external/glad/glad.h>
@@ -42,15 +43,25 @@ public:
             coordinator.SetSystemSignature<QuadRenderSystem>(signature);
         }
 
-        quadSystem->Init("assets/", "src/shaders/");
+        //quadSystem->Init("assets/", "src/shaders/");
+
+        lineSystem = coordinator.RegisterSystem<LineRenderSystem>();
+        // {
+        //     Signature<Texture, Quad> signature(&coordinator);
+        //     coordinator.SetSystemSignature<QuadRenderSystem>(signature);
+        // }
+
+        lineSystem->Init("src/shaders/");
     }
 
     void Render()
     {
+        glDisable(GL_CULL_FACE);
         BeginFrame();
         
         // Call all rendering subsystems
-        quadSystem->Render();
+        //quadSystem->Render();
+        lineSystem->Render();
 
         RenderUI();
 
@@ -70,6 +81,7 @@ private:
 
     vector<shared_ptr<Window>> windows;
     shared_ptr<QuadRenderSystem> quadSystem;
+    shared_ptr<LineRenderSystem> lineSystem;
 
     void InitOpenGL()
     {
