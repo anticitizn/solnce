@@ -1,67 +1,168 @@
 #version 430 core
 
-uniform mat4 projection;
-uniform uint linePointsCount;
+out vec4 vColor;
+
+uniform mat4  projection;
+uniform int   lineCount;        // number of polylines
+uniform int   totalSegments;    // number of all segments across all lines
 uniform float lineWidth;
 
-layout(std430, binding = 0) buffer TVertex
+
+// Concatenated all points for all polylines, 
+layout(std430, binding = 0) buffer LineVertices 
 {
-   vec2 vertex[]; 
+    vec2 vertex[];
 };
 
-out flat uint vInstanceID;
-out flat uint vVertexID;
-
-void main()
+// For each polyline: (startIndex into vertex[], vertexCount for that polyline)
+layout(std430, binding = 1) buffer LineRanges 
 {
-   uint instanceIdx = gl_InstanceID;
-   uint vertexIdx = gl_VertexID;
+    uvec2 lineRanges[]; // .x = start, .y = count
+};
 
-   vInstanceID = gl_InstanceID;
-   vVertexID = gl_VertexID;
-   
-   vec2 dir = normalize(vertex[instanceIdx] - vertex[instanceIdx + 1]);
-   vec2 perp = vec2(-dir.y, dir.x) * (lineWidth * 0.5);
+layout(std430, binding = 2) buffer LineAttribs 
+{
+    vec4 lineColor[];  // RGBA color, one entry per line!
+};
 
-   // We use this to check if we have reached the last or second last item of the vector (so there is no vertex[instanceIdx + 2] at all)
-   // If this is the case, the joint/miter will have the same angle as the first line segment point, i.e. it will just be rectangular
-   uint nextInstance = min(instanceIdx + 1, linePointsCount - 1);
-   uint nextNextInstance = min(instanceIdx + 2, linePointsCount - 1);
 
-   vec2 dirNext = normalize(vertex[nextInstance] - vertex[nextNextInstance]);
-   if (nextInstance == nextNextInstance)
-   {
-      dirNext = dir;
-   }
-   vec2 perpNext = vec2(-dirNext.y, dirNext.x) * (lineWidth * 0.5);
+vec2 perp(vec2 v) 
+{ 
+    return vec2(-v.y, v.x); 
+}
 
-   vec2 pos;
+vec2 safeNormalize(vec2 v) 
+{
+    float len = length(v);
+    if (len > 0.0)
+    {
+        return v / len;
+    }
+    else
+    {
+        vec2(0.0);
+    }
+}
 
-   // Triangle strip order: vertex[idx] + perp, vertex[idx] - perp, vertex[idx + 1] + perpNext, vertex[idx + 1] - perpNext
-   // 
-   // 0 ---- 2
-   // |    / |
-   // |  /   |
-   // 1 ---- 3
-   // 
-   // (0, 1, 2) | (2, 1, 3)
+// Returns (lineID, localSegIndex) for a global segment index
+// performs a linear scan
+uvec2 findLineAndLocalSeg(uint segIndex) 
+{
+    for (uint i = 0u; i < uint(lineCount); ++i) 
+    {
+        uvec2 r = lineRanges[i];
+        uint segs = (r.y > 0u) ? (r.y - 1u) : 0u;
 
-   if (vertexIdx == 0)
-   {
-      pos = vertex[instanceIdx] + perp;
-   }
-   else if (vertexIdx == 1)
-   {
-      pos = vertex[instanceIdx] - perp;
-   }
-   else if (vertexIdx == 2)
-   {
-      pos = vertex[instanceIdx + 1] + perpNext;
-   }
-   else if (vertexIdx == 3)
-   {
-      pos = vertex[instanceIdx + 1] - perpNext;
-   }
+        if (segIndex < segs) 
+        {
+            return uvec2(i, segIndex);
+        }
 
-   gl_Position = projection * vec4(pos, 0.0, 1.0);
+        segIndex -= segs;
+    }
+
+    // Fallback to the last line, which shouldn't happen if totalSegments is set correctly
+    return uvec2(uint(max(0, lineCount - 1)), 0u);
+}
+
+// Compute a left-side miter offset at a joint from dA->dB, constrained by nRef
+vec2 miterOffset(vec2 dA, vec2 dB, vec2 nRef, float halfWidth) 
+{
+    // angle bisector tangent
+    vec2 t = safeNormalize(dA + dB);             
+
+    // 180 deg / degenerate line -> bevel
+    if (t == vec2(0.0)) 
+    {
+        return nRef * halfWidth;
+    } 
+
+    // miter direction is perpendicular to bisector
+    vec2 mDir = perp(t);                 
+    float denom = dot(mDir, nRef);
+
+    // avoid blowing up
+    if (abs(denom) < 1e-5) 
+    {
+        return nRef * halfWidth; 
+    }
+
+    vec2 offset = mDir * (halfWidth / denom);
+
+    // Fall back to a bevel with extremely long miters that can happen with sharp angles
+    const float MITER_LIMIT = 4.0;
+    if (length(offset) > MITER_LIMIT * halfWidth) 
+    {
+        return nRef * halfWidth; // bevel fallback
+    }
+    return offset;
+}
+
+void main() 
+{
+    uint gSeg = gl_InstanceID; // global segment index across all lines
+    uint vid  = gl_VertexID;   // 0..3 in the strip
+
+    // Map to a specific polyline and local segment
+    uvec2 lineLocal = findLineAndLocalSeg(gSeg);
+    uint lineID     = lineLocal.x;
+    uint localSeg   = lineLocal.y;
+
+    vColor = lineColor[lineID];
+
+    uvec2 range = lineRanges[lineID];
+    uint base   = range.x; // first vertex index of this line
+    uint vCount = range.y; // number of vertices in this line
+    uint lastLocalSeg = (vCount >= 1u) ? (vCount - 2u) : 0u;
+
+    // Endpoints for this segment
+    vec2 P0 = vertex[base + localSeg];
+    vec2 P1 = vertex[base + localSeg + 1u];
+
+    // Directions: prev (into P0), curr (P0->P1), next (out of P1)
+    vec2 dCurr = safeNormalize(P1 - P0);
+
+    vec2 dPrev;
+    if (localSeg == 0u) 
+    {
+        dPrev = dCurr; // start cap
+    } 
+    else 
+    {
+        vec2 Pm1 = vertex[base + localSeg - 1u];
+        dPrev = safeNormalize(P0 - Pm1);
+    }
+
+    vec2 dNext;
+    if (localSeg == lastLocalSeg) 
+    {
+        dNext = dCurr; // end cap
+    } else 
+    {
+        vec2 P2 = vertex[base + localSeg + 2u];
+        dNext = safeNormalize(P2 - P1);
+    }
+
+    // Left normals (reference)
+    vec2 nPrev = perp(dPrev);
+    vec2 nNext = perp(dNext);
+
+    float halfW = 0.5 * lineWidth;
+
+    // Start/end offsets (left/right)
+    vec2 startLeft  = miterOffset(dPrev, dCurr, nPrev, halfW);
+    vec2 startRight = -startLeft;
+
+    vec2 endLeft  = miterOffset(dCurr, dNext, nNext, halfW);
+    vec2 endRight = -endLeft;
+
+    // Triangle strip:
+    // 0: P0 + left, 1: P0 + right, 2: P1 + left, 3: P1 + right
+    vec2 pos;
+    if      (vid == 0u) pos = P0 + startLeft;
+    else if (vid == 1u) pos = P0 + startRight;
+    else if (vid == 2u) pos = P1 + endLeft;
+    else                pos = P1 + endRight;
+
+    gl_Position = projection * vec4(pos, 0.0, 1.0);
 }
