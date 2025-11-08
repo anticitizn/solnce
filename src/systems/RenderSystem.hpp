@@ -85,6 +85,7 @@ private:
 
     void InitOpenGL()
     {
+        glEnable(GL_MULTISAMPLE);
         glViewport(0, 0, windowManager.GetContextWidth(), windowManager.GetContextHeight());
     }
 
