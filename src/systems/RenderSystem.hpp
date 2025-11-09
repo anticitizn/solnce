@@ -43,7 +43,7 @@ public:
             coordinator.SetSystemSignature<QuadRenderSystem>(signature);
         }
 
-        //quadSystem->Init("assets/", "src/shaders/");
+        quadSystem->Init("assets/", "src/shaders/");
 
         lineSystem = coordinator.RegisterSystem<LineRenderSystem>();
         {
@@ -60,7 +60,7 @@ public:
         BeginFrame();
         
         // Call all rendering subsystems
-        //quadSystem->Render();
+        quadSystem->Render();
         lineSystem->Render();
 
         RenderUI();

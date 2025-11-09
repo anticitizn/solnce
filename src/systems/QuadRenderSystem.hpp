@@ -39,6 +39,7 @@ public:
 
         const Camera& camera = coordinator.GetResource<Camera>();
 
+        shader.Activate();
         shader.SetUniform("view", camera.view);
         shader.SetUniform("projection", camera.projection);
 
