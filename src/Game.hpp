@@ -17,6 +17,7 @@
 #include <src/systems/CameraSystem.hpp>
 #include <src/components/Texture.hpp>
 #include <src/components/Quad.hpp>
+#include <src/components/Polyline.hpp>
 #include <src/components/Pos2D.hpp>
 #include <src/components/Selected.hpp>
 #include <src/components/Dragged.hpp>
@@ -40,6 +41,7 @@ public:
         coordinator.RegisterComponent<Texture>();
         coordinator.RegisterComponent<Pos2D>();
         coordinator.RegisterComponent<Quad>();
+        coordinator.RegisterComponent<Polyline>();
         coordinator.RegisterComponent<ResourceStorage>();
         coordinator.RegisterComponent<ResourceGenerator>();
         coordinator.RegisterComponent<Selected>();
@@ -72,6 +74,8 @@ public:
         renderSystem = coordinator.RegisterSystem<RenderSystem>();        
         renderSystem->Init();
 
+        coordinator.RegisterResource<std::vector<Action>>();
+
         Entity playerData = coordinator.CreateEntity();
         playerData.Assign<ResourceStorage>(ResourceStorage {0, 0, 0});
 
@@ -84,7 +88,23 @@ public:
         test.Assign<Quad>(Quad {150.0f, 150.0f, 0, 100, 100, 255, 255, 255, 45});
         test.Assign<Texture>(Texture{"missing-texture.png", 0});
 
-        coordinator.RegisterResource<std::vector<Action>>();
+        {
+            Polyline line = { {{0, 0}, {100, 0}, {200, 0}, {200, 100}, {100, 150}}, { {1, 0, 0, 1},  1.0f, 1.0f, 0, 0 }};
+            Entity lineEntity = coordinator.CreateEntity();
+            lineEntity.Assign<Polyline>(line);
+        }
+
+        {
+            Polyline line = { {{300, 300}, {400, 350}, {450, 300}}, { {0, 1, 0, 1},  6.0f, 0.8f, 0, 0 }};
+            Entity lineEntity = coordinator.CreateEntity();
+            lineEntity.Assign<Polyline>(line);
+        }
+
+        {
+            Polyline line = { {{50, 250}, {50, 400}}, { {0, 0, 1, 1}, 20.0f, 0.5f, 0, 0 }};
+            Entity lineEntity = coordinator.CreateEntity();
+            lineEntity.Assign<Polyline>(line);
+        }
 
         // pugi::xml_document doc;
         // doc.append_child(pugi::node_declaration);

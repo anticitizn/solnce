@@ -24,21 +24,6 @@ public:
 
         shader.Init(shadersPath + "line_vertex.glsl", shadersPath + "line_fragment.glsl");
         shader.Activate();
-
-        // sample polylines
-        polylines = 
-        {
-            { {0, 0}, {100, 0}, {200, 0}, {200, 100}, {100, 150} },
-            { {300, 300}, {400, 350}, {450, 300} },
-            { {50, 250}, {50, 400} }
-        };
-
-        attribs = 
-        {
-            { {1, 0, 0, 1},  1.0f, 1.0f, 0, 0 },  // red, width 8
-            { {0, 1, 0, 1},  6.0f, 0.8f, 0, 0 },  // green, width 6
-            { {0, 0, 1, 1}, 20.0f, 0.5f, 0, 0 }   // blue, width 12
-        };
     }
 
     void Render()
@@ -46,25 +31,31 @@ public:
         const Camera& camera = coordinator.GetResource<Camera>();
         shader.Activate();
         shader.SetUniform("projection", camera.projection);
-        
+
         // Concatenate vertex and range buffers
         std::vector<glm::vec2> allPoints;
         std::vector<glm::uvec2> ranges;
+        std::vector<PolylineAttribute> attribs;
         int totalSegments = 0;
 
-        for (auto& line : polylines)
+        for (const auto& entity : entities)
         {
-            if (line.size() < 2) continue;
+            Polyline& quadComp = coordinator.GetComponent<Polyline>(entity);
+
+            if (quadComp.segments.size() < 2) continue;
 
             uint startIndex = static_cast<uint>(allPoints.size());
-            uint count = static_cast<uint>(line.size());
+            uint count = static_cast<uint>(quadComp.segments.size());
 
             // Append vertices
-            allPoints.insert(allPoints.end(), line.begin(), line.end());
+            allPoints.insert(allPoints.end(), quadComp.segments.begin(), quadComp.segments.end());
 
-            // Store range
+            // Store the range
             ranges.push_back({ startIndex, count });
             totalSegments += static_cast<int>(count - 1);
+            
+            // Store the per-line attributes
+            attribs.push_back(quadComp.attribute);
         }
 
         // SSBO upload
@@ -103,9 +94,6 @@ public:
 
 private:
     Shader shader;
-
-    std::vector<std::vector<glm::vec2>> polylines;
-    std::vector<PolylineAttribute> attribs;
 
     GLuint ssboVertices = 0;
     GLuint ssboRanges   = 0;

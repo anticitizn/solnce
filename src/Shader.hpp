@@ -22,7 +22,6 @@ public:
 
 	void Init(string vShaderPath, string fShaderPath)
 	{
-		cout << vShaderPath << " " << fShaderPath << std::endl;
         ifstream vShaderFile;
         ifstream fShaderFile;
 

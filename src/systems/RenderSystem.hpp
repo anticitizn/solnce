@@ -46,10 +46,10 @@ public:
         //quadSystem->Init("assets/", "src/shaders/");
 
         lineSystem = coordinator.RegisterSystem<LineRenderSystem>();
-        // {
-        //     Signature<Texture, Quad> signature(&coordinator);
-        //     coordinator.SetSystemSignature<QuadRenderSystem>(signature);
-        // }
+        {
+            Signature<Polyline> signature(&coordinator);
+            coordinator.SetSystemSignature<LineRenderSystem>(signature);
+        }
 
         lineSystem->Init("src/shaders/");
     }
