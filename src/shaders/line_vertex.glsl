@@ -5,8 +5,6 @@ out vec4 vColor;
 uniform mat4  projection;
 uniform int   lineCount;        // number of polylines
 uniform int   totalSegments;    // number of all segments across all lines
-uniform float lineWidth;
-
 
 // Concatenated all points for all polylines, 
 layout(std430, binding = 0) buffer LineVertices 
@@ -20,10 +18,20 @@ layout(std430, binding = 1) buffer LineRanges
     uvec2 lineRanges[]; // .x = start, .y = count
 };
 
-layout(std430, binding = 2) buffer LineAttribs 
+struct LineAttribute 
 {
-    vec4 lineColor[];  // RGBA color, one entry per line!
+    vec4 color;
+    float width;
+    float fade;
+    float pad1;   // padding to keep 16-byte alignment (std430 packing rules)
+    float pad2;
 };
+
+layout(std430, binding = 2) buffer LineAttributes
+{
+    LineAttribute attrib[];
+};
+
 
 
 vec2 perp(vec2 v) 
@@ -89,11 +97,11 @@ vec2 miterOffset(vec2 dA, vec2 dB, vec2 nRef, float halfWidth)
 
     vec2 offset = mDir * (halfWidth / denom);
 
-    // Fall back to a bevel with extremely long miters that can happen with sharp angles
+    // Fall back to a bevel in the case of extremely long miters that can result from sharp angles between line segments
     const float MITER_LIMIT = 4.0;
     if (length(offset) > MITER_LIMIT * halfWidth) 
     {
-        return nRef * halfWidth; // bevel fallback
+        return nRef * halfWidth;
     }
     return offset;
 }
@@ -108,7 +116,11 @@ void main()
     uint lineID     = lineLocal.x;
     uint localSeg   = lineLocal.y;
 
-    vColor = lineColor[lineID];
+    vColor  = attrib[lineID].color;
+    //vFade  = attrib[lineID].fade;
+
+    float lineWidth = attrib[lineID].width;
+    float halfW = 0.5 * lineWidth;
 
     uvec2 range = lineRanges[lineID];
     uint base   = range.x; // first vertex index of this line
@@ -146,8 +158,6 @@ void main()
     // Left normals (reference)
     vec2 nPrev = perp(dPrev);
     vec2 nNext = perp(dNext);
-
-    float halfW = 0.5 * lineWidth;
 
     // Start/end offsets (left/right)
     vec2 startLeft  = miterOffset(dPrev, dCurr, nPrev, halfW);

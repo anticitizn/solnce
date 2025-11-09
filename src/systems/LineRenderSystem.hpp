@@ -6,8 +6,7 @@
 
 #include <src/Shader.hpp>
 #include <src/ecs/System.hpp>
-#include <src/components/Texture.hpp>
-#include <src/components/Quad.hpp>
+#include <src/components/Polyline.hpp>
 
 #include <external/glm/glm.hpp>
 #include <external/glad/glad.h>
@@ -34,11 +33,11 @@ public:
             { {50, 250}, {50, 400} }
         };
 
-        colors = 
+        attribs = 
         {
-            {1.0f, 0.2f, 0.2f, 1.0f},  // red
-            {0.2f, 1.0f, 0.2f, 1.0f},  // green
-            {0.2f, 0.2f, 1.0f, 1.0f}   // blue
+            { {1, 0, 0, 1},  1.0f, 1.0f, 0, 0 },  // red, width 8
+            { {0, 1, 0, 1},  6.0f, 0.8f, 0, 0 },  // green, width 6
+            { {0, 0, 1, 1}, 20.0f, 0.5f, 0, 0 }   // blue, width 12
         };
     }
 
@@ -47,7 +46,7 @@ public:
         const Camera& camera = coordinator.GetResource<Camera>();
         shader.Activate();
         shader.SetUniform("projection", camera.projection);
-
+        
         // Concatenate vertex and range buffers
         std::vector<glm::vec2> allPoints;
         std::vector<glm::uvec2> ranges;
@@ -85,13 +84,14 @@ public:
                      GL_DYNAMIC_DRAW);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ssboRanges);
         
-        // Per-line colors
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboColors);
+        // Per-line attributes
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboAttribs);
         glBufferData(GL_SHADER_STORAGE_BUFFER,
-                    colors.size() * sizeof(glm::vec4),
-                    colors.data(),
+                    attribs.size() * sizeof(PolylineAttribute),
+                    attribs.data(),
                     GL_DYNAMIC_DRAW);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ssboColors);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ssboAttribs);
+
 
         shader.SetUniform("lineCount", (int)ranges.size());
         shader.SetUniform("totalSegments", totalSegments);
@@ -105,16 +105,16 @@ private:
     Shader shader;
 
     std::vector<std::vector<glm::vec2>> polylines;
-    std::vector<glm::vec4> colors;
+    std::vector<PolylineAttribute> attribs;
 
     GLuint ssboVertices = 0;
     GLuint ssboRanges   = 0;
-    GLuint ssboColors   = 0;
+    GLuint ssboAttribs   = 0;
 
     void InitSSBOs()
     {
         glGenBuffers(1, &ssboVertices);
         glGenBuffers(1, &ssboRanges);
-        glGenBuffers(1, &ssboColors);
+        glGenBuffers(1, &ssboAttribs);
     }
 };

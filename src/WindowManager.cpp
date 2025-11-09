@@ -22,9 +22,9 @@ void WindowManager::Init(string windowName, bool fullscreen, unsigned int window
 
 	atexit(SDL_Quit);
 
+	// Enable 4x MSAA
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);  // 4x MSAA
-
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
     Uint32 windowedFlag = fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_SHOWN;
 	sdl_window = SDL_CreateWindow("Solnce", windowPosX, windowPosY, windowSizeX, windowSizeY, SDL_WINDOW_OPENGL | windowedFlag);
