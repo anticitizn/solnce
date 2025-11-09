@@ -32,6 +32,8 @@
 #include <src/io/InputManager.hpp>
 
 #include <src/ui/TestWindow.hpp>
+#include <src/ui/OrbitalDebugWindow.hpp>
+#include <src/ui/OrbitalBodyCreationWindow.hpp>
 
 #include <external/pugixml/pugixml.hpp>
 
@@ -138,6 +140,20 @@ public:
         // auto root = doc.append_child("root");
         // coordinator.ArchiveEntity(root, farm.GetId());
         // doc.save_file("test.xml", PUGIXML_TEXT("  "));
+
+        shared_ptr<Window> testWindow = make_shared<TestWindow>(playerData.GetComponent<ResourceStorage>(), coordinator.GetResource<std::vector<Action>>());
+        renderSystem->AddWindow(testWindow);
+
+        {
+            auto createWindow = make_shared<OrbitalBodyCreationWindow>();
+            renderSystem->AddWindow(createWindow);
+        }
+
+        {
+            auto debugWindow = make_shared<OrbitalDebugWindow>();
+            renderSystem->AddWindow(debugWindow);
+        }
+
     }
 
     void Start()
