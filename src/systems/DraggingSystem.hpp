@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include <src/components/Quad.hpp>
+#include <src/components/Transform.hpp>
 
 #include <src/ecs/System.hpp>
 
@@ -20,6 +21,7 @@ public:
         for (const auto& entity : entities)
         {
             auto& quad = coordinator.GetComponent<Quad>(entity);
+            auto& tf = coordinator.GetComponent<Transform>(entity);
             const Camera& camera = coordinator.GetResource<Camera>();
 
             std::vector<Action> actions = coordinator.GetResource<std::vector<Action>>();
@@ -27,8 +29,8 @@ public:
             {
                 if (action.type == Select)
                 {
-                    quad.posX += action.delta.x / camera.position.z;
-                    quad.posY += action.delta.y / camera.position.z;
+                    tf.position.x += action.delta.x / camera.position.z;
+                    tf.position.y += action.delta.y / camera.position.z;
                 }
             }
         }

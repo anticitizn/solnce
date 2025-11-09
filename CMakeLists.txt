@@ -16,9 +16,6 @@ set(SDL_SHARED OFF CACHE BOOL "" FORCE)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}")
 set(EXT_SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/")
 
-set(BOX2D_PATH "external/box2d/")
-add_subdirectory(${BOX2D_PATH} box2d)
-
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 add_library(imgui
@@ -39,4 +36,4 @@ target_compile_definitions(imgui PUBLIC GL_GLEXT_PROTOTYPES=1)
 add_executable(${PROJECT_NAME} ${SOURCES} main.cpp)
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}" ${SDL2_INCLUDE_DIRS} external)
-target_link_libraries(${PROJECT_NAME} "${EXT_SOURCE_DIR}/glad/glad.cpp" "${EXT_SOURCE_DIR}/pugixml/pugixml.cpp" ${SDL2_LIBRARIES} ${CMAKE_DL_LIBS} imgui box2d)
+target_link_libraries(${PROJECT_NAME} "${EXT_SOURCE_DIR}/glad/glad.cpp" "${EXT_SOURCE_DIR}/pugixml/pugixml.cpp" ${SDL2_LIBRARIES} ${CMAKE_DL_LIBS} imgui)

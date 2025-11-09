@@ -55,6 +55,14 @@ void Coordinator::RemoveComponent(uint32_t entity)
     systemManager->EntitySignatureChanged(entity, signature);
 }
 
+template<typename T>
+bool Coordinator::HasComponent(uint32_t entity)
+{
+    auto signature = entityManager->GetSignature(entity);
+    return signature.test(componentManager->GetComponentType<T>());
+}
+
+
 template <typename T>
 T& Coordinator::GetComponent(uint32_t entity)
 {

@@ -15,6 +15,8 @@
 #include <src/systems/DraggingSystem.hpp>
 #include <src/systems/ResourceSystem.hpp>
 #include <src/systems/CameraSystem.hpp>
+#include <src/systems/KeplerOrbitSystem.hpp>
+#include <src/systems/OrbitPathSystem.hpp>
 #include <src/components/Texture.hpp>
 #include <src/components/Quad.hpp>
 #include <src/components/Polyline.hpp>
@@ -23,6 +25,10 @@
 #include <src/components/Dragged.hpp>
 #include <src/components/ResourceStorage.hpp>
 #include <src/components/ResourceGenerator.hpp>
+#include <src/components/OrbitComponent.hpp>
+#include <src/components/Transform.hpp>
+#include <src/components/MassiveBody.hpp>
+#include <src/resources/SimulationTime.hpp>
 #include <src/io/InputManager.hpp>
 
 #include <src/ui/TestWindow.hpp>
@@ -46,6 +52,9 @@ public:
         coordinator.RegisterComponent<ResourceGenerator>();
         coordinator.RegisterComponent<Selected>();
         coordinator.RegisterComponent<Dragged>();
+        coordinator.RegisterComponent<OrbitComponent>();
+        coordinator.RegisterComponent<Transform>();
+        coordinator.RegisterComponent<MassiveBody>();
 
         resourceSystem = coordinator.RegisterSystem<ResourceSystem>();
         {
@@ -65,10 +74,23 @@ public:
             coordinator.SetSystemSignature<SelectionSystem>(signature);
         }
 
+        orbitPathSystem = coordinator.RegisterSystem<OrbitPathSystem>();
+        {
+            Signature<OrbitComponent, Polyline, Transform> sig(&coordinator);
+            coordinator.SetSystemSignature<OrbitPathSystem>(sig);
+        }
+
+
         cameraSystem = coordinator.RegisterSystem<CameraSystem>();
         {
             Signature<Pos2D> signature(&coordinator);
             coordinator.SetSystemSignature<CameraSystem>(signature);
+        }
+
+        orbitSystem = coordinator.RegisterSystem<KeplerOrbitSystem>();
+        {
+            Signature<OrbitComponent, Transform> signature(&coordinator);
+            coordinator.SetSystemSignature<KeplerOrbitSystem>(signature);
         }
 
         renderSystem = coordinator.RegisterSystem<RenderSystem>();        
@@ -79,32 +101,36 @@ public:
         Entity playerData = coordinator.CreateEntity();
         playerData.Assign<ResourceStorage>(ResourceStorage {0, 0, 0});
 
-        Entity farm = coordinator.CreateEntity();
-        farm.Assign<Quad>(Quad {50.0f, 50.0f, 0, 100, 100, 255, 255, 255, 0});
-        farm.Assign<Texture>(Texture{"ship.png", 0});
-        farm.Assign<ResourceGenerator>(ResourceGenerator {0, 1, 0, 5, playerData.GetId()});
+        orbitSystem->AddTestBodies();
 
-        Entity test = coordinator.CreateEntity();
-        test.Assign<Quad>(Quad {150.0f, 150.0f, 0, 100, 100, 255, 255, 255, 45});
-        test.Assign<Texture>(Texture{"missing-texture.png", 0});
+        // Entity farm = coordinator.CreateEntity();
+        // farm.Assign<Quad>(Quad {100, 100, 255, 255, 255});
+        // farm.Assign<Transform>(Transform {{50.0f, 50.0f, 0.0f}, {0, 0}, 0});
+        // farm.Assign<Texture>(Texture{"ship.png", 0});
+        // farm.Assign<ResourceGenerator>(ResourceGenerator {0, 1, 0, 5, playerData.GetId()});
 
-        {
-            Polyline line = { {{0, 0}, {100, 0}, {200, 0}, {200, 100}, {100, 150}}, { {1, 0, 0, 1},  1.0f, 1.0f, 0, 0 }};
-            Entity lineEntity = coordinator.CreateEntity();
-            lineEntity.Assign<Polyline>(line);
-        }
+        // Entity test = coordinator.CreateEntity();
+        // test.Assign<Quad>(Quad {100, 100, 255, 255, 255});
+        // test.Assign<Transform>(Transform {{150.0f, 150.0f, 0}, {0, 0}, 45});
+        // test.Assign<Texture>(Texture{"missing-texture.png", 0});
 
-        {
-            Polyline line = { {{300, 300}, {400, 350}, {450, 300}}, { {0, 1, 0, 1},  6.0f, 0.8f, 0, 0 }};
-            Entity lineEntity = coordinator.CreateEntity();
-            lineEntity.Assign<Polyline>(line);
-        }
+        // {
+        //     Polyline line = { {{0, 0}, {100, 0}, {200, 0}, {200, 100}, {100, 150}}, { {1, 0, 0, 1},  1.0f, 1.0f, 0, 0 }};
+        //     Entity lineEntity = coordinator.CreateEntity();
+        //     lineEntity.Assign<Polyline>(line);
+        // }
 
-        {
-            Polyline line = { {{50, 250}, {50, 400}}, { {0, 0, 1, 1}, 20.0f, 0.5f, 0, 0 }};
-            Entity lineEntity = coordinator.CreateEntity();
-            lineEntity.Assign<Polyline>(line);
-        }
+        // {
+        //     Polyline line = { {{300, 300}, {400, 350}, {450, 300}}, { {0, 1, 0, 1},  6.0f, 0.8f, 0, 0 }};
+        //     Entity lineEntity = coordinator.CreateEntity();
+        //     lineEntity.Assign<Polyline>(line);
+        // }
+
+        // {
+        //     Polyline line = { {{50, 250}, {50, 400}}, { {0, 0, 1, 1}, 20.0f, 0.5f, 0, 0 }};
+        //     Entity lineEntity = coordinator.CreateEntity();
+        //     lineEntity.Assign<Polyline>(line);
+        // }
 
         // pugi::xml_document doc;
         // doc.append_child(pugi::node_declaration);
@@ -112,9 +138,6 @@ public:
         // auto root = doc.append_child("root");
         // coordinator.ArchiveEntity(root, farm.GetId());
         // doc.save_file("test.xml", PUGIXML_TEXT("  "));
-
-        shared_ptr<Window> testWindow = make_shared<TestWindow>(playerData.GetComponent<ResourceStorage>(), coordinator.GetResource<std::vector<Action>>());
-        renderSystem->AddWindow(testWindow);
     }
 
     void Start()
@@ -137,11 +160,15 @@ public:
             CursorPos cursorPos { {inputState.mouseX, inputState.mouseY} };
             coordinator.SetResource<CursorPos>(cursorPos);
 
+            coordinator.SetResource<SimulationTime>(SimulationTime {0.0001f, 0.0001f});
+
             selectionSystem->Update();
             cameraSystem->Update();
             draggingSystem->Update();
             renderSystem->Render();
             resourceSystem->Update();
+            orbitSystem->Update();
+            orbitPathSystem->Update();
         }
     }
 
@@ -158,6 +185,8 @@ private:
     shared_ptr<ResourceSystem> resourceSystem;
     shared_ptr<DraggingSystem> draggingSystem;
     shared_ptr<CameraSystem> cameraSystem;
+    shared_ptr<KeplerOrbitSystem> orbitSystem;
+    shared_ptr<OrbitPathSystem> orbitPathSystem;
 
     InputManager inputManager;
 };

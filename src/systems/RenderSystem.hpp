@@ -39,7 +39,7 @@ public:
 
         quadSystem = coordinator.RegisterSystem<QuadRenderSystem>();
         {
-            Signature<Texture, Quad> signature(&coordinator);
+            Signature<Texture, Quad, Transform> signature(&coordinator);
             coordinator.SetSystemSignature<QuadRenderSystem>(signature);
         }
 
@@ -60,9 +60,9 @@ public:
         BeginFrame();
         
         // Call all rendering subsystems
-        quadSystem->Render();
         lineSystem->Render();
-
+        quadSystem->Render();
+        
         RenderUI();
 
         EndFrame();

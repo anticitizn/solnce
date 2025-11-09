@@ -10,6 +10,7 @@
 #include <src/ecs/System.hpp>
 #include <src/components/Selected.hpp>
 #include <src/components/Dragged.hpp>
+#include <src/components/Transform.hpp>
 #include <src/io/Action.hpp>
 #include <src/resources/Camera.hpp>
 
@@ -38,8 +39,9 @@ public:
                 for (const auto& entity : entities)
                 {
                     auto& quad = coordinator.GetComponent<Quad>(entity);
+                    auto& tf = coordinator.GetComponent<Transform>(entity);
 
-                    if (IsClicked(mouseX, mouseY, quad))
+                    if (IsClicked(mouseX, mouseY, quad, tf))
                     {
                         anyEntityClicked = true;
 
@@ -71,20 +73,20 @@ public:
     }
 
 private:
-    bool IsClicked(float mouseX, float mouseY, const Quad& quad)
+    bool IsClicked(float mouseX, float mouseY, const Quad& quad, const Transform& tf)
     {
         const Camera& camera = coordinator.GetResource<Camera>();
         glm::vec2 worldClick = ScreenToWorld(mouseX, mouseY, camera);
 
         // Compare click position in world space
-        glm::vec2 quadCenter(quad.posX, quad.posY);
+        glm::vec2 quadCenter(tf.position.x, tf.position.y);
         glm::vec2 halfSize(quad.sizeX / 2.f, quad.sizeY / 2.f);
 
         // Translate to quad local space
         glm::vec2 local = worldClick - quadCenter;
 
         // Invert the rotation of the quad
-        float rad = -glm::radians(quad.rot);
+        float rad = -glm::radians(tf.rotation);
         glm::mat2 rot(cos(rad), -sin(rad), sin(rad),  cos(rad));
         local = rot * local;
 

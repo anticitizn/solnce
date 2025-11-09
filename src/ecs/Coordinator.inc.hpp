@@ -21,6 +21,9 @@ public:
     template <typename T>
     void RemoveComponent(uint32_t entity);
 
+    template<typename T>
+    bool HasComponent(uint32_t entity);
+
     template <typename T>
     T& GetComponent(uint32_t entity);
 

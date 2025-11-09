@@ -1,22 +1,22 @@
 
 #pragma once
 
+#include <src/ecs/Entity.hpp>
+
 #include <src/utils/macros.hpp>
-#include <src/utils/math/Vec2.hpp>
 
 struct OrbitComponent
 {
-    // Semimajor axis
-    double a;
+    uint32_t parentBodyId;
+    
+    double a;   // Semimajor axis
+    double e;   // Eccentricity
+    double ap;  // Argument of periapsis (angle between ascending node and periapsis)
+    double ta;  // True anomaly
 
-    // Eccentricity
-    double e;
-
-    // Argument of periapsis (angle between ascending node and periapsis)
-    double ap;
-
-    // True anomaly
-    double ta;
+    double E;   // Eccentric anomaly
+    double M;   // Mean anomaly
+    double r;   // Radius
     
     void archive(pugi::xml_node& root)
     {
