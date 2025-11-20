@@ -92,7 +92,7 @@ public:
         Entity star = coordinator.CreateEntity();
         star.Assign<MassiveBody>(MassiveBody{ 1.0e20 });
         star.Assign<Transform>(Transform{ {0.0f, 0.0f, 0.0f}, {0,0}, 0 });
-        star.Assign<Quad>(Quad{100, 100, 0.4, 0.6, 1.0});
+        star.Assign<Quad>(Quad{80, 80, 0.4, 0.6, 1.0});
         star.Assign<Texture>(Texture{"sun.png", 0});
         star.Assign<Polyline>(Polyline{ {}, {{1,1,1,1}, 2.0f, 1.0f, 0, 0} });
 
@@ -114,53 +114,53 @@ public:
         planet.Assign<Texture>(Texture{"planet.png", 0});
         planet.Assign<Polyline>(Polyline{ {}, {{1,1,1,1}, 2.0f, 1.0f, 0, 0} });
 
-        // Moon
-        Entity moon = coordinator.CreateEntity();
-        moon.Assign<Transform>(Transform{ {240.0f, 0.0f, 0.0f}, {0,0}, 0 });
-        moon.Assign<Quad>(Quad{10, 10, 0.8, 0.8, 0.8});
-        moon.Assign<MassiveBody>(MassiveBody{5.0e10});
-        moon.Assign<OrbitComponent>(OrbitComponent{
-            planet.GetId(),
-            20.0,                // a
-            0.3,                 // e
-            glm::radians(30.0f), // ap
-            0.0,
-            0.0,
-            0.0,
-            0.0
-        });
-        moon.Assign<Texture>(Texture{"moon.png", 0});
-        moon.Assign<Polyline>(Polyline{ {}, {{1,1,1,1}, 2.0f, 1.0f, 0, 0} });
+        // // Moon
+        // Entity moon = coordinator.CreateEntity();
+        // moon.Assign<Transform>(Transform{ {240.0f, 0.0f, 0.0f}, {0,0}, 0 });
+        // moon.Assign<Quad>(Quad{10, 10, 0.8, 0.8, 0.8});
+        // moon.Assign<MassiveBody>(MassiveBody{5.0e10});
+        // moon.Assign<OrbitComponent>(OrbitComponent{
+        //     planet.GetId(),
+        //     20.0,                // a
+        //     0.3,                 // e
+        //     glm::radians(30.0f), // ap
+        //     0.0,
+        //     0.0,
+        //     0.0,
+        //     0.0
+        // });
+        // moon.Assign<Texture>(Texture{"moon.png", 0});
+        // moon.Assign<Polyline>(Polyline{ {}, {{1,1,1,1}, 2.0f, 1.0f, 0, 0} });
 
-        // Elliptical planet
-        Entity ellipse = coordinator.CreateEntity();
-        ellipse.Assign<Transform>(Transform{ {300.0f, 0.0f, 0.0f}, {0,0}, 0 });
-        ellipse.Assign<Quad>(Quad{15, 15, 1.0, 0.3, 0.3});
-        ellipse.Assign<MassiveBody>(MassiveBody{ 5.0e15 });
-        ellipse.Assign<OrbitComponent>(OrbitComponent{
-            star.GetId(),
-            300.0,                // a
-            0.6,                  // e
-            glm::radians(45.0f),  // ap
-            0.0,
-            0.0,
-            0.0,
-            0.0
-        });
-        ellipse.Assign<Texture>(Texture{"asteroid.png", 0});
-        ellipse.Assign<Polyline>(Polyline{ {}, {{1,1,1,1}, 2.0f, 1.0f, 0, 0} });
+        // // Elliptical planet
+        // Entity ellipse = coordinator.CreateEntity();
+        // ellipse.Assign<Transform>(Transform{ {300.0f, 0.0f, 0.0f}, {0,0}, 0 });
+        // ellipse.Assign<Quad>(Quad{15, 15, 1.0, 0.3, 0.3});
+        // ellipse.Assign<MassiveBody>(MassiveBody{ 5.0e15 });
+        // ellipse.Assign<OrbitComponent>(OrbitComponent{
+        //     star.GetId(),
+        //     300.0,                // a
+        //     0.6,                  // e
+        //     glm::radians(45.0f),  // ap
+        //     0.0,
+        //     0.0,
+        //     0.0,
+        //     0.0
+        // });
+        // ellipse.Assign<Texture>(Texture{"asteroid.png", 0});
+        // ellipse.Assign<Polyline>(Polyline{ {}, {{1,1,1,1}, 2.0f, 1.0f, 0, 0} });
 
         // This registry is used to keep track of all bodies currently in the simulation
         // a bit ugly
         auto& registry = coordinator.GetResource<OrbitalRegistry>();
         registry.massiveBodies.push_back(star.GetId());
         registry.massiveBodies.push_back(planet.GetId());
-        registry.massiveBodies.push_back(moon.GetId());
-        registry.massiveBodies.push_back(ellipse.GetId());
+        // registry.massiveBodies.push_back(moon.GetId());
+        // registry.massiveBodies.push_back(ellipse.GetId());
 
         registry.orbitingBodies.push_back(planet.GetId());
-        registry.orbitingBodies.push_back(moon.GetId());
-        registry.orbitingBodies.push_back(ellipse.GetId());
+        // registry.orbitingBodies.push_back(moon.GetId());
+        // registry.orbitingBodies.push_back(ellipse.GetId());
     }
 
 private:

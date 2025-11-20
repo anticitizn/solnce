@@ -11,6 +11,7 @@
 #include <src/resources/CursorPos.hpp>
 #include <src/systems/QuadRenderSystem.hpp>
 #include <src/systems/LineRenderSystem.hpp>
+#include <src/systems/EquipotentialRenderSystem.hpp>
 
 #include <external/glm/glm.hpp>
 #include <external/glad/glad.h>
@@ -52,6 +53,14 @@ public:
         }
 
         lineSystem->Init("src/shaders/");
+
+        equipotentialRenderSystem = coordinator.RegisterSystem<EquipotentialRenderSystem>();
+        {
+            Signature<MassiveBody, Transform> signature(&coordinator);
+            coordinator.SetSystemSignature<EquipotentialRenderSystem>(signature);
+        }
+
+        equipotentialRenderSystem->Init("src/shaders/");
     }
 
     void Render()
@@ -60,6 +69,7 @@ public:
         BeginFrame();
         
         // Call all rendering subsystems
+        equipotentialRenderSystem->Render();
         lineSystem->Render();
         quadSystem->Render();
         
@@ -82,6 +92,7 @@ private:
     vector<shared_ptr<Window>> windows;
     shared_ptr<QuadRenderSystem> quadSystem;
     shared_ptr<LineRenderSystem> lineSystem;
+    shared_ptr<EquipotentialRenderSystem> equipotentialRenderSystem;
 
     void InitOpenGL()
     {
