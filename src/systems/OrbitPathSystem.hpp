@@ -5,7 +5,6 @@
 #include <src/components/Transform.hpp>
 #include <src/components/Polyline.hpp>
 #include <src/components/MassiveBody.hpp>
-#include <src/resources/OrbitalRegistry.hpp>
 
 extern Coordinator coordinator;
 
@@ -14,17 +13,10 @@ class OrbitPathSystem : public System
 public:
     void Update()
     {
-        auto& registry = coordinator.GetResource<OrbitalRegistry>();
-
-        for (uint32_t id : registry.orbitingBodies)
+        for (const auto& entity : entities)
         {
-            // Only render paths for orbiting bodies that have Polyline + Transform
-            if (!coordinator.HasComponent<OrbitComponent>(id)) continue;
-            if (!coordinator.HasComponent<Transform>(id)) continue;
-            if (!coordinator.HasComponent<Polyline>(id)) continue;
-
-            auto& orbit = coordinator.GetComponent<OrbitComponent>(id);
-            auto& line  = coordinator.GetComponent<Polyline>(id);
+            auto& orbit = coordinator.GetComponent<OrbitComponent>(entity);
+            auto& line  = coordinator.GetComponent<Polyline>(entity);
 
             // Parent position
             auto& parentTf = coordinator.GetComponent<Transform>(orbit.parentBodyId);
