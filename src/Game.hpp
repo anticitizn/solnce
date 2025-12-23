@@ -46,18 +46,6 @@ class Game
 public:
     Game()
     {
-        coordinator.RegisterComponent<Texture>();
-        coordinator.RegisterComponent<Pos2D>();
-        coordinator.RegisterComponent<Quad>();
-        coordinator.RegisterComponent<Polyline>();
-        coordinator.RegisterComponent<ResourceStorage>();
-        coordinator.RegisterComponent<ResourceGenerator>();
-        coordinator.RegisterComponent<Selected>();
-        coordinator.RegisterComponent<Dragged>();
-        coordinator.RegisterComponent<OrbitComponent>();
-        coordinator.RegisterComponent<Transform>();
-        coordinator.RegisterComponent<MassiveBody>();
-
         resourceSystem = coordinator.RegisterSystem<ResourceSystem>();
         {
             Signature<ResourceGenerator> signature(&coordinator);

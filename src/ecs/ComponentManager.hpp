@@ -2,6 +2,7 @@
 #pragma once
 
 #include <memory>
+#include <typeindex>
 #include <unordered_map>
 
 #include "Utils.hpp"
@@ -17,10 +18,17 @@ public:
     template <typename T>
     void RegisterComponent()
     {
-        const char* typeName = typeid(T).name();
-        componentTypes.insert({typeName, nextComponentType});
-        typeComponents.insert({nextComponentType, typeName});
-        componentContainers.insert({typeName, make_shared<ComponentContainer<T>>()});
+        std::type_index typeIdx(typeid(T));
+
+        // Avoid duplicate registrations
+        if (componentTypes.contains(typeIdx))
+        {
+            return;
+        }
+        
+        componentTypes.insert({typeIdx, nextComponentType});
+        typeComponents.insert({nextComponentType, typeIdx});
+        componentContainers.insert({typeIdx, make_shared<ComponentContainer<T>>()});
 
         nextComponentType++;
     }
@@ -46,8 +54,10 @@ public:
     template <typename T>
     ComponentType GetComponentType()
     {
-        const char* typeName = typeid(T).name();
-        return componentTypes[typeName];
+        EnsureComponentRegistered<T>();
+
+        std::type_index typeIdx(typeid(T));
+        return componentTypes[typeIdx];
     }
 
     void EntityDestroyed(EntityID entity)
@@ -69,17 +79,27 @@ public:
     }
 
 private:
-    unordered_map<const char*, ComponentType> componentTypes {};
-    unordered_map<ComponentType, const char*> typeComponents {};
-    unordered_map<const char *, shared_ptr<IComponentContainer>> componentContainers {};
+    unordered_map<std::type_index, ComponentType> componentTypes {};
+    unordered_map<ComponentType, std::type_index> typeComponents {};
+    unordered_map<std::type_index, shared_ptr<IComponentContainer>> componentContainers {};
     ComponentType nextComponentType = 0;
+
+    template <typename T>
+    void EnsureComponentRegistered()
+    {
+        // Runs once per (ComponentManager instance, T) combination
+        static const int once = (RegisterComponent<T>(), 0);
+        (void)once;
+    }
 
     // Get the ComponentContainer of type T
     template<typename T>
     shared_ptr<ComponentContainer<T>> GetComponentContainer()
     {
-        const char* typeName = typeid(T).name();
+        EnsureComponentRegistered<T>();
 
-        return static_pointer_cast<ComponentContainer<T>>(componentContainers[typeName]);
+        std::type_index typeIdx(typeid(T));
+        return static_pointer_cast<ComponentContainer<T>>(componentContainers[typeIdx]);
     }
+
 };
