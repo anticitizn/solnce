@@ -27,6 +27,12 @@ public:
         coordinator.RegisterResource<Camera>(camera);
     }
 
+    std::bitset<MAX_COMPONENTS> InitialSignature(Coordinator& coordinator)
+    {
+        Signature<Pos2D> signature(&coordinator);
+        return signature.GetSignature();
+    }
+
     void Update()
     {
         Camera& camera = coordinator.GetResource<Camera>();

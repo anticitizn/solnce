@@ -17,17 +17,6 @@
 #include <src/systems/CameraSystem.hpp>
 #include <src/systems/KeplerOrbitSystem.hpp>
 #include <src/systems/OrbitPathSystem.hpp>
-#include <src/components/Texture.hpp>
-#include <src/components/Quad.hpp>
-#include <src/components/Polyline.hpp>
-#include <src/components/Pos2D.hpp>
-#include <src/components/Selected.hpp>
-#include <src/components/Dragged.hpp>
-#include <src/components/ResourceStorage.hpp>
-#include <src/components/ResourceGenerator.hpp>
-#include <src/components/OrbitComponent.hpp>
-#include <src/components/Transform.hpp>
-#include <src/components/MassiveBody.hpp>
 #include <src/resources/SimulationTime.hpp>
 #include <src/io/InputManager.hpp>
 
@@ -69,7 +58,6 @@ public:
             Signature<OrbitComponent, Polyline, Transform> sig(&coordinator);
             coordinator.SetSystemSignature<OrbitPathSystem>(sig);
         }
-
 
         cameraSystem = coordinator.RegisterSystem<CameraSystem>();
         {
