@@ -35,7 +35,7 @@ public:
     template <typename T>
     std::shared_ptr<T> RegisterSystem();
 
-    template <typename T, typename... Args>
+    template <typename T>
     void SetSystemSignature(Signature signature);
 
     int GetEntitiesCount();

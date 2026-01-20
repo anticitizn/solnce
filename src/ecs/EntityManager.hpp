@@ -21,17 +21,15 @@ public:
 
     EntityID CreateEntity() 
     {
-        if (livingEntities >= MAX_ENTITIES) 
-        {
-            cout << "ERROR: Maximum amount of entities reached" << endl;
-            // amazing error handling, right?
-        }
+        assert(!unusedEntities.empty() && "Max amount of entities reached");
 
-        EntityID newEntity = unusedEntities.front();
+        EntityID entity = unusedEntities.front();
         unusedEntities.pop();
-        livingEntities++;
+        
+        aliveIndex[entity] = static_cast<int>(alive.size());
+        alive.push_back(entity);
 
-        return newEntity;
+        return entity;
     }
 
     void DestroyEntity(EntityID entity)
@@ -39,8 +37,16 @@ public:
         assert(entity < MAX_ENTITIES && "Entity out of range.");
 
         signatures[entity].reset();
+
+        int idx = aliveIndex[entity];
+        EntityID last = alive.back();
+
+        alive[idx] = last;
+        aliveIndex[last] = idx;
+
+        alive.pop_back();
+
         unusedEntities.push(entity);
-        livingEntities--;
     }
 
     void SetSignature(EntityID entity, std::bitset<MAX_COMPONENTS> signature)
@@ -57,12 +63,17 @@ public:
 
     int GetEntitiesCount()
     {
-        return livingEntities;
+        return static_cast<int>(alive.size());
     }
 
+    const std::vector<EntityID>& GetLivingEntities() const
+    {
+        return alive;
+    }
 
 private:
-    int livingEntities = 0;
+    std::array<int, MAX_ENTITIES> aliveIndex{}; // maps entityID to array index in alive
+    std::vector<EntityID> alive;                // dense list of all living entities
     queue<EntityID> unusedEntities;
     array<std::bitset<MAX_COMPONENTS>, MAX_ENTITIES> signatures;
 };

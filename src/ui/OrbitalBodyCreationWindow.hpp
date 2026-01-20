@@ -30,7 +30,7 @@ public:
 
         for (const auto& entity : entities)
         {
-            std::cout << entity << std::endl;
+            
         }
 
         // No parent bodies -> nothing can orbit

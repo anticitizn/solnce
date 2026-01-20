@@ -88,10 +88,25 @@ std::shared_ptr<T> Coordinator::RegisterSystem()
     return system;
 }
 
-template <typename T, typename... Args>
+template <typename T>
 void Coordinator::SetSystemSignature(Signature signature)
 {
     systemManager->SetSignature<T>(signature);
+
+    shared_ptr<T> system = systemManager->GetSystem<T>();
+    system->entities.clear();
+    system->newEntities.clear();
+    system->removedEntities.clear();
+
+    const auto& livingEntities = entityManager->GetLivingEntities();
+    for (EntityID entity : livingEntities)
+    {
+        const auto& entitySignature = entityManager->GetSignature(entity);
+        if ((entitySignature & signature) == signature)
+        {
+            system->entities.insert(entity);
+        }
+    }
 }
 
 int Coordinator::GetEntitiesCount()
@@ -109,7 +124,7 @@ template<typename T>
 T& Coordinator::GetResource()
 {
     return resourceManager->Get<T>();
-}
+} 
 
 template<typename T>
 void Coordinator::SetResource(const T& value)

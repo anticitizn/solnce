@@ -24,7 +24,10 @@ public:
     shared_ptr<T> GetSystem()
     {
         const char* typeName = typeid(T).name();
-        return systems.find(typeName);
+        auto it = systems.find(typeName);
+
+        assert(it != systems.end() && "System not registered");
+        return std::static_pointer_cast<T>(it->second);
     }
 
     template <typename T>
