@@ -11,10 +11,13 @@
 
 extern Coordinator coordinator;
 
-class OrbitalBodyCreationWindow : public Window
+class OrbitalBodyCreationWindow : public Window, public System
 {
 public:
-    OrbitalBodyCreationWindow() {}
+    Signature InitialSignature()
+    {
+        return coordinator.BuildSignature<OrbitComponent, Transform, MassiveBody>();
+    }
 
     virtual void Draw() override
     {
@@ -25,10 +28,13 @@ public:
 
         ImGui::Begin("Create Orbital Body");
 
-        auto& reg = coordinator.GetResource<OrbitalRegistry>();
+        for (const auto& entity : entities)
+        {
+            std::cout << entity << std::endl;
+        }
 
         // No parent bodies -> nothing can orbit
-        if (reg.massiveBodies.empty())
+        if (entities.empty())
         {
             ImGui::Text("No parent MassiveBody entities exist.");
             ImGui::End();
@@ -37,7 +43,7 @@ public:
 
         // Build dropdown list from registry
         parentNames.clear();
-        for (uint32_t id : reg.massiveBodies)
+        for (uint32_t id : entities)
         {
             parentNames.push_back(std::to_string(id));
         }
@@ -63,7 +69,7 @@ public:
             ImGui::EndCombo();
         }
 
-        uint32_t parentId = reg.massiveBodies[selectedParentIndex];
+        uint32_t parentId = 0;
 
         ImGui::InputDouble("Mass (kg)", &mass);
         ImGui::InputDouble("a (semi-major axis)", &a);

@@ -68,24 +68,6 @@ public:
         // test.Assign<Transform>(Transform {{150.0f, 150.0f, 0}, {0, 0}, 45});
         // test.Assign<Texture>(Texture{"missing-texture.png", 0});
 
-        // {
-        //     Polyline line = { {{0, 0}, {100, 0}, {200, 0}, {200, 100}, {100, 150}}, { {1, 0, 0, 1},  1.0f, 1.0f, 0, 0 }};
-        //     Entity lineEntity = coordinator.CreateEntity();
-        //     lineEntity.Assign<Polyline>(line);
-        // }
-
-        // {
-        //     Polyline line = { {{300, 300}, {400, 350}, {450, 300}}, { {0, 1, 0, 1},  6.0f, 0.8f, 0, 0 }};
-        //     Entity lineEntity = coordinator.CreateEntity();
-        //     lineEntity.Assign<Polyline>(line);
-        // }
-
-        // {
-        //     Polyline line = { {{50, 250}, {50, 400}}, { {0, 0, 1, 1}, 20.0f, 0.5f, 0, 0 }};
-        //     Entity lineEntity = coordinator.CreateEntity();
-        //     lineEntity.Assign<Polyline>(line);
-        // }
-
         // pugi::xml_document doc;
         // doc.append_child(pugi::node_declaration);
 
@@ -96,15 +78,11 @@ public:
         shared_ptr<Window> testWindow = make_shared<TestWindow>(playerData.GetComponent<ResourceStorage>(), coordinator.GetResource<std::vector<Action>>());
         renderSystem->AddWindow(testWindow);
 
-        {
-            auto createWindow = make_shared<OrbitalBodyCreationWindow>();
-            renderSystem->AddWindow(createWindow);
-        }
+        auto createWindow = coordinator.RegisterSystem<OrbitalBodyCreationWindow>();
+        renderSystem->AddWindow(createWindow);
 
-        {
-            auto debugWindow = make_shared<OrbitalDebugWindow>();
-            renderSystem->AddWindow(debugWindow);
-        }
+        auto debugWindow = coordinator.RegisterSystem<OrbitalDebugWindow>();
+        renderSystem->AddWindow(debugWindow);
 
     }
 

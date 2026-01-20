@@ -9,9 +9,14 @@
 
 extern Coordinator coordinator;
 
-class OrbitalDebugWindow : public Window
+class OrbitalDebugWindow : public Window, public System
 {
 public:
+    Signature InitialSignature()
+    {
+        return coordinator.BuildSignature<OrbitComponent, Transform, MassiveBody>();
+    }
+
     virtual void Draw() override
     {
         if (!display)
