@@ -83,7 +83,9 @@ uint32_t Coordinator::GetComponentType()
 template <typename T>
 std::shared_ptr<T> Coordinator::RegisterSystem()
 {
-    return systemManager->RegisterSystem<T>();
+    std::shared_ptr<T> system = systemManager->RegisterSystem<T>();
+    SetSystemSignature<T>(system->InitialSignature());
+    return system;
 }
 
 template <typename T, typename... Args>
