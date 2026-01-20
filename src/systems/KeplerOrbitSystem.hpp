@@ -18,6 +18,11 @@ extern Coordinator coordinator;
 class KeplerOrbitSystem : public System
 {
 public:
+Signature InitialSignature()
+    {
+        return coordinator.BuildSignature<OrbitComponent, Transform>();
+    }
+
     void Update()
     {
         for (auto e : entities)

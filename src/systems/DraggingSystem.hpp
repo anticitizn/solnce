@@ -16,6 +16,11 @@ extern Coordinator coordinator;
 class DraggingSystem : public System
 {
 public:
+    Signature InitialSignature()
+    {
+        return coordinator.BuildSignature<Quad, Dragged>();
+    }
+
     void Update()
     {
         for (const auto& entity : entities)

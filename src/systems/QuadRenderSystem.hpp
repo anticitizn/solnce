@@ -34,6 +34,11 @@ public:
         shader.SetUniform("texture", 0);
     }
 
+    Signature InitialSignature()
+    {
+        return coordinator.BuildSignature<Texture, Quad, Transform>();
+    }
+
     void Render()
     {
         LoadTextures();

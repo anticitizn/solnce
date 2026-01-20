@@ -16,6 +16,11 @@ extern Coordinator coordinator;
 class ResourceSystem : public System
 {
 public:
+    Signature InitialSignature()
+    {
+        return coordinator.BuildSignature<ResourceGenerator>();
+    }
+
     void Update()
     {
         for (const auto& entity : entities)

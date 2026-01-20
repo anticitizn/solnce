@@ -21,6 +21,11 @@ extern Coordinator coordinator;
 class SelectionSystem : public System
 {
 public:
+    Signature InitialSignature()
+    {
+        return coordinator.BuildSignature<Quad>();
+    }
+
     void Update()
     {
         std::vector<Action> actions = coordinator.GetResource<std::vector<Action>>();

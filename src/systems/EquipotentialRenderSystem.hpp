@@ -17,6 +17,11 @@ public:
         shader.Init(shadersPath + "equipotential_vertex.glsl", shadersPath + "equipotential_fragment.glsl");
     }
 
+    Signature InitialSignature()
+    {
+        return coordinator.BuildSignature<MassiveBody>();
+    }
+
     void Render()
     {
         const Camera& cam = coordinator.GetResource<Camera>();

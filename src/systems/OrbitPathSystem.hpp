@@ -11,6 +11,11 @@ extern Coordinator coordinator;
 class OrbitPathSystem : public System
 {
 public:
+    Signature InitialSignature()
+    {
+        return coordinator.BuildSignature<OrbitComponent, Transform, Polyline>();
+    }
+
     void Update()
     {
         for (const auto& entity : entities)

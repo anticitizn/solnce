@@ -2,10 +2,9 @@
 
 #include <memory>
 #include <external/pugixml/pugixml.hpp>
+#include "Signature.hpp"
 
 class Entity;
-template <typename... Args>
-class Signature;
 
 class Coordinator
 {
@@ -37,7 +36,7 @@ public:
     std::shared_ptr<T> RegisterSystem();
 
     template <typename T, typename... Args>
-    void SetSystemSignature(Signature<Args...> signature);
+    void SetSystemSignature(Signature signature);
 
     int GetEntitiesCount();
 
@@ -51,6 +50,9 @@ public:
     void SetResource(const T& value);
 
     void ArchiveEntity(pugi::xml_node& root, uint32_t entity);
+
+    template <typename... Args>
+    Signature BuildSignature();
 
 private:
     std::unique_ptr<class ComponentManager> componentManager;

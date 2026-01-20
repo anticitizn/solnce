@@ -2,7 +2,6 @@
 
 #include "Coordinator.inc.hpp"
 #include "Entity.inc.hpp"
-#include "Signature.inc.hpp"
 
 #include "Utils.hpp"
 #include "ComponentManager.hpp"
@@ -88,7 +87,7 @@ std::shared_ptr<T> Coordinator::RegisterSystem()
 }
 
 template <typename T, typename... Args>
-void Coordinator::SetSystemSignature(Signature<Args...> signature)
+void Coordinator::SetSystemSignature(Signature signature)
 {
     systemManager->SetSignature<T>(signature);
 }
@@ -120,4 +119,13 @@ void Coordinator::ArchiveEntity(pugi::xml_node& root, uint32_t entity)
 {
     pugi::xml_node entityNode = root.append_child("entity");
     componentManager->ArchiveEntity(entityNode, entity);
+}
+
+template <typename... Args>
+Signature Coordinator::BuildSignature()
+{
+    Signature signature;
+    signature.reset();
+    (signature.set(GetComponentType<Args>()), ...);
+    return signature;
 }

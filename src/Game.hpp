@@ -37,39 +37,39 @@ public:
     {
         resourceSystem = coordinator.RegisterSystem<ResourceSystem>();
         {
-            Signature<ResourceGenerator> signature(&coordinator);
+            Signature signature = coordinator.BuildSignature<ResourceGenerator>();
             coordinator.SetSystemSignature<ResourceSystem>(signature);
         }
 
         draggingSystem = coordinator.RegisterSystem<DraggingSystem>();
-        {
-            Signature<Quad, Dragged> signature(&coordinator);
-            coordinator.SetSystemSignature<DraggingSystem>(signature);
-        }
+        // {
+        //     SignatureBuilder<Quad, Dragged> signature(&coordinator);
+        //     coordinator.SetSystemSignature<DraggingSystem>(signature);
+        // }
         
         selectionSystem = coordinator.RegisterSystem<SelectionSystem>();
-        {
-            Signature<Quad> signature(&coordinator);
-            coordinator.SetSystemSignature<SelectionSystem>(signature);
-        }
+        // {
+        //     SignatureBuilder<Quad> signature(&coordinator);
+        //     coordinator.SetSystemSignature<SelectionSystem>(signature);
+        // }
 
         orbitPathSystem = coordinator.RegisterSystem<OrbitPathSystem>();
-        {
-            Signature<OrbitComponent, Polyline, Transform> sig(&coordinator);
-            coordinator.SetSystemSignature<OrbitPathSystem>(sig);
-        }
+        // {
+        //     SignatureBuilder<OrbitComponent, Polyline, Transform> sig(&coordinator);
+        //     coordinator.SetSystemSignature<OrbitPathSystem>(sig);
+        // }
 
         cameraSystem = coordinator.RegisterSystem<CameraSystem>();
-        {
-            Signature<Pos2D> signature(&coordinator);
-            coordinator.SetSystemSignature<CameraSystem>(signature);
-        }
+        // {
+        //     SignatureBuilder<Pos2D> signature(&coordinator);
+        //     coordinator.SetSystemSignature<CameraSystem>(signature);
+        // }
 
         orbitSystem = coordinator.RegisterSystem<KeplerOrbitSystem>();
-        {
-            Signature<OrbitComponent, Transform> signature(&coordinator);
-            coordinator.SetSystemSignature<KeplerOrbitSystem>(signature);
-        }
+        // {
+        //     SignatureBuilder<OrbitComponent, Transform> signature(&coordinator);
+        //     coordinator.SetSystemSignature<KeplerOrbitSystem>(signature);
+        // }
 
         renderSystem = coordinator.RegisterSystem<RenderSystem>();        
         renderSystem->Init();

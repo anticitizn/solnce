@@ -27,6 +27,11 @@ extern Coordinator coordinator;
 class RenderSystem : public System
 {
 public:
+    Signature InitialSignature()
+    {
+        return coordinator.BuildSignature<>();
+    }
+
     void Init()
     {
         windowManager.Init("SOLNCE", false);
@@ -39,19 +44,9 @@ public:
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         quadSystem = coordinator.RegisterSystem<QuadRenderSystem>();
-        {
-            Signature<Texture, Quad, Transform> signature(&coordinator);
-            coordinator.SetSystemSignature<QuadRenderSystem>(signature);
-        }
-
         quadSystem->Init("assets/", "src/shaders/");
 
         lineSystem = coordinator.RegisterSystem<LineRenderSystem>();
-        {
-            Signature<Polyline> signature(&coordinator);
-            coordinator.SetSystemSignature<LineRenderSystem>(signature);
-        }
-
         lineSystem->Init("src/shaders/");
     }
 

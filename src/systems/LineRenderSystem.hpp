@@ -26,6 +26,11 @@ public:
         shader.Activate();
     }
 
+    Signature InitialSignature()
+    {
+        return coordinator.BuildSignature<Polyline>();
+    }
+
     void Render()
     {
         const Camera& camera = coordinator.GetResource<Camera>();

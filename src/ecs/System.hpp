@@ -9,7 +9,7 @@ class System
 {
 public:
 
-    virtual Signature InitialSignature(Coordinator& coordinator) = 0;
+    virtual Signature InitialSignature() = 0;
 
     set<EntityID> entities;
     // All entities that match the system's signature
