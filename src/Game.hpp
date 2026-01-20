@@ -42,34 +42,10 @@ public:
         }
 
         draggingSystem = coordinator.RegisterSystem<DraggingSystem>();
-        // {
-        //     SignatureBuilder<Quad, Dragged> signature(&coordinator);
-        //     coordinator.SetSystemSignature<DraggingSystem>(signature);
-        // }
-        
         selectionSystem = coordinator.RegisterSystem<SelectionSystem>();
-        // {
-        //     SignatureBuilder<Quad> signature(&coordinator);
-        //     coordinator.SetSystemSignature<SelectionSystem>(signature);
-        // }
-
         orbitPathSystem = coordinator.RegisterSystem<OrbitPathSystem>();
-        // {
-        //     SignatureBuilder<OrbitComponent, Polyline, Transform> sig(&coordinator);
-        //     coordinator.SetSystemSignature<OrbitPathSystem>(sig);
-        // }
-
         cameraSystem = coordinator.RegisterSystem<CameraSystem>();
-        // {
-        //     SignatureBuilder<Pos2D> signature(&coordinator);
-        //     coordinator.SetSystemSignature<CameraSystem>(signature);
-        // }
-
         orbitSystem = coordinator.RegisterSystem<KeplerOrbitSystem>();
-        // {
-        //     SignatureBuilder<OrbitComponent, Transform> signature(&coordinator);
-        //     coordinator.SetSystemSignature<KeplerOrbitSystem>(signature);
-        // }
 
         renderSystem = coordinator.RegisterSystem<RenderSystem>();        
         renderSystem->Init();
