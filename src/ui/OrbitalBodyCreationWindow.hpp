@@ -15,7 +15,7 @@ class OrbitalBodyCreationWindow : public Window, public System
 public:
     Signature InitialSignature()
     {
-        return coordinator.BuildSignature<OrbitComponent, Transform, MassiveBody>();
+        return coordinator.BuildSignature<Transform, MassiveBody>();
     }
 
     virtual void Draw() override
