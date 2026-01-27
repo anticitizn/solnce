@@ -5,7 +5,6 @@
 #include <src/components/OrbitComponent.hpp>
 #include <src/components/Transform.hpp>
 #include <src/components/MassiveBody.hpp>
-#include <src/resources/OrbitalRegistry.hpp>
 
 extern Coordinator coordinator;
 
@@ -22,18 +21,16 @@ public:
         if (!display)
             return;
 
-        auto& reg = coordinator.GetResource<OrbitalRegistry>();
-
         ImGui::Begin("Orbital Debug");
 
-        if (reg.orbitingBodies.empty())
+        if (entities.empty())
         {
             ImGui::Text("No orbiting bodies found.");
             ImGui::End();
             return;
         }
 
-        for (uint32_t id : reg.orbitingBodies)
+        for (uint32_t id : entities)
         {
             std::string label = "Entity " + std::to_string(id);
 

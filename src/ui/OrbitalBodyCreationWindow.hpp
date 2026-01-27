@@ -7,7 +7,6 @@
 #include <src/components/Transform.hpp>
 #include <src/components/Texture.hpp>
 #include <src/components/Quad.hpp>
-#include <src/resources/OrbitalRegistry.hpp>
 
 extern Coordinator coordinator;
 
@@ -28,11 +27,6 @@ public:
 
         ImGui::Begin("Create Orbital Body");
 
-        for (const auto& entity : entities)
-        {
-            
-        }
-
         // No parent bodies -> nothing can orbit
         if (entities.empty())
         {
@@ -41,26 +35,27 @@ public:
             return;
         }
 
-        // Build dropdown list from registry
-        parentNames.clear();
-        for (uint32_t id : entities)
+        // Ensure selectedParentId is valid (first time, or if selection was removed)
+        if (selectedParentId == kInvalidId || entities.find(selectedParentId) == entities.end())
         {
-            parentNames.push_back(std::to_string(id));
+            selectedParentId = *entities.begin();
         }
-            
 
-        const char* preview = parentNames[selectedParentIndex].c_str();
+        // Combo preview text
+        std::string previewStr = std::to_string(selectedParentId);
+        const char* preview = previewStr.c_str();
 
         if (ImGui::BeginCombo("Parent Body", preview))
         {
-            for (int i = 0; i < (int)parentNames.size(); i++)
+            for (uint32_t id : entities)
             {
-                bool selected = (i == selectedParentIndex);
-                if (ImGui::Selectable(parentNames[i].c_str(), selected))
-                {
-                    selectedParentIndex = i;
-                }
+                bool selected = (id == selectedParentId);
+                std::string label = std::to_string(id);
 
+                if (ImGui::Selectable(label.c_str(), selected))
+                {
+                    selectedParentId = id;
+                }
                 if (selected)
                 {
                     ImGui::SetItemDefaultFocus();
@@ -82,13 +77,16 @@ public:
 
         if (ImGui::Button("Create Body"))
         {
-            CreateEntity(parentId);
+            CreateEntity(selectedParentId);
         }
 
         ImGui::End();
     }
 
 private:
+    static constexpr uint32_t kInvalidId = 0xFFFFFFFFu;
+    uint32_t selectedParentId = kInvalidId;
+
     double mass = 1e15;
     double a = 100.0;
     double e = 0.0;
@@ -97,9 +95,6 @@ private:
 
     float size = 20.0f;
     float color[3] = {1,1,1};
-
-    int selectedParentIndex = 0;
-    std::vector<std::string> parentNames;
 
     void CreateEntity(uint32_t parentId)
     {
