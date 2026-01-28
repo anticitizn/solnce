@@ -55,18 +55,14 @@ Signature InitialSignature()
             M = std::fmod(M, 2.0 * M_PI);  // normalize just in case
 
             // 6) Solve Kepler’s equation | M = E - e sin(E)
-            E = SolveKepler(M, ecc);
+            double nu = SolveKepler(M, ecc);            
 
-            // 7) Convert eccentric anomaly -> true anomaly
-            double cosNu = (std::cos(E) - ecc) / (1 - ecc * std::cos(E));
-            double sinNu = std::sqrt(1 - ecc*ecc) * std::sin(E) / (1 - ecc * std::cos(E));
-
-            double nu = std::atan2(sinNu, cosNu);
-
-            orbit.ta = std::atan2(sinNu, cosNu);
+            orbit.ta = nu;
             orbit.E  = E;
             orbit.M  = M;
 
+            // TO-DO: This does not work for non-elliptical orbits!
+            // 
             // 8) Calculate the orbital radius
             double r = a * (1 - ecc * ecc) / (1 + ecc * cosNu);
             orbit.r = r;
@@ -157,19 +153,55 @@ Signature InitialSignature()
 
 private:
 
-    // Find out the eccentric anomaly from the mean anomaly
+    // Find out the true anomaly from the mean anomaly
     // by applying Newton-Raphson with 10 iterations
     double SolveKepler(double M, double e)
     {
-        double E = M;  // only works well for low eccentricity
-
-        for (int i = 0; i < 10; ++i)
+        if (e <= 0.97)
         {
-            double f  = E - e * std::sin(E) - M;
-            double fp = 1 - e * std::cos(E);
-            E = E - f / fp;
+            // For elliptical orbits, we first find the eccentric anomaly E
+            // using Newton-Raphson, and then use it to find the true anomaly
+
+            double E = M;
+            for (int i = 0; i < 10; ++i)
+            {
+                double f  = E - e * std::sin(E) - M;
+                double fp = 1 - e * std::cos(E);
+                E = E - f / fp;
+            }
+            
+            // Convert eccentric anomaly -> true anomaly
+            double cosNu = (std::cos(E) - ecc) / (1 - ecc * std::cos(E));
+            double sinNu = std::sqrt(1 - ecc*ecc) * std::sin(E) / (1 - ecc * std::cos(E));
+
+            double nu = std::atan2(sinNu, cosNu);
+
+            return nu;
         }
-        return E;
+        else if (e > 0.97 && e <= 1.03)
+        {
+            // For parabolic trajectories, we use Barker's equation
+            // to find the parabolic anomaly D, and then use it for the true anomaly
+            
+            double D = M;
+            for (int i = 0; i < 10; ++i)
+            {
+                double f = D + pow(D, 3) / 3 - M;
+                double fp = 1 + pow(D, 2);
+
+                D -= (f/fp);
+            }
+
+            double nu = 2.0 * atan(D);
+            
+            return nu;
+        }
+        else
+        {
+            
+
+        }
+        
     }
 
 };
