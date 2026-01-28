@@ -63,18 +63,30 @@ Signature InitialSignature()
             double x_pf = r * std::cos(nu);
             double y_pf = r * std::sin(nu);
 
-            // 7) Rotate by argument of periapsis
+            // 7) Calculate cartesian velocity
+            double factor = std::sqrt(mu / p);
+
+            double vx_pf = -factor * std::sin(nu);
+            double vy_pf =  factor * (ecc + std::cos(nu));
+
+            // 8) Rotate position and velocity by argument of periapsis
             double cw = std::cos(orbit.ap);
             double sw = std::sin(orbit.ap);
 
             double x = x_pf * cw - y_pf * sw;
             double y = x_pf * sw + y_pf * cw;
 
-            // 8) Apply parent-body position
+            double vx = vx_pf * cw - vy_pf * sw;
+            double vy = vx_pf * sw + vy_pf * cw;
+
+            // 9) Apply parent-body transform
             auto& parentTf = coordinator.GetComponent<Transform>(orbit.parentBodyId);
 
             transform.position.x = parentTf.position.x + x;
             transform.position.y = parentTf.position.y + y;
+
+            transform.velocity.x = parentTf.velocity.x + vx;
+            transform.velocity.y = parentTf.velocity.y + vy;
         }
     }
 
