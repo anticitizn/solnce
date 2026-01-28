@@ -3,6 +3,7 @@
 
 #include <string>
 #include <iostream>
+#include <algorithm>
 
 #include <src/components/OrbitComponent.hpp>
 #include <src/components/Transform.hpp>
@@ -31,54 +32,45 @@ Signature InitialSignature()
             auto& transform = coordinator.GetComponent<Transform>(e);
             auto& time  = coordinator.GetResource<SimulationTime>();
 
+            double t0 = time.sim_time;
             double dt = time.sim_dt;
+            double t1 = t0 + dt;
 
-            // 1) orbital parameters
-            double a  = orbit.a;
+            // 1) Orbital parameters
             double ecc = orbit.e;
+            double rp = orbit.rp;
             double parentMass = coordinator.GetComponent<MassiveBody>(orbit.parentBodyId).mass;
             double mu = parentMass * G;
 
-            // 2) Compute the mean motion
-            double n = std::sqrt(mu / (a * a * a));
+            double a = rp / (1 - ecc);
+            orbit.a = a;
 
-            // 3) Convert current true anomaly into eccentric anomaly
-            double cosE = (ecc + std::cos(orbit.ta)) / (1 + ecc * std::cos(orbit.ta));
-            double sinE = std::sqrt(1 - ecc*ecc) * std::sin(orbit.ta) / (1 + ecc * std::cos(orbit.ta));
-            double E = std::atan2(sinE, cosE);
+            // 2) Compute p (semilatus rectum, a.k.a. distance from the focus to the orbit at ta = +/- 90 degrees)
+            double p = rp * (1 + ecc);
 
-            // 4) Compute mean anomaly
-            double M = E - ecc * std::sin(E);
+            // 3) Get tau (time since periapsis) from current ta
+            double tau = TauFromTrueAnomaly(mu, p, ecc, a, t0, orbit.ta);
 
-            // 5) Advance mean anomaly
-            M += n * dt;
-            M = std::fmod(M, 2.0 * M_PI);  // normalize just in case
-
-            // 6) Solve Kepler’s equation | M = E - e sin(E)
-            double nu = SolveKepler(M, ecc);            
-
+            // 4) Propagate true anomaly to t1
+            double nu = TrueAnomalyAtTime(mu, p, ecc, a, t1, tau);
             orbit.ta = nu;
-            orbit.E  = E;
-            orbit.M  = M;
 
-            // TO-DO: This does not work for non-elliptical orbits!
-            // 
-            // 8) Calculate the orbital radius
-            double r = a * (1 - ecc * ecc) / (1 + ecc * cosNu);
+            // 5) Calculate the orbital radius
+            double r = p / (1.0 + ecc * std::cos(nu));
             orbit.r = r;
 
-            // 9) Calculate the position in the plane
+            // 6) Calculate the position in the plane
             double x_pf = r * std::cos(nu);
             double y_pf = r * std::sin(nu);
 
-            // 10) Rotate by argument of periapsis
+            // 7) Rotate by argument of periapsis
             double cw = std::cos(orbit.ap);
             double sw = std::sin(orbit.ap);
 
             double x = x_pf * cw - y_pf * sw;
             double y = x_pf * sw + y_pf * cw;
 
-            // 11) Apply parent-body position
+            // 8) Apply parent-body position
             auto& parentTf = coordinator.GetComponent<Transform>(orbit.parentBodyId);
 
             transform.position.x = parentTf.position.x + x;
@@ -103,13 +95,12 @@ Signature InitialSignature()
         planet.Assign<MassiveBody>(MassiveBody{ 5.0e15 });
         planet.Assign<OrbitComponent>(OrbitComponent{
             star.GetId(),   // parent
-            200.0,          // a
+            200.0,          // pr
             0.0,            // e
             0.0,            // ap
             0.0,            // ta
-            0.0,            // E
-            0.0,            // M
-            0.0             // r
+            0.0,            // a
+            0.0,            // r
         });
         planet.Assign<Texture>(Texture{"planet.png", 0});
         planet.Assign<Polyline>(Polyline{ {}, {{1,1,1,1}, 2.0f, 1.0f, 0, 0} });
@@ -121,13 +112,12 @@ Signature InitialSignature()
         moon.Assign<MassiveBody>(MassiveBody{5.0e10});
         moon.Assign<OrbitComponent>(OrbitComponent{
             planet.GetId(),
-            20.0,                // a
+            20.0,                // pr
             0.3,                 // e
             glm::radians(30.0f), // ap
             0.0,
             0.0,
             0.0,
-            0.0
         });
         moon.Assign<Texture>(Texture{"moon.png", 0});
         moon.Assign<Polyline>(Polyline{ {}, {{1,1,1,1}, 2.0f, 1.0f, 0, 0} });
@@ -139,13 +129,12 @@ Signature InitialSignature()
         ellipse.Assign<MassiveBody>(MassiveBody{ 5.0e15 });
         ellipse.Assign<OrbitComponent>(OrbitComponent{
             star.GetId(),
-            300.0,                // a
+            300.0,                // pr
             0.6,                  // e
             glm::radians(45.0f),  // ap
             0.0,
             0.0,
             0.0,
-            0.0
         });
         ellipse.Assign<Texture>(Texture{"asteroid.png", 0});
         ellipse.Assign<Polyline>(Polyline{ {}, {{1,1,1,1}, 2.0f, 1.0f, 0, 0} });
@@ -153,55 +142,134 @@ Signature InitialSignature()
 
 private:
 
-    // Find out the true anomaly from the mean anomaly
-    // by applying Newton-Raphson with 10 iterations
-    double SolveKepler(double M, double e)
+    static double TauFromTrueAnomaly(double mu, double p, double e, double a, double t0, double nu0)
     {
-        if (e <= 0.97)
+        const double eps = 1e-12;
+
+        if (std::abs(e - 1.0) < eps)
         {
-            // For elliptical orbits, we first find the eccentric anomaly E
-            // using Newton-Raphson, and then use it to find the true anomaly
-
-            double E = M;
-            for (int i = 0; i < 10; ++i)
-            {
-                double f  = E - e * std::sin(E) - M;
-                double fp = 1 - e * std::cos(E);
-                E = E - f / fp;
-            }
-            
-            // Convert eccentric anomaly -> true anomaly
-            double cosNu = (std::cos(E) - ecc) / (1 - ecc * std::cos(E));
-            double sinNu = std::sqrt(1 - ecc*ecc) * std::sin(E) / (1 - ecc * std::cos(E));
-
-            double nu = std::atan2(sinNu, cosNu);
-
-            return nu;
+            // Parabola: dt = sqrt(p^3/mu) * (D + D^3/3), D = tan(nu/2)
+            double D = std::tan(nu0 * 0.5);
+            double dt_since = std::sqrt((p*p*p) / mu) * (D + (D*D*D)/3.0);
+            return t0 - dt_since;
         }
-        else if (e > 0.97 && e <= 1.03)
+
+        if (e < 1.0)
+        {
+            // Ellipse: M0 from E0, dt = M0 / n
+            double n = std::sqrt(mu / (a*a*a));
+
+            double sinE = (std::sqrt(1.0 - e*e) * std::sin(nu0)) / (1.0 + e*std::cos(nu0));
+            double cosE = (e + std::cos(nu0)) / (1.0 + e*std::cos(nu0));
+            double E0 = std::atan2(sinE, cosE);
+
+            double M0 = Wrap2Pi(E0 - e * std::sin(E0));
+            double dt_since = M0 / n;
+            return t0 - dt_since;
+        }
+        else
+        {
+            // Hyperbola: M0 from H0, dt = M0 / n, n = sqrt(mu/(-a)^3)
+            double abs_a = std::abs(a);
+            double n = std::sqrt(mu / (abs_a*abs_a*abs_a));
+
+            double tanhH2 = std::sqrt((e - 1.0)/(e + 1.0)) * std::tan(nu0 * 0.5);
+            tanhH2 = std::clamp(tanhH2, -0.999999999999, 0.999999999999);
+            double H0 = 2.0 * std::atanh(tanhH2);
+
+            double M0 = e * std::sinh(H0) - H0;
+            double dt_since = M0 / n;
+            return t0 - dt_since;
+        }
+    }
+
+    // Find out the true anomaly from tau (time since periapsis)
+    // by applying Newton-Raphson with 10 iterations
+    double TrueAnomalyAtTime(double mu, double p, double e, double a, double t, double tau)
+    {
+        double dt = t - tau;
+
+        const double eps = 1e-9;
+        if (std::abs(e - 1.0) < eps)
         {
             // For parabolic trajectories, we use Barker's equation
             // to find the parabolic anomaly D, and then use it for the true anomaly
             
-            double D = M;
+            // Initial guess
+            double B = std::sqrt(mu / (p*p*p)) * dt;
+
+            double D = B;
             for (int i = 0; i < 10; ++i)
             {
-                double f = D + pow(D, 3) / 3 - M;
+                double f = D + pow(D, 3) / 3 - B;
                 double fp = 1 + pow(D, 2);
 
-                D -= (f/fp);
+                D -= f / fp;
             }
 
             double nu = 2.0 * atan(D);
             
             return nu;
         }
+        else if (e < 1.0)
+        {
+            // For elliptical orbits, we first find the eccentric anomaly E
+            // using Newton-Raphson, and then use it to find the true anomaly
+            double n = std::sqrt(mu / (a*a*a));
+            double M = n * dt;
+            M = Wrap2Pi(M);
+            
+            // Initial guess
+            double E = M;
+
+            for (int i = 0; i < 10; ++i)
+            {
+                double f  = E - e * std::sin(E) - M;
+                double fp = 1 - e * std::cos(E);
+                E -= f / fp;
+            }
+            
+            // Convert eccentric anomaly -> true anomaly
+            double cosNu = (std::cos(E) - e) / (1 - e * std::cos(E));
+            double sinNu = std::sqrt(1 - e*e) * std::sin(E) / (1 - e * std::cos(E));
+
+            double nu = std::atan2(sinNu, cosNu);
+
+            return nu;
+        }
         else
         {
-            
+            // For hyperbolic trajectories, we use the hyperbolic Kepler's equation
+            double abs_a = std::abs(a);
+            double n = std::sqrt(mu / (abs_a*abs_a*abs_a));
 
+            double M = n * dt;
+
+            // Initial guess
+            double H = std::asinh(M / e);
+
+            for (int i = 0; i < 10; ++i)
+            {
+                double f = e * std::sinh(H) - H - M;
+                double fp = e * std::cosh(H) - 1;
+                H -= f / fp;
+            }
+            double nu = 2.0 * atan(std::sqrt((e + 1) / (e-1)) * std::tanh(H/2));
+
+            return nu;
         }
         
+    }
+
+    static double Wrap2Pi(double x)
+    {
+        x = std::fmod(x, 2.0 * M_PI);
+        if (x < 0)
+        {
+            x += 2.0 * M_PI;
+        } 
+
+        return x;
     }
 
 };

@@ -45,8 +45,6 @@ public:
                 ImGui::Text("ta = %.6f", orbit.ta);
 
                 ImGui::Separator();
-                ImGui::Text("E = %.6f", orbit.E);
-                ImGui::Text("M = %.6f", orbit.M);
                 ImGui::Text("r = %.6f", orbit.r);
 
                 if (coordinator.HasComponent<Transform>(id))

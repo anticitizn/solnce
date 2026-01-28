@@ -106,7 +106,21 @@ public:
             CursorPos cursorPos { {inputState.mouseX, inputState.mouseY} };
             coordinator.SetResource<CursorPos>(cursorPos);
 
-            coordinator.SetResource<SimulationTime>(SimulationTime {0.0001f, 0.0001f});
+            uint32_t msSinceInit = SDL_GetTicks();
+            SimulationTime simTime = coordinator.GetResource<SimulationTime>();
+
+            simTime.sim_time_factor = 100.0;
+
+            double real_time_new = (double)msSinceInit / 1000.0;
+            simTime.real_dt = real_time_new - simTime.real_time;
+            simTime.real_dt = std::clamp(simTime.real_dt, 0.0, 0.05); // cap to max 50 ms to avoid giant timesteps
+            simTime.real_time = real_time_new;
+
+            simTime.sim_dt = simTime.real_dt / simTime.sim_time_factor;
+            simTime.sim_time = simTime.real_time / simTime.sim_time_factor;
+            
+
+            coordinator.SetResource<SimulationTime>(simTime);
 
             selectionSystem->Update();
             cameraSystem->Update();

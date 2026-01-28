@@ -67,7 +67,7 @@ public:
         uint32_t parentId = 0;
 
         ImGui::InputDouble("Mass (kg)", &mass);
-        ImGui::InputDouble("a (semi-major axis)", &a);
+        ImGui::InputDouble("pr (periapsis radius)", &pr);
         ImGui::InputDouble("e (eccentricity)", &e);
         ImGui::InputDouble("ap (argument of periapsis)", &ap);
         ImGui::InputDouble("ta (true anomaly)", &ta);
@@ -88,7 +88,7 @@ private:
     uint32_t selectedParentId = kInvalidId;
 
     double mass = 1e15;
-    double a = 100.0;
+    double pr = 100.0;
     double e = 0.0;
     double ap = 0.0;
     double ta = 0.0;
@@ -105,8 +105,8 @@ private:
 
         coordinator.AddComponent(id, OrbitComponent{
             parentId,
-            a, e, ap, ta,
-            0.0, 0.0, 0.0
+            pr, e, ap, ta,
+            0.0, 0.0,
         });
 
         coordinator.AddComponent(id, Transform{

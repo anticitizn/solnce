@@ -9,13 +9,14 @@ struct OrbitComponent
 {
     uint32_t parentBodyId;
     
-    double a;   // Semimajor axis
+    // Initial parameters (used by simulation)
+    double rp;  // Periapsis radius
     double e;   // Eccentricity
-    double ap;  // Argument of periapsis (angle between ascending node and periapsis)
+    double ap;  // Argument of periapsis (how the periapsis is rotated related to the x-axis)
     double ta;  // True anomaly
 
-    double E;   // Eccentric anomaly
-    double M;   // Mean anomaly
+    // Derived parameters
+    double a;   // Semimajor axis
     double r;   // Radius
     
     void archive(pugi::xml_node& root)
