@@ -126,11 +126,6 @@ private:
             {}, // segments (empty, should be filled by OrbitPathSystem)
             { {1,1,1,1}, 2.0f, 1.0f, 0, 0 }  // attributes (color/width)
         });
-
-
-        // Update registry
-        auto& reg = coordinator.GetResource<OrbitalRegistry>();
-        reg.massiveBodies.push_back(id);
-        reg.orbitingBodies.push_back(id);
+        
     }
 };

@@ -55,7 +55,7 @@ Signature InitialSignature()
             M = std::fmod(M, 2.0 * M_PI);  // normalize just in case
 
             // 6) Solve Kepler’s equation | M = E - e sin(E)
-            E = SolveKepler(M, ecc);  
+            E = SolveKepler(M, ecc);
 
             // 7) Convert eccentric anomaly -> true anomaly
             double cosNu = (std::cos(E) - ecc) / (1 - ecc * std::cos(E));
@@ -172,8 +172,4 @@ private:
         return E;
     }
 
-
-
 };
-
-
