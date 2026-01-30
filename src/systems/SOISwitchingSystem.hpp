@@ -30,26 +30,31 @@ public:
         {
             auto& orbitComponent = coordinator.GetComponent<OrbitComponent>(e);
             auto& parentMassiveBodyComponent = coordinator.GetComponent<MassiveBody>(orbitComponent.parentBodyId);
+            auto& parentOrbitComponent = coordinator.GetComponent<OrbitComponent>(orbitComponent.parentBodyId);
 
-            
-            if (orbitComponent.r > 1)
+            uint32_t newParentEntityId = NULL;
+
+            // Check if the entity's primary body is itself orbiting another body
+            if (parentOrbitComponent.parentBodyId != NULL)
             {
+                auto& parentParentMassiveOrbitComponent = coordinator.GetComponent<MassiveBody>(parentOrbitComponent.parentBodyId);
+
+                double parentSOI = parentOrbitComponent.a * std::pow(parentMassiveBodyComponent.mass / parentParentMassiveOrbitComponent.mass, 0.4);
+
+                if (orbitComponent.r > parentSOI)
+                {
+                    newParentEntityId = parentOrbitComponent.parentBodyId;
+                }
+            }
+            else
+            {
+                // The entity's primary body is the star, which has no primary body of its own
                 
             }
         }
     }
 
 private:
-
-    static double Wrap2Pi(double x)
-    {
-        x = std::fmod(x, 2.0 * M_PI);
-        if (x < 0)
-        {
-            x += 2.0 * M_PI;
-        } 
-
-        return x;
-    }
+    
 
 };
