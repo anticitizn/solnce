@@ -31,8 +31,8 @@ public:
             auto& orbitComponent = coordinator.GetComponent<OrbitComponent>(e);
             auto& tf = coordinator.GetComponent<Transform>(e);
 
-            if (!(coordinator.HasComponent<OrbitComponent>(orbitComponent.parentBodyId) 
-                && coordinator.HasComponent<MassiveBody>(orbitComponent.parentBodyId)))
+            if ( !(coordinator.HasComponent<OrbitComponent>(orbitComponent.parentBodyId) 
+                   && coordinator.HasComponent<MassiveBody>(orbitComponent.parentBodyId)) )
             {
                 continue;
             }
@@ -42,9 +42,15 @@ public:
 
             bool parentSwitched = false;
 
-            // Check if entity is about to enter the SOI of one of the bodies orbiting its current primary body
+            // First, check if entity is about to enter the SOI of one of the bodies orbiting its current primary body
             for (auto childId : parentMassiveBodyComponent.childrenIds)
             {
+                // The entity obviously shouldn't orbit itself
+                if (childId == e)
+                {
+                    continue;
+                }
+                
                 auto& childTf = coordinator.GetComponent<Transform>(childId);
 
                 double distance = std::sqrt( std::pow(childTf.position.x - tf.position.x, 2) + std::pow(childTf.position.y - tf.position.y, 2) );
@@ -53,6 +59,14 @@ public:
                 if (distance < soi * 0.999)
                 {
                     orbitComponent.parentBodyId = childId;
+                    
+                    auto& childMassiveBody = coordinator.GetComponent<MassiveBody>(childId);
+                    childMassiveBody.childrenIds.push_back(e);
+
+                    // remove entity from old parent's list
+                    auto& v = parentMassiveBodyComponent.childrenIds;
+                    v.erase(std::remove(v.begin(), v.end(), e), v.end());
+
                     RecalculateOrbitalParameters(e);
                     
                     parentSwitched = true;
@@ -65,12 +79,21 @@ public:
                 continue;
             }
 
-            // If the body is not entering a child SOI, check if it is exiting instead
+            // If the body is not entering a child SOI, then check if it is exiting
+            // the SOI of its current primary body instead
             double parentSOI = CalculateSOI(orbitComponent.parentBodyId);
 
             if (orbitComponent.r > parentSOI * 1.001)
             {
                 orbitComponent.parentBodyId = parentOrbitComponent.parentBodyId;
+
+                auto& newParentMassiveBody = coordinator.GetComponent<MassiveBody>(orbitComponent.parentBodyId);
+                newParentMassiveBody.childrenIds.push_back(e);
+
+                // remove entity from old parent's list
+                auto& v = parentMassiveBodyComponent.childrenIds;
+                v.erase(std::remove(v.begin(), v.end(), e), v.end());
+
                 RecalculateOrbitalParameters(e);
                 
                 continue;
@@ -87,7 +110,6 @@ private:
         if (orbitComponent.parentBodyId != NULL)
         {
             auto& parentMassiveBody = coordinator.GetComponent<MassiveBody>(orbitComponent.parentBodyId);
-            auto& parentOrbitComponent = coordinator.GetComponent<OrbitComponent>(orbitComponent.parentBodyId);
 
             double SOI = orbitComponent.a * std::pow(massiveBody.mass / parentMassiveBody.mass, 0.4);
             return SOI;
@@ -130,11 +152,15 @@ private:
 
         double ap = std::atan2(e_vec.y, e_vec.x);
 
+        // Get the resulting true anomaly using the sin,cos trick
         double cos_ta = glm::dot(e_vec, pos) / (e * distance);
         double sin_ta = (e_vec.x * pos.y - e_vec.y * pos.x) / (e * distance);
         double ta = std::atan2(sin_ta, cos_ta);
 
+        // Radius of periapsis
         double rp = p / (1 + e);
+
+        // Semi-major axis
         double a = -mu / (2 * epsilon);
 
         orbitComponent.a = a;
