@@ -150,6 +150,13 @@ public:
         });
         ellipse.Assign<Texture>(Texture{"asteroid.png", 0});
         ellipse.Assign<Polyline>(Polyline{ {}, {{1,1,1,1}, 2.0f, 1.0f, 0, 0} });
+
+        auto& starMassiveBody = star.GetComponent<MassiveBody>();
+        starMassiveBody.childrenIds.push_back(planet.GetId());
+        starMassiveBody.childrenIds.push_back(ellipse.GetId());
+
+        auto& planetMassiveBody = planet.GetComponent<MassiveBody>();
+        planetMassiveBody.childrenIds.push_back(moon.GetId());
     }
 
 private:

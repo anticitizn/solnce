@@ -127,5 +127,7 @@ private:
             { {1,1,1,1}, 2.0f, 1.0f, 0, 0 }  // attributes (color/width)
         });
         
+        auto& parentMassiveBody = coordinator.GetComponent<MassiveBody>(parentId);
+        parentMassiveBody.childrenIds.push_back(id);
     }
 };
