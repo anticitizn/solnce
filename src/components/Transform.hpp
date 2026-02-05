@@ -4,6 +4,7 @@
 #include <src/utils/macros.hpp>
 #include <external/glm/glm.hpp>
 
+// Cartesian transform
 struct Transform
 {
     glm::vec3 position;

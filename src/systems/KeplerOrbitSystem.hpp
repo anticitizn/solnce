@@ -36,57 +36,11 @@ public:
             double dt = time.sim_dt;
             double t1 = t0 + dt;
 
-            // 1) Orbital parameters
-            double ecc = orbit.e;
-            double rp = orbit.rp;
             double parentMass = coordinator.GetComponent<MassiveBody>(orbit.parentBodyId).mass;
-            double mu = parentMass * G;
+            Transform parentTransform = coordinator.GetComponent<Transform>(orbit.parentBodyId);
 
-            double a = rp / (1 - ecc);
-            orbit.a = a;
-
-            // 2) Compute p (semilatus rectum, a.k.a. distance from the focus to the orbit at ta = +/- 90 degrees)
-            double p = rp * (1 + ecc);
-
-            // 3) Get tau (time since periapsis) from current ta
-            double tau = TauFromTrueAnomaly(mu, p, ecc, a, t0, orbit.ta);
-
-            // 4) Propagate true anomaly to t1
-            double nu = TrueAnomalyAtTime(mu, p, ecc, a, t1, tau);
-            orbit.ta = nu;
-
-            // 5) Calculate the orbital radius
-            double r = p / (1.0 + ecc * std::cos(nu));
-            orbit.r = r;
-
-            // 6) Calculate the position in the plane
-            double x_pf = r * std::cos(nu);
-            double y_pf = r * std::sin(nu);
-
-            // 7) Calculate cartesian velocity
-            double factor = std::sqrt(mu / p);
-
-            double vx_pf = -factor * std::sin(nu);
-            double vy_pf =  factor * (ecc + std::cos(nu));
-
-            // 8) Rotate position and velocity by argument of periapsis
-            double cw = std::cos(orbit.ap);
-            double sw = std::sin(orbit.ap);
-
-            double x = x_pf * cw - y_pf * sw;
-            double y = x_pf * sw + y_pf * cw;
-
-            double vx = vx_pf * cw - vy_pf * sw;
-            double vy = vx_pf * sw + vy_pf * cw;
-
-            // 9) Apply parent-body transform
-            auto& parentTf = coordinator.GetComponent<Transform>(orbit.parentBodyId);
-
-            transform.position.x = parentTf.position.x + x;
-            transform.position.y = parentTf.position.y + y;
-
-            transform.velocity.x = parentTf.velocity.x + vx;
-            transform.velocity.y = parentTf.velocity.y + vy;
+            orbit = PropagateOrbit(orbit, parentMass, t0, dt);
+            transform = GetTransform(orbit, parentTransform, parentMass);
         }
     }
 
@@ -160,6 +114,72 @@ public:
     }
 
 private:
+    OrbitComponent PropagateOrbit(const OrbitComponent& orbitComponent, double parentMass, double t, double dt)
+    {
+        OrbitComponent orbit = orbitComponent;
+
+        // 1) Orbital parameters
+        double ecc = orbit.e;
+        double rp = orbit.rp;
+        double mu = parentMass * G;
+
+        double a = rp / (1 - ecc);
+        orbit.a = a;
+
+        // 2) Compute p (semilatus rectum, a.k.a. distance from the focus to the orbit at ta = +/- 90 degrees)
+        double p = rp * (1 + ecc);
+
+        // 3) Get tau (time since periapsis) from current ta
+        double tau = TauFromTrueAnomaly(mu, p, ecc, a, t, orbit.ta);
+
+        // 4) Propagate true anomaly to t1
+        double ta = TrueAnomalyAtTime(mu, p, ecc, a, t + dt, tau);
+        orbit.ta = ta;
+
+        // 5) Calculate the orbital radius
+        double r = p / (1.0 + ecc * std::cos(ta));
+        orbit.r = r;
+
+        return orbit;
+    }
+
+    Transform GetTransform(const OrbitComponent& orbit, const Transform& parentTransform, double parentMass)
+    {
+        double mu = parentMass * G;
+
+        // 1) Calculate the position in the plane
+        double x_pf = orbit.r * std::cos(orbit.ta);
+        double y_pf = orbit.r * std::sin(orbit.ta);
+
+        double p = orbit.rp * (1 + orbit.e);
+
+        // 2) Calculate cartesian velocity
+        double factor = std::sqrt(mu / p);
+
+        double vx_pf = -factor * std::sin(orbit.ta);
+        double vy_pf =  factor * (orbit.e + std::cos(orbit.ta));
+
+        // 3) Rotate position and velocity by argument of periapsis
+        double cw = std::cos(orbit.ap);
+        double sw = std::sin(orbit.ap);
+
+        double x = x_pf * cw - y_pf * sw;
+        double y = x_pf * sw + y_pf * cw;
+
+        double vx = vx_pf * cw - vy_pf * sw;
+        double vy = vx_pf * sw + vy_pf * cw;
+
+        // 4) Apply parent-body transform
+        Transform transform {{0.0f, 0.0f, 0.0f}, {0,0}, 0 };
+
+        transform.position.x = parentTransform.position.x + x;
+        transform.position.y = parentTransform.position.y + y;
+
+        transform.velocity.x = parentTransform.velocity.x + vx;
+        transform.velocity.y = parentTransform.velocity.y + vy;
+
+        return transform;
+    }
 
     static double TauFromTrueAnomaly(double mu, double p, double e, double a, double t0, double nu0)
     {
