@@ -49,8 +49,8 @@ public:
 
             if (quadComp.segments.size() < 2) continue;
 
-            uint startIndex = static_cast<uint>(allPoints.size());
-            uint count = static_cast<uint>(quadComp.segments.size());
+            uint32_t startIndex = static_cast<uint32_t>(allPoints.size());
+            uint32_t count = static_cast<uint32_t>(quadComp.segments.size());
 
             // Append vertices
             allPoints.insert(allPoints.end(), quadComp.segments.begin(), quadComp.segments.end());

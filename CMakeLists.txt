@@ -26,6 +26,7 @@ add_library(imgui
     external/imgui/imgui_impl_sdl.cpp
     external/imgui/imgui_impl_opengl3.cpp)
 
+target_link_libraries(imgui PUBLIC ${SDL2_LIBRARIES})
 # Make SDL2 available to Imgui
 target_include_directories(imgui PUBLIC ${SDL2_INCLUDE_DIRS})
 # imgui/backends/ contains the SDL implementation
