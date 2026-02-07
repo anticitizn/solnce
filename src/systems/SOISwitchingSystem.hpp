@@ -76,6 +76,7 @@ public:
 
             if (parentSwitched == true)
             {
+                orbitComponent.dirty = true;
                 continue;
             }
 
@@ -95,6 +96,7 @@ public:
                 v.erase(std::remove(v.begin(), v.end(), e), v.end());
 
                 RecalculateOrbitalParameters(e);
+                orbitComponent.dirty = true;
                 
                 continue;
             }

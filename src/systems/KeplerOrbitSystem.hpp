@@ -9,10 +9,9 @@
 #include <src/components/Transform.hpp>
 #include <src/components/MassiveBody.hpp>
 #include <src/resources/SimulationTime.hpp>
+#include <src/utils/OrbitalMath.hpp>
 
 #include <src/ecs/System.hpp>
-
-#define G 6.674e-11
 
 extern Coordinator coordinator;
 
@@ -34,15 +33,20 @@ public:
 
             double t0 = time.sim_time;
             double dt = time.sim_dt;
-            double t1 = t0 + dt;
 
             double parentMass = coordinator.GetComponent<MassiveBody>(orbit.parentBodyId).mass;
             Transform parentTransform = coordinator.GetComponent<Transform>(orbit.parentBodyId);
 
-            orbit = PropagateOrbit(orbit, parentMass, t0, dt);
+            if (orbit.dirty)
+            {
+                RebuildOrbitCache(orbit, parentMass, t0);
+            }
+
+            PropagateOrbit(orbit, t0, dt);
             transform = GetTransform(orbit, parentTransform, parentMass);
         }
     }
+
 
     void AddTestBodies()
     {
@@ -114,201 +118,29 @@ public:
     }
 
 private:
-    OrbitComponent PropagateOrbit(const OrbitComponent& orbitComponent, double parentMass, double t, double dt)
+    inline void RebuildOrbitCache(OrbitComponent& orbit, double parentMass, double t_now)
     {
-        OrbitComponent orbit = orbitComponent;
+        orbit.mu = parentMass * G;
+        orbit.p  = orbit.rp * (1.0 + orbit.e);
 
-        // 1) Orbital parameters
-        double ecc = orbit.e;
-        double rp = orbit.rp;
-        double mu = parentMass * G;
-
-        double a = rp / (1 - ecc);
-        orbit.a = a;
-
-        // 2) Compute p (semilatus rectum, a.k.a. distance from the focus to the orbit at ta = +/- 90 degrees)
-        double p = rp * (1 + ecc);
-
-        // 3) Get tau (time since periapsis) from current ta
-        double tau = TauFromTrueAnomaly(mu, p, ecc, a, t, orbit.ta);
-
-        // 4) Propagate true anomaly to t1
-        double ta = TrueAnomalyAtTime(mu, p, ecc, a, t + dt, tau);
-        orbit.ta = ta;
-
-        // 5) Calculate the orbital radius
-        double r = p / (1.0 + ecc * std::cos(ta));
-        orbit.r = r;
-
-        return orbit;
-    }
-
-    Transform GetTransform(const OrbitComponent& orbit, const Transform& parentTransform, double parentMass)
-    {
-        double mu = parentMass * G;
-
-        // 1) Calculate the position in the plane
-        double x_pf = orbit.r * std::cos(orbit.ta);
-        double y_pf = orbit.r * std::sin(orbit.ta);
-
-        double p = orbit.rp * (1 + orbit.e);
-
-        // 2) Calculate cartesian velocity
-        double factor = std::sqrt(mu / p);
-
-        double vx_pf = -factor * std::sin(orbit.ta);
-        double vy_pf =  factor * (orbit.e + std::cos(orbit.ta));
-
-        // 3) Rotate position and velocity by argument of periapsis
-        double cw = std::cos(orbit.ap);
-        double sw = std::sin(orbit.ap);
-
-        double x = x_pf * cw - y_pf * sw;
-        double y = x_pf * sw + y_pf * cw;
-
-        double vx = vx_pf * cw - vy_pf * sw;
-        double vy = vx_pf * sw + vy_pf * cw;
-
-        // 4) Apply parent-body transform
-        Transform transform {{0.0f, 0.0f, 0.0f}, {0,0}, 0 };
-
-        transform.position.x = parentTransform.position.x + x;
-        transform.position.y = parentTransform.position.y + y;
-
-        transform.velocity.x = parentTransform.velocity.x + vx;
-        transform.velocity.y = parentTransform.velocity.y + vy;
-
-        return transform;
-    }
-
-    static double TauFromTrueAnomaly(double mu, double p, double e, double a, double t0, double nu0)
-    {
-        const double eps = 1e-12;
-
-        if (std::abs(e - 1.0) < eps)
+        if (orbit.e < 1.0)
         {
-            // Parabola: dt = sqrt(p^3/mu) * (D + D^3/3), D = tan(nu/2)
-            double D = std::tan(nu0 * 0.5);
-            double dt_since = std::sqrt((p*p*p) / mu) * (D + (D*D*D)/3.0);
-            return t0 - dt_since;
+            // Ellipse
+            orbit.a = orbit.rp / (1.0 - orbit.e);
         }
-
-        if (e < 1.0)
+        else if (orbit.e > 1.0)
         {
-            // Ellipse: M0 from E0, dt = M0 / n
-            double n = std::sqrt(mu / (a*a*a));
-
-            double sinE = (std::sqrt(1.0 - e*e) * std::sin(nu0)) / (1.0 + e*std::cos(nu0));
-            double cosE = (e + std::cos(nu0)) / (1.0 + e*std::cos(nu0));
-            double E0 = std::atan2(sinE, cosE);
-
-            double M0 = Wrap2Pi(E0 - e * std::sin(E0));
-            double dt_since = M0 / n;
-            return t0 - dt_since;
+            // Hyperbola
+            orbit.a = -(orbit.rp / (orbit.e - 1.0));
         }
         else
         {
-            // Hyperbola: M0 from H0, dt = M0 / n, n = sqrt(mu/(-a)^3)
-            double abs_a = std::abs(a);
-            double n = std::sqrt(mu / (abs_a*abs_a*abs_a));
-
-            double tanhH2 = std::sqrt((e - 1.0)/(e + 1.0)) * std::tan(nu0 * 0.5);
-            tanhH2 = std::clamp(tanhH2, -0.999999999999, 0.999999999999);
-            double H0 = 2.0 * std::atanh(tanhH2);
-
-            double M0 = e * std::sinh(H0) - H0;
-            double dt_since = M0 / n;
-            return t0 - dt_since;
+            // Parabola
+            orbit.a = std::numeric_limits<double>::infinity();
         }
-    }
 
-    // Find out the true anomaly from tau (time since periapsis)
-    // by applying Newton-Raphson with 10 iterations
-    double TrueAnomalyAtTime(double mu, double p, double e, double a, double t, double tau)
-    {
-        double dt = t - tau;
-
-        const double eps = 1e-9;
-        if (std::abs(e - 1.0) < eps)
-        {
-            // For parabolic trajectories, we use Barker's equation
-            // to find the parabolic anomaly D, and then use it for the true anomaly
-            
-            // Initial guess
-            double B = std::sqrt(mu / (p*p*p)) * dt;
-
-            double D = B;
-            for (int i = 0; i < 10; ++i)
-            {
-                double f = D + pow(D, 3) / 3 - B;
-                double fp = 1 + pow(D, 2);
-
-                D -= f / fp;
-            }
-
-            double nu = 2.0 * atan(D);
-            
-            return nu;
-        }
-        else if (e < 1.0)
-        {
-            // For elliptical orbits, we first find the eccentric anomaly E
-            // using Newton-Raphson, and then use it to find the true anomaly
-            double n = std::sqrt(mu / (a*a*a));
-            double M = n * dt;
-            M = Wrap2Pi(M);
-            
-            // Initial guess
-            double E = M;
-
-            for (int i = 0; i < 10; ++i)
-            {
-                double f  = E - e * std::sin(E) - M;
-                double fp = 1 - e * std::cos(E);
-                E -= f / fp;
-            }
-            
-            // Convert eccentric anomaly -> true anomaly
-            double cosNu = (std::cos(E) - e) / (1 - e * std::cos(E));
-            double sinNu = std::sqrt(1 - e*e) * std::sin(E) / (1 - e * std::cos(E));
-
-            double nu = std::atan2(sinNu, cosNu);
-
-            return nu;
-        }
-        else
-        {
-            // For hyperbolic trajectories, we use the hyperbolic Kepler's equation
-            double abs_a = std::abs(a);
-            double n = std::sqrt(mu / (abs_a*abs_a*abs_a));
-
-            double M = n * dt;
-
-            // Initial guess
-            double H = std::asinh(M / e);
-
-            for (int i = 0; i < 10; ++i)
-            {
-                double f = e * std::sinh(H) - H - M;
-                double fp = e * std::cosh(H) - 1;
-                H -= f / fp;
-            }
-            double nu = 2.0 * atan(std::sqrt((e + 1) / (e-1)) * std::tanh(H/2));
-
-            return nu;
-        }
-        
-    }
-
-    static double Wrap2Pi(double x)
-    {
-        x = std::fmod(x, 2.0 * M_PI);
-        if (x < 0)
-        {
-            x += 2.0 * M_PI;
-        } 
-
-        return x;
+        orbit.t_periapsis = TauFromTrueAnomaly(orbit.mu, orbit.p, orbit.e, orbit.a, t_now, orbit.ta);
+        orbit.dirty = false;
     }
 
 };
