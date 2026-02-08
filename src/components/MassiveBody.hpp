@@ -9,8 +9,8 @@
 
 struct MassiveBody
 {
-    // kg
-    double mass;
+    double mass; // kg
+    double soi;  // m
 
     std::vector<uint32_t> childrenIds;
     

@@ -5,8 +5,16 @@
 #include <src/components/Transform.hpp>
 #include <src/components/Polyline.hpp>
 #include <src/components/MassiveBody.hpp>
+#include <src/utils/OrbitalMath.hpp>
 
 extern Coordinator coordinator;
+
+struct TaRange
+{
+    bool valid = false;   // any portion inside?
+    double nu_min = 0.0;
+    double nu_max = 0.0;
+};
 
 class OrbitPathSystem : public System
 {
@@ -18,52 +26,145 @@ public:
 
     void Update()
     {
-        for (const auto& entity : entities)
+        for (auto e : entities)
         {
-            auto& orbit = coordinator.GetComponent<OrbitComponent>(entity);
-            auto& line  = coordinator.GetComponent<Polyline>(entity);
+            auto& orbit = coordinator.GetComponent<OrbitComponent>(e);
+            auto& line  = coordinator.GetComponent<Polyline>(e);
 
-            // Parent position
-            auto& parentTf = coordinator.GetComponent<Transform>(orbit.parentBodyId);
+            auto& parentTf   = coordinator.GetComponent<Transform>(orbit.parentBodyId);
+            auto& parentMassiveBody = coordinator.GetComponent<MassiveBody>(orbit.parentBodyId);
+            
+            TaRange range = TrueAnomalyRangeInsideRadius(orbit.rp, orbit.e, parentMassiveBody.soi);
 
-            // Rebuild the polyline
-            BuildEllipse(line, orbit, parentTf);
+            if (range.valid)
+            {
+                SampleOrbitPositionsTa(line.segments, orbit, parentTf, 200, range.nu_min, range.nu_max);
+            }
+            else
+            {
+                // If something goes wrong, we don't draw anything
+                line.segments.clear();
+            }
         }
     }
+
 
 private:
-    void BuildEllipse(Polyline& line, const OrbitComponent& orbit, const Transform& parentTf)
+    inline void SampleOrbitPositionsTa(
+        std::vector<glm::vec2>& out,
+        const OrbitComponent& orbitIn,
+        const Transform& parentTf,
+        int sampleCount,
+        double nuStart = 0.0,
+        double nuEnd   = 2.0 * M_PI
+    )
     {
-        const int sampleCount = 200;
-        line.segments.clear();
-        line.segments.reserve(sampleCount);
+        out.clear();
+        out.reserve(sampleCount + 1);
 
-        double a  = orbit.a;
-        double e  = orbit.e;
-        double ap = orbit.ap;
+        OrbitComponent o = orbitIn;
 
-        float cw = std::cos(ap);
-        float sw = std::sin(ap);
+        const double p  = (o.p != 0.0) ? o.p : (o.rp * (1.0 + o.e));
 
-        for (int i = 0; i <= sampleCount; i++)
+        for (int i = 0; i <= sampleCount; ++i)
         {
-            double nu = (double(i) / sampleCount) * 2.0 * M_PI;
+            double u = double(i) / double(sampleCount);
+            double nu = nuStart + (nuEnd - nuStart) * u;
 
-            // radius
-            double r = a * (1 - e*e) / (1 + e * std::cos(nu));
+            o.ta = nu;
+            o.r  = RadiusFromTrueAnomaly(p, o.e, nu);
 
-            // perifocal position
-            double xpf = r * std::cos(nu);
-            double ypf = r * std::sin(nu);
-
-            // ap rotation
-            double x = xpf * cw - ypf * sw;
-            double y = xpf * sw + ypf * cw;
-
-            // transform to world space
-            glm::vec2 p = {parentTf.position.x + float(x), parentTf.position.y + float(y)};
-
-            line.segments.push_back(p);
+            Transform tf = GetTransform(o, parentTf);
+            out.push_back({ tf.position.x, tf.position.y });
         }
     }
+
+    // Returns range in true anomaly (nu) where r(nu) <= R
+    // Assumes periapsis at nu=0
+    inline TaRange TrueAnomalyRangeInsideRadius(double rp, double e, double R)
+    {
+        TaRange out;
+
+        // Sanity checks
+        if (R <= 0.0 || rp > R) 
+        {
+            return out;
+        }
+
+        // Near-circular: r is ~constant; if rp<=R then whole orbit is inside
+        if (std::abs(e) < 1e-12)
+        {
+            out.valid  = true;
+            out.nu_min = 0.0;
+            out.nu_max = 2.0 * M_PI;
+            return out;
+        }
+
+        const double p = rp * (1.0 + e);
+
+        // Solve cos(nu) >= k
+        double k = ((p / R) - 1.0) / e;
+
+        if (k >= 1.0)
+        {
+            // Only touches at periapsis when k==1; treat as degenerate range
+            out.valid  = true;
+            out.nu_min = 0.0;
+            out.nu_max = 0.0;
+            return out;
+        }
+
+        if (k <= -1.0)
+        {
+            // Inside for entire physically valid branch
+            out.valid = true;
+
+            if (e < 1.0)
+            {
+                out.nu_min = -M_PI;
+                out.nu_max =  M_PI;
+            }
+            else
+            {
+                // hyperbola/parabola: physically valid branch is limited
+                // parabola (e==1): nu in (-pi, pi)
+                // hyperbola (e>1): nu in (-nu_inf, nu_inf)
+                if (std::abs(e - 1.0) < 1e-12)
+                {
+                    out.nu_min = -M_PI;
+                    out.nu_max =  M_PI;
+                }
+                else
+                {
+                    double nu_inf = std::acos(-1.0 / e);
+                    out.nu_min = -nu_inf;
+                    out.nu_max =  nu_inf;
+                }
+            }
+            return out;
+        }
+
+        // Normal case: bounded by arccos(k)
+        double nu_max = std::acos(std::clamp(k, -1.0, 1.0));
+
+        // Clamp to physical branch for hyperbolas/parabolas
+        if (e > 1.0)
+        {
+            double nu_inf = std::acos(-1.0 / e);
+            const double eps = 1e-9;
+            nu_max = std::min(nu_max, nu_inf - eps);
+        }
+        else if (std::abs(e - 1.0) < 1e-12)
+        {
+            // parabola: nu in (-pi, pi)
+            const double eps = 1e-9;
+            nu_max = std::min(nu_max, M_PI - eps);
+        }
+
+        out.valid  = true;
+        out.nu_min = -nu_max;
+        out.nu_max =  nu_max;
+        return out;
+    }
+
 };

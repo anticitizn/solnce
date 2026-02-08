@@ -9,6 +9,7 @@
 #include <src/components/MassiveBody.hpp>
 #include <src/components/Transform.hpp>
 #include <src/resources/SimulationTime.hpp>
+#include <src/utils/OrbitalMath.hpp>
 
 #include <src/ecs/System.hpp>
 
@@ -31,14 +32,7 @@ public:
             auto& orbitComponent = coordinator.GetComponent<OrbitComponent>(e);
             auto& tf = coordinator.GetComponent<Transform>(e);
 
-            if ( !(coordinator.HasComponent<OrbitComponent>(orbitComponent.parentBodyId) 
-                   && coordinator.HasComponent<MassiveBody>(orbitComponent.parentBodyId)) )
-            {
-                continue;
-            }
-
             auto& parentMassiveBodyComponent = coordinator.GetComponent<MassiveBody>(orbitComponent.parentBodyId);
-            auto& parentOrbitComponent = coordinator.GetComponent<OrbitComponent>(orbitComponent.parentBodyId);
 
             bool parentSwitched = false;
 
@@ -52,11 +46,11 @@ public:
                 }
                 
                 auto& childTf = coordinator.GetComponent<Transform>(childId);
+                auto& childMassiveBody = coordinator.GetComponent<MassiveBody>(childId);
 
                 double distance = std::sqrt( std::pow(childTf.position.x - tf.position.x, 2) + std::pow(childTf.position.y - tf.position.y, 2) );
 
-                double soi = CalculateSOI(childId);
-                if (distance < soi * 0.999)
+                if (distance < childMassiveBody.soi * 0.999)
                 {
                     orbitComponent.parentBodyId = childId;
                     
@@ -82,10 +76,16 @@ public:
 
             // If the body is not entering a child SOI, then check if it is exiting
             // the SOI of its current primary body instead
-            double parentSOI = CalculateSOI(orbitComponent.parentBodyId);
-
-            if (orbitComponent.r > parentSOI * 1.001)
+            if (orbitComponent.r > parentMassiveBodyComponent.soi * 1.001)
             {
+                 if (!coordinator.HasComponent<OrbitComponent>(orbitComponent.parentBodyId))
+                 {
+                    // Parent is the root (star) of the solar system, no higher parent to escape to
+                    continue;
+                 }
+
+                auto& parentOrbitComponent = coordinator.GetComponent<OrbitComponent>(orbitComponent.parentBodyId);
+                
                 orbitComponent.parentBodyId = parentOrbitComponent.parentBodyId;
 
                 auto& newParentMassiveBody = coordinator.GetComponent<MassiveBody>(orbitComponent.parentBodyId);
@@ -104,25 +104,6 @@ public:
     }
 
 private:
-    static double CalculateSOI(uint32_t entity)
-    {
-        auto& orbitComponent = coordinator.GetComponent<OrbitComponent>(entity);
-        auto& massiveBody = coordinator.GetComponent<MassiveBody>(entity);
-
-        if (orbitComponent.parentBodyId != NULL)
-        {
-            auto& parentMassiveBody = coordinator.GetComponent<MassiveBody>(orbitComponent.parentBodyId);
-
-            double SOI = orbitComponent.a * std::pow(massiveBody.mass / parentMassiveBody.mass, 0.4);
-            return SOI;
-        }
-        else
-        {
-            // The entity is the star or otherwise root body in the system, so its SOI is infinite
-            return std::numeric_limits<double>::infinity();
-        }
-    }
-
     static void RecalculateOrbitalParameters(uint32_t entity)
     {
         auto& orbitComponent = coordinator.GetComponent<OrbitComponent>(entity);

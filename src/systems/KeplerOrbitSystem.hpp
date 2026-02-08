@@ -43,7 +43,7 @@ public:
             }
 
             PropagateOrbit(orbit, t0, dt);
-            transform = GetTransform(orbit, parentTransform, parentMass);
+            transform = GetTransform(orbit, parentTransform);
         }
     }
 

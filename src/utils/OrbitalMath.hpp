@@ -21,10 +21,8 @@ double Wrap2Pi(double x)
     return x;
 }
 
-Transform GetTransform(const OrbitComponent& orbit, const Transform& parentTransform, double parentMass)
+Transform GetTransform(const OrbitComponent& orbit, const Transform& parentTransform)
 {
-    double mu = parentMass * G;
-
     // 1) Calculate the position in the plane
     double x_pf = orbit.r * std::cos(orbit.ta);
     double y_pf = orbit.r * std::sin(orbit.ta);
@@ -32,7 +30,7 @@ Transform GetTransform(const OrbitComponent& orbit, const Transform& parentTrans
     double p = orbit.rp * (1 + orbit.e);
 
     // 2) Calculate cartesian velocity
-    double factor = std::sqrt(mu / p);
+    double factor = std::sqrt(orbit.mu / p);
 
     double vx_pf = -factor * std::sin(orbit.ta);
     double vy_pf =  factor * (orbit.e + std::cos(orbit.ta));
@@ -175,16 +173,19 @@ double TrueAnomalyAtTime(double mu, double p, double e, double a, double t, doub
 
         return nu;
     }
-    
 }
 
-void PropagateOrbit(OrbitComponent& o, double t0, double dt)
+inline double RadiusFromTrueAnomaly(double p, double e, double ta)
+{
+    return p / (1.0 + e * std::cos(ta));
+}
+
+void PropagateOrbit(OrbitComponent& orbit, double t0, double dt)
 {
     // compute ta at t1
     double t1 = t0 + dt;
-    o.ta = TrueAnomalyAtTime(o.mu, o.p, o.e, o.a, t1, o.t_periapsis);
+    orbit.ta = TrueAnomalyAtTime(orbit.mu, orbit.p, orbit.e, orbit.a, t1, orbit.t_periapsis);
 
     // radius at t1
-    o.r = o.p / (1.0 + o.e * std::cos(o.ta));
+    orbit.r = RadiusFromTrueAnomaly(orbit.p, orbit.e, orbit.ta);
 }
-

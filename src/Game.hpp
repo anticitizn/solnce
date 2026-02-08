@@ -18,6 +18,7 @@
 #include <src/systems/KeplerOrbitSystem.hpp>
 #include <src/systems/OrbitPathSystem.hpp>
 #include <src/systems/SOISwitchingSystem.hpp>
+#include <src/systems/SOICalculationSystem.hpp>
 #include <src/resources/SimulationTime.hpp>
 #include <src/io/InputManager.hpp>
 
@@ -47,6 +48,7 @@ public:
         orbitPathSystem = coordinator.RegisterSystem<OrbitPathSystem>();
         cameraSystem = coordinator.RegisterSystem<CameraSystem>();
         orbitSystem = coordinator.RegisterSystem<KeplerOrbitSystem>();
+        soiCalculationSystem = coordinator.RegisterSystem<SOICalculationSystem>();
         soiSwitchingSystem = coordinator.RegisterSystem<SOISwitchingSystem>();
 
         renderSystem = coordinator.RegisterSystem<RenderSystem>();        
@@ -130,6 +132,7 @@ public:
             renderSystem->Render();
             resourceSystem->Update();
             orbitSystem->Update();
+            soiCalculationSystem->Update();
             soiSwitchingSystem->Update();
             orbitPathSystem->Update();
         }
@@ -150,6 +153,7 @@ private:
     shared_ptr<CameraSystem> cameraSystem;
     shared_ptr<KeplerOrbitSystem> orbitSystem;
     shared_ptr<OrbitPathSystem> orbitPathSystem;
+    shared_ptr<SOICalculationSystem> soiCalculationSystem;
     shared_ptr<SOISwitchingSystem> soiSwitchingSystem;
 
     InputManager inputManager;
