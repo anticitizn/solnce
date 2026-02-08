@@ -118,6 +118,9 @@ public:
     }
 
 private:
+
+    // Update the derived parameters of an orbit component
+    // They should change only upon SOI switch or during propulsive events
     inline void RebuildOrbitCache(OrbitComponent& orbit, double parentMass, double t_now)
     {
         orbit.mu = parentMass * G;

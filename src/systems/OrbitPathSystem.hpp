@@ -11,7 +11,8 @@ extern Coordinator coordinator;
 
 struct TaRange
 {
-    bool valid = false;   // any portion inside?
+    // Is any portion of the orbit inside the SOI? This should always be true, but you never know
+    bool valid = false;   
     double nu_min = 0.0;
     double nu_max = 0.0;
 };
@@ -29,9 +30,9 @@ public:
         for (auto e : entities)
         {
             auto& orbit = coordinator.GetComponent<OrbitComponent>(e);
-            auto& line  = coordinator.GetComponent<Polyline>(e);
+            auto& line = coordinator.GetComponent<Polyline>(e);
 
-            auto& parentTf   = coordinator.GetComponent<Transform>(orbit.parentBodyId);
+            auto& parentTf = coordinator.GetComponent<Transform>(orbit.parentBodyId);
             auto& parentMassiveBody = coordinator.GetComponent<MassiveBody>(orbit.parentBodyId);
             
             TaRange range = TrueAnomalyRangeInsideRadius(orbit.rp, orbit.e, parentMassiveBody.soi);
@@ -42,7 +43,7 @@ public:
             }
             else
             {
-                // If something goes wrong, we don't draw anything
+                // If something goes wrong, don't draw anything
                 line.segments.clear();
             }
         }
@@ -91,7 +92,7 @@ private:
             return out;
         }
 
-        // Near-circular: r is ~constant; if rp<=R then whole orbit is inside
+        // Near-circular: r is approximately constant; if rp<=R then whole orbit is inside SOI
         if (std::abs(e) < 1e-12)
         {
             out.valid  = true;
@@ -107,7 +108,8 @@ private:
 
         if (k >= 1.0)
         {
-            // Only touches at periapsis when k==1; treat as degenerate range
+            // Only touches SOI at periapsis when k==1
+            // Treat as degenerate range
             out.valid  = true;
             out.nu_min = 0.0;
             out.nu_max = 0.0;
@@ -116,7 +118,7 @@ private:
 
         if (k <= -1.0)
         {
-            // Inside for entire physically valid branch
+            // Orbit inside SOI for entire physically valid branch
             out.valid = true;
 
             if (e < 1.0)
