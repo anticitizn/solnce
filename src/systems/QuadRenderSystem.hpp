@@ -31,7 +31,7 @@ public:
         shader.Init(shadersPath + "quad_vertex.glsl", shadersPath + "quad_fragment.glsl");
         shader.Activate();
 
-        shader.SetUniform("texture", 0);
+        shader.SetUniform("quadTex", 0);
     }
 
     Signature InitialSignature()

@@ -46,11 +46,11 @@ public:
 
             if (action.type == Zoom)
             {
-                if (action.value > 0)
+                if (action.value < 0)
                 {
                     camera.metersPerPixel *= camera.zoomSpeed;  // zoom in
                 }
-                else if (action.value < 0)
+                else if (action.value > 0)
                 {
                     camera.metersPerPixel /= camera.zoomSpeed;  // zoom out
                 }

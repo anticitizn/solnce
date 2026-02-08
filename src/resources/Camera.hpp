@@ -8,7 +8,7 @@ struct Camera
     // Camera center (m)
     glm::dvec2 position;
 
-    double metersPerPixel = 1.0e6;
+    double metersPerPixel = 1e9;
     double minMetersPerPixel = 1.0;
     double maxMetersPerPixel = 1.0e12;
 

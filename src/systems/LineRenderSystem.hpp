@@ -46,6 +46,8 @@ public:
         for (const auto& entity : entities)
         {
             Polyline& quadComp = coordinator.GetComponent<Polyline>(entity);
+            PolylineAttribute a = quadComp.attribute;
+            a.width = (float)((double)a.width * camera.metersPerPixel);
 
             if (quadComp.segments.size() < 2) continue;
 
@@ -60,7 +62,7 @@ public:
             totalSegments += static_cast<int>(count - 1);
             
             // Store the per-line attributes
-            attribs.push_back(quadComp.attribute);
+            attribs.push_back(a);
         }
 
         // SSBO upload
@@ -91,7 +93,6 @@ public:
 
         shader.SetUniform("lineCount", (int)ranges.size());
         shader.SetUniform("totalSegments", totalSegments);
-        shader.SetUniform("lineWidth", 10.0f);
         shader.SetUniform("viewportResolution", glm::vec2(1200, 800));
 
         glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, totalSegments);
