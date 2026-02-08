@@ -63,7 +63,14 @@ public:
             instanceMatrix = glm::rotate(instanceMatrix, glm::radians(tf.rotation), glm::vec3(0.0f, 0.0f, 1.0f));
             instanceMatrix = glm::translate(instanceMatrix, glm::vec3(-1, -1, 0));
 
-            instanceMatrix = glm::scale(instanceMatrix, glm::vec3(quadComp.sizeX / 2, quadComp.sizeY / 2, 1.0f));
+            // Minimum quad size in pixels
+            double minPx = 20.0;
+            double minSize_m = minPx * camera.metersPerPixel;
+
+            double sx_m = std::max((double)quadComp.sizeX, minSize_m);
+            double sy_m = std::max((double)quadComp.sizeY, minSize_m);
+
+            instanceMatrix = glm::scale(instanceMatrix, glm::vec3((float)(sx_m / 2.0), (float)(sy_m / 2.0), 1.0f));
 
             textureMatrixes[textureComp.id].push_back(instanceMatrix);
         }
