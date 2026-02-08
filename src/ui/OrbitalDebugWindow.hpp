@@ -52,8 +52,8 @@ public:
                     auto& tf = coordinator.GetComponent<Transform>(id);
                     ImGui::Separator();
                     ImGui::Text("Transform:");
-                    ImGui::Text("  position = (%.6f, %.6f, %.6f)",
-                                tf.position.x, tf.position.y, tf.position.z);
+                    ImGui::Text("  position = (%.6f, %.6f)",
+                                tf.position.x, tf.position.y);
                     ImGui::Text("  velocity = (%.6f, %.6f)",
                                 tf.velocity.x, tf.velocity.y);
                 }

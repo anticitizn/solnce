@@ -8,7 +8,8 @@
 #include <src/components/Transform.hpp>
 #include <src/components/MassiveBody.hpp>
 
-#define G 6.674e-11
+constexpr double G = 6.674e-11;
+constexpr double AU = 1.495978707e11;
 
 double Wrap2Pi(double x)
 {
@@ -46,7 +47,7 @@ Transform GetTransform(const OrbitComponent& orbit, const Transform& parentTrans
     double vy = vx_pf * sw + vy_pf * cw;
 
     // 4) Apply parent-body transform
-    Transform transform {{0.0f, 0.0f, 0.0f}, {0,0}, 0 };
+    Transform transform {{0.0f, 0.0f}, {0,0}, 0 };
 
     transform.position.x = parentTransform.position.x + x;
     transform.position.y = parentTransform.position.y + y;

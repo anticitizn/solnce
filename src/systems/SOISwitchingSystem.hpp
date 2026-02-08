@@ -13,8 +13,6 @@
 
 #include <src/ecs/System.hpp>
 
-#define G 6.674e-11
-
 extern Coordinator coordinator;
 
 class SOISwitchingSystem : public System

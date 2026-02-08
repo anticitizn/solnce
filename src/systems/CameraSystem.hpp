@@ -20,9 +20,7 @@ public:
     CameraSystem()
     {
         Camera camera;
-        camera.position = {0, 0, 1.0f};
-        camera.moveSpeed = 5.0f;
-        camera.zoomSpeed = 1.1f;
+        camera.position = {0, 0};
         
         coordinator.RegisterResource<Camera>(camera);
     }
@@ -35,46 +33,49 @@ public:
     void Update()
     {
         Camera& camera = coordinator.GetResource<Camera>();
-
         std::vector<Action> actions = coordinator.GetResource<std::vector<Action>>();
+
         for (const auto& action : actions)
         {
             if (action.type == MoveCamera && action.phase != Stopped)
             {
-                camera.position.x += action.delta.x * camera.moveSpeed;
-                camera.position.y += action.delta.y * camera.moveSpeed;
+                glm::dvec2 deltaPx(action.delta.x, action.delta.y);
+                glm::dvec2 deltaMeters = deltaPx * camera.metersPerPixel * camera.moveSpeed;
+                camera.position += deltaMeters;
             }
+
             if (action.type == Zoom)
             {
                 if (action.value > 0)
                 {
-                    camera.position.z *= camera.zoomSpeed;  // zoom in
+                    camera.metersPerPixel *= camera.zoomSpeed;  // zoom in
                 }
                 else if (action.value < 0)
                 {
-                    camera.position.z /= camera.zoomSpeed;  // zoom out
+                    camera.metersPerPixel /= camera.zoomSpeed;  // zoom out
                 }
                     
-                camera.position.z = glm::clamp(camera.position.z, 0.1f, 20.0f);
+                camera.metersPerPixel = glm::clamp(camera.metersPerPixel, camera.minMetersPerPixel, camera.maxMetersPerPixel);
             }
+
             if (action.type == DragCamera && action.phase != Stopped)
             {
-                camera.position.x -= action.delta.x / camera.position.z;
-                camera.position.y -= action.delta.y / camera.position.z;
+                glm::dvec2 dragPx(action.delta.x, action.delta.y);
+                camera.position -= dragPx * camera.metersPerPixel;
             }
         }
 
         camera.view = glm::mat4(1.0f);
 
-        float w = camera.viewportSize.x;
-        float h = camera.viewportSize.y;
+        double w = camera.viewportSize.x;
+        double h = camera.viewportSize.y;
 
-        glm::vec2 cursorPos = coordinator.GetResource<CursorPos>().position;
-        float half_w = (w * 0.5f) / camera.position.z;
-        float half_h = (h * 0.5f) / camera.position.z;
+        double half_w = 0.5 * w * camera.metersPerPixel;
+        double half_h = 0.5 * h * camera.metersPerPixel;
 
-        camera.projection = glm::ortho(camera.position.x - half_w, camera.position.x + half_w, 
-                                       camera.position.y + half_h, camera.position.y - half_h, 
+        camera.view = glm::mat4(1.0f);
+        camera.projection = glm::ortho((float)(camera.position.x - half_w), (float)(camera.position.x + half_w), 
+                                       (float)(camera.position.y + half_h), (float)(camera.position.y - half_h), 
                                        -1.0f                     , 1.0f);
         camera.inverseProjection = glm::inverse(camera.projection);
     }

@@ -5,10 +5,15 @@
 
 struct Camera
 {
-    glm::vec3 position;
+    // Camera center (m)
+    glm::dvec2 position;
 
-    float moveSpeed;
-    float zoomSpeed;
+    double metersPerPixel = 1.0e6;
+    double minMetersPerPixel = 1.0;
+    double maxMetersPerPixel = 1.0e12;
+
+    double moveSpeed = 1.0;
+    double zoomSpeed = 1.1;
 
     glm::vec2 viewportSize;
 

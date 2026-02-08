@@ -52,20 +52,20 @@ public:
     {
         // Star
         Entity star = coordinator.CreateEntity();
-        star.Assign<MassiveBody>(MassiveBody{ 1.0e20 });
-        star.Assign<Transform>(Transform{ {0.0f, 0.0f, 0.0f}, {0,0}, 0 });
+        star.Assign<MassiveBody>(MassiveBody{ 1.989e30 });
+        star.Assign<Transform>(Transform{ {0.0f, 0.0f}, {0,0}, 0 });
         star.Assign<Quad>(Quad{80, 80, 0.4, 0.6, 1.0});
         star.Assign<Texture>(Texture{"sun.png", 0});
         star.Assign<Polyline>(Polyline{ {}, {{1,1,1,1}, 2.0f, 1.0f, 0, 0} });
 
         // Planet
         Entity planet = coordinator.CreateEntity();
-        planet.Assign<Transform>(Transform{ {200.0f, 0.0f, 0.0f}, {0,0}, 0 });
+        planet.Assign<Transform>(Transform{ {200.0f, 0.0f}, {0,0}, 0 });
         planet.Assign<Quad>(Quad{20, 20, 0.4, 0.6, 1.0});
-        planet.Assign<MassiveBody>(MassiveBody{ 5.0e15 });
+        planet.Assign<MassiveBody>(MassiveBody{ 5.972e24 });
         planet.Assign<OrbitComponent>(OrbitComponent{
             star.GetId(),   // parent
-            200.0,          // pr
+            1.4710e11,      // pr
             0.0,            // e
             0.0,            // ap
             0.0,            // ta
@@ -77,13 +77,13 @@ public:
 
         // Moon
         Entity moon = coordinator.CreateEntity();
-        moon.Assign<Transform>(Transform{ {240.0f, 0.0f, 0.0f}, {0,0}, 0 });
+        moon.Assign<Transform>(Transform{ {240.0f, 0.0f}, {0,0}, 0 });
         moon.Assign<Quad>(Quad{10, 10, 0.8, 0.8, 0.8});
-        moon.Assign<MassiveBody>(MassiveBody{5.0e10});
+        moon.Assign<MassiveBody>(MassiveBody{7.348e22});
         moon.Assign<OrbitComponent>(OrbitComponent{
             planet.GetId(),
-            20.0,                // pr
-            0.3,                 // e
+            3.633e8,             // pr
+            0.0549,              // e
             glm::radians(30.0f), // ap
             0.0,
             0.0,
@@ -94,12 +94,12 @@ public:
 
         // Elliptical planet
         Entity ellipse = coordinator.CreateEntity();
-        ellipse.Assign<Transform>(Transform{ {300.0f, 0.0f, 0.0f}, {0,0}, 0 });
+        ellipse.Assign<Transform>(Transform{ {300.0f, 0.0f}, {0,0}, 0 });
         ellipse.Assign<Quad>(Quad{15, 15, 1.0, 0.3, 0.3});
         ellipse.Assign<MassiveBody>(MassiveBody{ 5.0e15 });
         ellipse.Assign<OrbitComponent>(OrbitComponent{
             star.GetId(),
-            300.0,                // pr
+            0.64699 * AU,         // pr
             0.6,                  // e
             glm::radians(45.0f),  // ap
             0.0,

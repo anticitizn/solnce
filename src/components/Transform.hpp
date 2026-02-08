@@ -7,8 +7,8 @@
 // Cartesian transform
 struct Transform
 {
-    glm::vec3 position;
-    glm::vec2 velocity;
+    glm::dvec2 position;
+    glm::dvec2 velocity;
     float rotation;
     
     void archive(pugi::xml_node& root)

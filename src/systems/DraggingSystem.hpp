@@ -34,8 +34,8 @@ public:
             {
                 if (action.type == Select)
                 {
-                    tf.position.x += action.delta.x / camera.position.z;
-                    tf.position.y += action.delta.y / camera.position.z;
+                    tf.position.x += action.delta.x / camera.metersPerPixel;
+                    tf.position.y += action.delta.y / camera.metersPerPixel;
                 }
             }
         }

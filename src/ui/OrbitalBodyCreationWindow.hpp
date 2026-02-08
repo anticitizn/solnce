@@ -110,7 +110,7 @@ private:
         });
 
         coordinator.AddComponent(id, Transform{
-            {0,0,0},
+            {0,0},
             {0,0},
             0.0f
         });
