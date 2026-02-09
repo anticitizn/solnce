@@ -15,7 +15,7 @@ class InputManager
 public:
     InputManager()
     {
-        // SDL_SetRelativeMouseMode(false);
+
     }
 
     std::vector<Action> Update()

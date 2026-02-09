@@ -15,7 +15,7 @@ struct Camera
     double moveSpeed = 1.0;
     double zoomSpeed = 1.1;
 
-    glm::vec2 viewportSize;
+    glm::ivec2 viewportSize;
 
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);

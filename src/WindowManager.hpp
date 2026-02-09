@@ -19,8 +19,7 @@ public:
         unsigned int windowPosX=100, unsigned int WindowPosY=100);
     void Refresh();
     void Exit();
-    int GetContextWidth();
-    int GetContextHeight();
+    void GetContextSize(int* width, int* height);
     void SwapBuffers();
 
 private:

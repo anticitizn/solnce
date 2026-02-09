@@ -28,7 +28,7 @@ void WindowManager::Init(string windowName, bool fullscreen, unsigned int window
 
     Uint32 windowedFlag = fullscreen ? SDL_WINDOW_FULLSCREEN : 0;
 	sdl_window = SDL_CreateWindow("Solnce", windowSizeX, windowSizeY, SDL_WINDOW_OPENGL | windowedFlag);
-	SDL_MaximizeWindow(sdl_window);
+	SDL_SetWindowFullscreen(sdl_window, true);
 	
 	if (sdl_window == NULL)
 	{
@@ -47,8 +47,10 @@ void WindowManager::Init(string windowName, bool fullscreen, unsigned int window
 	}
 
 
-	SDL_GetWindowSize(sdl_window, &contextWidth, &contextHeight);
+	SDL_GetWindowSizeInPixels(sdl_window, &contextWidth, &contextHeight);
 	cout << "Resolution is " << contextWidth << "/" << contextHeight << endl;
+
+	SDL_CaptureMouse(true);
 
 	IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -62,15 +64,6 @@ void WindowManager::Init(string windowName, bool fullscreen, unsigned int window
 void WindowManager::Refresh()
 {
     
-	SDL_Event event;
-	while (SDL_PollEvent(&event))
-	{
-		ImGui_ImplSDL3_ProcessEvent(&event);
-		if (event.type == SDL_EVENT_QUIT)
-			Exit();
-		if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED && event.window.windowID == SDL_GetWindowID(sdl_window))
-			Exit();
-	}	
 }
 
 void WindowManager::SwapBuffers()
@@ -84,14 +77,7 @@ void WindowManager::Exit()
     SDL_Quit();
 }
 
-int WindowManager::GetContextWidth()
+void WindowManager::GetContextSize(int* width, int* height)
 {
-	SDL_GetWindowSize(sdl_window, &contextWidth, &contextHeight);
-	return contextWidth;
-}
-
-int WindowManager::GetContextHeight()
-{
-	SDL_GetWindowSize(sdl_window, &contextWidth, &contextHeight);
-	return contextHeight;
+	SDL_GetWindowSizeInPixels(sdl_window, width, height);
 }

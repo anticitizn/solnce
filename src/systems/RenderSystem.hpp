@@ -34,11 +34,12 @@ public:
 
     void Init()
     {
-        windowManager.Init("SOLNCE", false);
-        InitOpenGL();
+        windowManager.Init("SOLNCE", true, 1920, 1080, 0, 0);
 
         Camera& camera = coordinator.GetResource<Camera>();
-        camera.viewportSize = {windowManager.GetContextWidth(), windowManager.GetContextHeight()};
+        windowManager.GetContextSize(&camera.viewportSize.x, &camera.viewportSize.y);
+
+        InitOpenGL(camera.viewportSize.x, camera.viewportSize.y);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -79,11 +80,11 @@ private:
     shared_ptr<QuadRenderSystem> quadSystem;
     shared_ptr<LineRenderSystem> lineSystem;
 
-    void InitOpenGL()
+    void InitOpenGL(int width, int height)
     {
         // Enable antialiasing
         glEnable(GL_MULTISAMPLE);
-        glViewport(0, 0, windowManager.GetContextWidth(), windowManager.GetContextHeight());
+        glViewport(0, 0, width, height);
     }
 
     void RenderUI()
@@ -100,7 +101,7 @@ private:
             windows[i]->Draw();
         }
         
-        ImGui::ShowDemoWindow();
+        // ImGui::ShowDemoWindow();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

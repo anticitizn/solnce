@@ -19,8 +19,11 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 add_library(imgui
     # Main Imgui files
-    external/imgui/imgui.cpp external/imgui/imgui_draw.cpp
-    external/imgui/imgui_tables.cpp external/imgui/imgui_widgets.cpp
+    external/imgui/imgui.cpp 
+    external/imgui/imgui_draw.cpp
+    external/imgui/imgui_tables.cpp 
+    external/imgui/imgui_widgets.cpp
+    external/imgui/imgui_demo.cpp
     # SDL2+OpenGL-specific files
     external/imgui/imgui_impl_sdl3.cpp
     external/imgui/imgui_impl_opengl3.cpp)
