@@ -5,8 +5,10 @@
 #include <iostream>
 #include <unordered_set>
 
-#include <src/components/Pos2D.hpp>
 #include <src/ecs/System.hpp>
+#include <src/components/Pos2D.hpp>
+#include <src/components/Transform.hpp>
+#include <src/resources/BodySelection.hpp>
 
 #include <external/glm/glm.hpp>
 
@@ -33,8 +35,9 @@ public:
     void Update()
     {
         Camera& camera = coordinator.GetResource<Camera>();
-        std::vector<Action> actions = coordinator.GetResource<std::vector<Action>>();
+        std::vector<Action>& actions = coordinator.GetResource<std::vector<Action>>();
 
+        auto& bodySelection = coordinator.GetResource<BodySelection>();
         for (const auto& action : actions)
         {
             if (action.type == MoveCamera && action.phase != Stopped)
@@ -63,6 +66,12 @@ public:
                 glm::dvec2 dragPx(action.delta.x, action.delta.y);
                 camera.position -= dragPx * camera.metersPerPixel;
             }
+        }
+
+        if (bodySelection.selectedEntity != 0)
+        {
+            auto& tf = coordinator.GetComponent<Transform>(bodySelection.selectedEntity);
+            camera.position = tf.position;
         }
 
         camera.view = glm::mat4(1.0f);

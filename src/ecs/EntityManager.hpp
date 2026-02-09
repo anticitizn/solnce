@@ -8,12 +8,14 @@
 
 using namespace std;
 
+constexpr uint32_t INVALID_ENTITY = 0;
+
 class EntityManager
 {
 public:
     EntityManager() 
     {
-        for (int i = 0; i < MAX_ENTITIES; i++) 
+        for (int i = 1; i < MAX_ENTITIES; i++) 
         {
             unusedEntities.push(i);
         }

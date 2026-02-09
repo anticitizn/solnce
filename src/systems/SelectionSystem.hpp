@@ -13,6 +13,7 @@
 #include <src/components/Transform.hpp>
 #include <src/io/Action.hpp>
 #include <src/resources/Camera.hpp>
+#include <src/resources/BodySelection.hpp>
 
 using namespace std;
 
@@ -23,12 +24,13 @@ class SelectionSystem : public System
 public:
     Signature InitialSignature()
     {
-        return coordinator.BuildSignature<Quad>();
+        return coordinator.BuildSignature<Quad, Transform>();
     }
 
     void Update()
     {
-        std::vector<Action> actions = coordinator.GetResource<std::vector<Action>>();
+        std::vector<Action>& actions = coordinator.GetResource<std::vector<Action>>();
+        auto& bodySelection = coordinator.GetResource<BodySelection>();
 
         for (const auto& action : actions)
         {
@@ -50,28 +52,13 @@ public:
                     {
                         anyEntityClicked = true;
 
-                        coordinator.AddComponent<Selected>(entity, Selected {});
-                        coordinator.AddComponent<Dragged>(entity, Dragged {});
+                        bodySelection.selectedEntity = entity;
                     }
                 }
                 
                 if (!anyEntityClicked)
                 {
-                    for (const auto& entity : entities)
-                    {
-                        coordinator.RemoveComponent<Selected>(entity);
-                    }
-                }
-            }
-            else if (action.type == Select && action.phase == Stopped)
-            {
-                int mouseX, mouseY;
-                mouseX = action.position.x;
-                mouseY = action.position.y;
-                
-                for (const auto& entity : entities)
-                {
-                    coordinator.RemoveComponent<Dragged>(entity);
+                    bodySelection.selectedEntity = INVALID_ENTITY;
                 }
             }
         }
@@ -101,18 +88,20 @@ private:
 
     glm::vec2 ScreenToWorld(float mouseX, float mouseY, const Camera& camera)
     {
-        // Convert position to NDC (-1 to +1)
         float ndcX = (2.0f * mouseX / camera.viewportSize.x) - 1.0f;
-        float ndcY = 1.0f - (2.0f * mouseY / camera.viewportSize.y); // flip Y
+        float ndcY = 1.0f - (2.0f * mouseY / camera.viewportSize.y);
 
         glm::vec4 ndcPos(ndcX, ndcY, 0.0f, 1.0f);
+        glm::vec4 localPos = camera.inverseProjection * ndcPos;
+        localPos /= localPos.w;
 
-        // Transform to world position using the inverted projection matrix
-        glm::vec4 worldPos = camera.inverseProjection * ndcPos;
-        worldPos /= worldPos.w;
-
-        return { worldPos.x, worldPos.y };
+        // Convert camera-local -> world
+        return {
+            localPos.x + (float)camera.position.x,
+            localPos.y + (float)camera.position.y
+        };
     }
+
 
 };
 

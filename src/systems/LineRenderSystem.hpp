@@ -93,7 +93,7 @@ public:
 
         shader.SetUniform("lineCount", (int)ranges.size());
         shader.SetUniform("totalSegments", totalSegments);
-        shader.SetUniform("viewportResolution", glm::vec2(1200, 800));
+        shader.SetUniform("viewportResolution", camera.viewportSize);
 
         glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, totalSegments);
     }
