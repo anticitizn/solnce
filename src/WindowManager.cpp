@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include <external/imgui/imgui.h>
-#include <external/imgui/imgui_impl_sdl.h>
+#include <external/imgui/imgui_impl_sdl3.h>
 #include <external/imgui/imgui_impl_opengl3.h>
 
 using namespace std;
@@ -26,8 +26,8 @@ void WindowManager::Init(string windowName, bool fullscreen, unsigned int window
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
-    Uint32 windowedFlag = fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_SHOWN;
-	sdl_window = SDL_CreateWindow("Solnce", windowPosX, windowPosY, windowSizeX, windowSizeY, SDL_WINDOW_OPENGL | windowedFlag);
+    Uint32 windowedFlag = fullscreen ? SDL_WINDOW_FULLSCREEN : 0;
+	sdl_window = SDL_CreateWindow("Solnce", windowSizeX, windowSizeY, SDL_WINDOW_OPENGL | windowedFlag);
 	SDL_MaximizeWindow(sdl_window);
 	
 	if (sdl_window == NULL)
@@ -46,7 +46,6 @@ void WindowManager::Init(string windowName, bool fullscreen, unsigned int window
 		exit(-1);
 	}
 
-	SDL_SetRelativeMouseMode(SDL_FALSE);
 
 	SDL_GetWindowSize(sdl_window, &contextWidth, &contextHeight);
 	cout << "Resolution is " << contextWidth << "/" << contextHeight << endl;
@@ -56,7 +55,7 @@ void WindowManager::Init(string windowName, bool fullscreen, unsigned int window
 
 	ImGui::StyleColorsDark();
 
-	ImGui_ImplSDL2_InitForOpenGL(sdl_window, context);
+	ImGui_ImplSDL3_InitForOpenGL(sdl_window, context);
     ImGui_ImplOpenGL3_Init("#version 130");
 }
 
@@ -66,10 +65,10 @@ void WindowManager::Refresh()
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
 	{
-		ImGui_ImplSDL2_ProcessEvent(&event);
-		if (event.type == SDL_QUIT)
+		ImGui_ImplSDL3_ProcessEvent(&event);
+		if (event.type == SDL_EVENT_QUIT)
 			Exit();
-		if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(sdl_window))
+		if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED && event.window.windowID == SDL_GetWindowID(sdl_window))
 			Exit();
 	}	
 }

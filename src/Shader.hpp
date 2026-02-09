@@ -11,7 +11,7 @@
 #include <external/glm/gtc/matrix_transform.hpp>
 #include <external/glm/gtc/type_ptr.hpp>
 #include <external/glad/glad.h>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 using namespace std;
 

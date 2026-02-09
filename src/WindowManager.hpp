@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <external/glad/glad.h>
 
 #include <src/ui/Window.hpp>

@@ -1,9 +1,9 @@
 
 #pragma once
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <external/imgui/imgui.h>
-#include <external/imgui/imgui_impl_sdl.h>
+#include <external/imgui/imgui_impl_sdl3.h>
 
 #include <src/io/InputState.hpp>
 #include <src/io/InputActionMapping.hpp>
@@ -15,7 +15,7 @@ class InputManager
 public:
     InputManager()
     {
-        SDL_SetRelativeMouseMode(SDL_FALSE);
+        // SDL_SetRelativeMouseMode(false);
     }
 
     std::vector<Action> Update()
@@ -28,7 +28,7 @@ public:
         {
             // Check if ImGui wants to handle this event; if so, skip processing it
             auto& io = ImGui::GetIO();
-            ImGui_ImplSDL2_ProcessEvent(&event);
+            ImGui_ImplSDL3_ProcessEvent(&event);
             if (io.WantCaptureMouse || io.WantCaptureKeyboard)
             {
                 continue;
@@ -36,47 +36,47 @@ public:
 
             switch (event.type)
             {
-                case SDL_KEYDOWN:
+                case SDL_EVENT_KEY_DOWN:
                 {
                     if (event.key.repeat == 0)
                     {
-                        SDL_Scancode sc = event.key.keysym.scancode;
+                        SDL_Scancode sc = event.key.scancode;
                         inputState.down.set(sc);
                         inputState.pressed.set(sc);
                     }
                 }
                 break;
 
-                case SDL_KEYUP:
+                case SDL_EVENT_KEY_UP:
                 {
-                    SDL_Scancode sc = event.key.keysym.scancode;
+                    SDL_Scancode sc = event.key.scancode;
                     inputState.down.reset(sc);
                     inputState.released.set(sc);
                 }
                 break;
 
-                case SDL_MOUSEBUTTONDOWN:
+                case SDL_EVENT_MOUSE_BUTTON_DOWN:
                 {    
-                    inputState.mouseDown |= SDL_BUTTON(event.button.button);
-                    inputState.mousePressed |= SDL_BUTTON(event.button.button);
+                    inputState.mouseDown |= SDL_BUTTON_MASK(event.button.button);
+                    inputState.mousePressed |= SDL_BUTTON_MASK(event.button.button);
                 }
                 break;
 
-                case SDL_MOUSEBUTTONUP:
+                case SDL_EVENT_MOUSE_BUTTON_UP:
                 {
-                    inputState.mouseDown &= ~SDL_BUTTON(event.button.button);
-                    inputState.mouseReleased |= SDL_BUTTON(event.button.button);
+                    inputState.mouseDown &= ~SDL_BUTTON_MASK(event.button.button);
+                    inputState.mouseReleased |= SDL_BUTTON_MASK(event.button.button);
                 }
                 break;
 
-                case SDL_MOUSEWHEEL:
+                case SDL_EVENT_MOUSE_WHEEL:
                 {
                     inputState.wheelX += event.wheel.x;
                     inputState.wheelY += event.wheel.y;
                 }
                 break;
 
-                case SDL_MOUSEMOTION:
+                case SDL_EVENT_MOUSE_MOTION:
                 {
                     inputState.mouseX = event.motion.x;
                     inputState.mouseY = event.motion.y;
@@ -86,7 +86,7 @@ public:
                 }
                 break;
 
-                case SDL_QUIT:
+                case SDL_EVENT_QUIT:
                 {
                     exit(0);
                 }

@@ -17,7 +17,7 @@
 #include <external/glad/glad.h>
 
 #include <external/imgui/imgui.h>
-#include <external/imgui/imgui_impl_sdl.h>
+#include <external/imgui/imgui_impl_sdl3.h>
 #include <external/imgui/imgui_impl_opengl3.h>
 
 using namespace std;
@@ -92,7 +92,7 @@ private:
 
         // Render UI
         ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplSDL2_NewFrame();
+        ImGui_ImplSDL3_NewFrame();
         ImGui::NewFrame();
 
         for (long unsigned int i = 0; i < windows.size(); i++)

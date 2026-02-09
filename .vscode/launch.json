@@ -5,22 +5,14 @@
             "name": "CMake Build and Debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/solnce",
-            "args": [],
-            "stopAtEntry": false,
+            "program": "${command:cmake.launchTargetPath}",
             "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
             "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ],
+            "miDebuggerPath": "/usr/bin/gdb",
             "preLaunchTask": "CMake Build",
-            "miDebuggerPath": "/usr/bin/gdb"
+            "setupCommands": [
+                { "text": "-enable-pretty-printing", "ignoreFailures": true }
+            ]
         }
     ]
 }

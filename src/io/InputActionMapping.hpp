@@ -3,7 +3,7 @@
 
 #include <unordered_map>
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 #include <src/io/Action.hpp>
 
@@ -66,7 +66,7 @@ std::vector<Action> MapInputToActions(const InputState& input)
     std::vector<Action> actions;
 
     // Keyboard
-    for (int sc = 0; sc < SDL_NUM_SCANCODES; ++sc)
+    for (int sc = 0; sc < SDL_SCANCODE_COUNT; ++sc)
     {
         if (input.pressed.test(sc))
         {
@@ -99,7 +99,7 @@ std::vector<Action> MapInputToActions(const InputState& input)
     // Mouse buttons
     for (auto [button, actionType] : mouseToAction)
     {
-        uint32_t mask = SDL_BUTTON(button);
+        uint32_t mask = SDL_BUTTON_MASK(button);
         if (input.mousePressed & mask)
         {
             actions.push_back( {actionType, ActionPhase::Started, {input.mouseX, input.mouseY}, {}, 0.0f} );

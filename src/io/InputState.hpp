@@ -1,12 +1,12 @@
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 struct InputState 
 {
     // Keyboard
-    std::bitset<SDL_NUM_SCANCODES> down;      // buttons that were previously pressed and haven't been released yet
-    std::bitset<SDL_NUM_SCANCODES> pressed;   // buttons that transitioned 0->1 this frame
-    std::bitset<SDL_NUM_SCANCODES> released;  // buttons that transitioned 1->0 this frame
+    std::bitset<SDL_SCANCODE_COUNT> down;      // buttons that were previously pressed and haven't been released yet
+    std::bitset<SDL_SCANCODE_COUNT> pressed;   // buttons that transitioned 0->1 this frame
+    std::bitset<SDL_SCANCODE_COUNT> released;  // buttons that transitioned 1->0 this frame
 
     // Mouse
     int mouseX = 0; // absolute motion position
