@@ -43,7 +43,7 @@ public:
             if (action.type == MoveCamera && action.phase != Stopped)
             {
                 glm::dvec2 deltaPx(action.delta.x, action.delta.y);
-                glm::dvec2 deltaMeters = deltaPx * camera.metersPerPixel;
+                glm::dvec2 deltaMeters = deltaPx * camera.metersPerPixel * camera.moveSpeed;
                 camera.position += deltaMeters;
             }
 

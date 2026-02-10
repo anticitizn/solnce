@@ -39,7 +39,7 @@ public:
 
             if (range.valid)
             {
-                SampleOrbitPositionsTa(line.segments, orbit, parentTf, 200, range.nu_min, range.nu_max);
+                SampleOrbitPositionsTa(line.segments, orbit, parentTf, 2000, range.nu_min, range.nu_max);
             }
             else
             {
