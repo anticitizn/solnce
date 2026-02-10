@@ -25,6 +25,7 @@
 #include <src/ui/TestWindow.hpp>
 #include <src/ui/OrbitalDebugWindow.hpp>
 #include <src/ui/OrbitalBodyCreationWindow.hpp>
+#include <src/ui/OrbitalInspectorWindow.hpp>
 
 #include <external/pugixml/pugixml.hpp>
 
@@ -79,14 +80,14 @@ public:
         // coordinator.ArchiveEntity(root, farm.GetId());
         // doc.save_file("test.xml", PUGIXML_TEXT("  "));
 
-        shared_ptr<Window> testWindow = make_shared<TestWindow>(playerData.GetComponent<ResourceStorage>(), coordinator.GetResource<std::vector<Action>>());
-        renderSystem->AddWindow(testWindow);
+        // shared_ptr<Window> testWindow = make_shared<TestWindow>(playerData.GetComponent<ResourceStorage>(), coordinator.GetResource<std::vector<Action>>());
+        // renderSystem->AddWindow(testWindow);
 
-        auto createWindow = coordinator.RegisterSystem<OrbitalBodyCreationWindow>();
-        renderSystem->AddWindow(createWindow);
+        auto orbitalInspector = coordinator.RegisterSystem<OrbitalInspectorWindow>();
+        renderSystem->AddWindow(orbitalInspector);
 
-        auto debugWindow = coordinator.RegisterSystem<OrbitalDebugWindow>();
-        renderSystem->AddWindow(debugWindow);
+        // auto debugWindow = coordinator.RegisterSystem<OrbitalDebugWindow>();
+        // renderSystem->AddWindow(debugWindow);
 
     }
 
