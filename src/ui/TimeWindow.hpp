@@ -50,7 +50,28 @@ public:
         SimMsToCivil(simTime.sim_time, y, mo, d, h, mi, s);
 
         ImGui::Text("%02d.%02d.%04d %02d:%02d:%06.3f", d, mo, y, h, mi, s);
-        ImGui::SliderInt("Speed", (int*)&simTime.sim_time_factor, 0, 100000, "%d", ImGuiSliderFlags_Logarithmic);
+        if (ImGui::Button("||"))
+        {
+            simTime.sim_time_factor = 0;
+        }
+
+        ImGui::SameLine();
+        if (ImGui::Button("1x"))
+        {
+            simTime.sim_time_factor = 1;
+        }
+
+        ImGui::SameLine();
+        if (ImGui::Button("100x"))
+        {
+            simTime.sim_time_factor = 100;
+        }
+
+        ImGui::SameLine();
+        if (ImGui::Button("100000x"))
+        {
+            simTime.sim_time_factor = 100000;
+        }
 
         ImGui::End();
     }

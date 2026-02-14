@@ -234,6 +234,8 @@ private:
             parentId = *entities.begin();
         }
 
+        ImGui::PushItemWidth(100.0f);
+
         // No MassiveBody exists at all, this just shouldn't happen but still
         if (parentId == INVALID_ENTITY)
         {
@@ -277,6 +279,8 @@ private:
         {
             uint32_t created = CreateOrbitingBody(parentId);
         }
+
+        ImGui::PopItemWidth();
     }
 
     uint32_t CreateOrbitingBody(uint32_t parentId)
