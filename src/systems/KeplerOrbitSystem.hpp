@@ -31,8 +31,8 @@ public:
             auto& transform = coordinator.GetComponent<Transform>(e);
             auto& time  = coordinator.GetResource<SimulationTime>();
 
-            double t0 = time.sim_time;
-            double dt = time.sim_dt;
+            double t0 = time.sim_time / 1000.0;
+            double dt = time.sim_dt / 1000.0;
 
             double parentMass = coordinator.GetComponent<MassiveBody>(orbit.parentBodyId).mass;
             Transform parentTransform = coordinator.GetComponent<Transform>(orbit.parentBodyId);

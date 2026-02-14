@@ -3,10 +3,10 @@
 
 struct SimulationTime
 {
-    double real_time;
-    double real_dt;
-    double sim_time;
-    double sim_dt;
+    uint64_t real_time; // ms
+    uint64_t real_dt;   // ms
+    uint64_t sim_time;  // ms
+    uint64_t sim_dt;    // ms
 
-    double sim_time_factor; // sim_dt = real_dt / sim_time_factor
+    uint64_t sim_time_factor; // sim_dt = real_dt / sim_time_factor
 };
