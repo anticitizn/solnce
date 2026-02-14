@@ -74,8 +74,6 @@ private:
     void DrawHierarchyPane(BodySelection& bodySelection)
     {
         ImGui::TextUnformatted("Bodies");
-        ImGui::SetNextItemWidth(-FLT_MIN);
-        ImGui::InputTextWithHint("##filter", "Filter by id...", filter, sizeof(filter));
         ImGui::Separator();
 
         ImGui::BeginChild("##hierarchy_child", ImVec2(0, 0), false);
@@ -234,7 +232,7 @@ private:
             parentId = *entities.begin();
         }
 
-        ImGui::PushItemWidth(100.0f);
+        ImGui::PushItemWidth(160.0f);
 
         // No MassiveBody exists at all, this just shouldn't happen but still
         if (parentId == INVALID_ENTITY)
