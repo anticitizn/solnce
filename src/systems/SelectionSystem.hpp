@@ -90,17 +90,21 @@ private:
     }
 
 
-    glm::vec2 ScreenToWorld(float mouseX, float mouseY, const Camera& camera)
+    glm::dvec2 ScreenToWorld(double mouseX, double mouseY, const Camera& camera)
     {
-        float ndcX = (2.0f * mouseX / camera.viewportSize.x) - 1.0f;
-        float ndcY = 1.0f - (2.0f * mouseY / camera.viewportSize.y);
+        double ndcX = (2.0 * mouseX / camera.viewportSize.x) - 1.0;
+        double ndcY = 1.0 - (2.0 * mouseY / camera.viewportSize.y);
 
-        glm::vec4 ndcPos(ndcX, ndcY, 0.0f, 1.0f);
-        glm::vec4 worldPos = camera.inverseProjection * ndcPos;
-        worldPos /= worldPos.w;
+        glm::dvec4 ndcPos(ndcX, ndcY, 0.0, 1.0);
 
-        return { worldPos.x, worldPos.y };
+        // camera.inverseProjection is mat4 (float). Prefer a double inverseProjection if possible.
+        glm::vec4 camPos_f = camera.inverseProjection * glm::vec4((float)ndcX, (float)ndcY, 0.0f, 1.0f);
+        camPos_f /= camPos_f.w;
+
+        glm::dvec2 camPos(camPos_f.x, camPos_f.y);   // camera-space meters
+        return camPos + camera.position;             // world-space meters
     }
+
 
 };
 

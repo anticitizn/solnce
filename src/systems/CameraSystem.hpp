@@ -74,7 +74,7 @@ public:
             camera.position = tf.position;
         }
 
-        camera.view = glm::mat4(1.0f);
+        camera.view = glm::dmat4(1.0f);
 
         double w = camera.viewportSize.x;
         double h = camera.viewportSize.y;
@@ -82,7 +82,7 @@ public:
         double half_w = 0.5 * w * camera.metersPerPixel;
         double half_h = 0.5 * h * camera.metersPerPixel;
 
-        camera.view = glm::mat4(1.0f);
+        camera.view = glm::dmat4(1.0f);
         camera.projection = glm::ortho(
             (float)(-half_w), (float)(+half_w),
             (float)(+half_h), (float)(-half_h),

@@ -17,7 +17,7 @@ struct Camera
 
     glm::ivec2 viewportSize;
 
-    glm::mat4 view = glm::mat4(1.0f);
-    glm::mat4 projection = glm::mat4(1.0f);
-    glm::mat4 inverseProjection = glm::mat4(1.0f);
+    glm::dmat4 view = glm::mat4(1.0f);
+    glm::dmat4 projection = glm::mat4(1.0f);
+    glm::dmat4 inverseProjection = glm::mat4(1.0f);
 };
