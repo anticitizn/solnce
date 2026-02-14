@@ -45,17 +45,21 @@ public:
 
         for (const auto& entity : entities)
         {
-            Polyline& quadComp = coordinator.GetComponent<Polyline>(entity);
-            PolylineAttribute a = quadComp.attribute;
+            Polyline& polyline = coordinator.GetComponent<Polyline>(entity);
+            PolylineAttribute a = polyline.attribute;
             a.width = (float)((double)a.width * camera.metersPerPixel);
 
-            if (quadComp.segments.size() < 2) continue;
+            if (polyline.segments.size() < 2) continue;
 
             uint32_t startIndex = static_cast<uint32_t>(allPoints.size());
-            uint32_t count = static_cast<uint32_t>(quadComp.segments.size());
+            uint32_t count = static_cast<uint32_t>(polyline.segments.size());
 
             // Append vertices
-            allPoints.insert(allPoints.end(), quadComp.segments.begin(), quadComp.segments.end());
+            for (auto pWorld : polyline.segments) 
+            {
+                glm::dvec2 rel = pWorld - camera.position;
+                allPoints.push_back(glm::vec2((float)rel.x, (float)rel.y));
+            }
 
             // Store the range
             ranges.push_back({ startIndex, count });

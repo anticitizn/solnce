@@ -83,9 +83,11 @@ public:
         double half_h = 0.5 * h * camera.metersPerPixel;
 
         camera.view = glm::mat4(1.0f);
-        camera.projection = glm::ortho((float)(camera.position.x - half_w), (float)(camera.position.x + half_w), 
-                                       (float)(camera.position.y + half_h), (float)(camera.position.y - half_h), 
-                                       -1.0f                     , 1.0f);
+        camera.projection = glm::ortho(
+            (float)(-half_w), (float)(+half_w),
+            (float)(+half_h), (float)(-half_h),
+            -1.0f, 1.0f
+        );
         camera.inverseProjection = glm::inverse(camera.projection);
     }
 };

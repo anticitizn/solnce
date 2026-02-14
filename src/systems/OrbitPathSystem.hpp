@@ -52,7 +52,7 @@ public:
 
 private:
     inline void SampleOrbitPositionsTa(
-        std::vector<glm::vec2>& out,
+        std::vector<glm::dvec2>& out,
         const OrbitComponent& orbitIn,
         const Transform& parentTf,
         int sampleCount,
@@ -76,7 +76,7 @@ private:
             o.r  = RadiusFromTrueAnomaly(p, o.e, nu);
 
             Transform tf = GetTransform(o, parentTf);
-            out.push_back({ tf.position.x, tf.position.y });
+            out.push_back(glm::dvec2(tf.position.x, tf.position.y));
         }
     }
 

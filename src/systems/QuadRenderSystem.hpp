@@ -57,7 +57,8 @@ public:
             Texture& textureComp = coordinator.GetComponent<Texture>(entity);
 
             glm::mat4 instanceMatrix = glm::mat4(1.0f);
-            instanceMatrix = glm::translate(instanceMatrix, glm::vec3(tf.position.x, tf.position.y, 1.0f));
+            glm::dvec2 rel = tf.position - camera.position;
+            instanceMatrix = glm::translate(glm::mat4(1.0f), glm::vec3((float)rel.x, (float)rel.y, 1.0f));
             
             instanceMatrix = glm::translate(instanceMatrix, glm::vec3(1, 1, 0));
             instanceMatrix = glm::rotate(instanceMatrix, glm::radians(tf.rotation), glm::vec3(0.0f, 0.0f, 1.0f));

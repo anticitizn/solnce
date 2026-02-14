@@ -125,15 +125,17 @@ public:
 
             coordinator.SetResource<SimulationTime>(simTime);
 
-            selectionSystem->Update();
-            cameraSystem->Update();
-            draggingSystem->Update();
-            renderSystem->Render();
             resourceSystem->Update();
             orbitSystem->Update();
             soiCalculationSystem->Update();
             soiSwitchingSystem->Update();
             orbitPathSystem->Update();
+
+            selectionSystem->Update();
+            cameraSystem->Update();
+            draggingSystem->Update();
+
+            renderSystem->Render();
         }
     }
 

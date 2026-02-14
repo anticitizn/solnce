@@ -17,7 +17,7 @@ struct PolylineAttribute
 
 struct Polyline
 {
-    std::vector<glm::vec2> segments;
+    std::vector<glm::dvec2> segments;
     PolylineAttribute attribute;
 
     void archive(pugi::xml_node& root)
