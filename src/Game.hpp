@@ -117,8 +117,6 @@ public:
             uint64_t msSinceInit = SDL_GetTicks();
             SimulationTime simTime = coordinator.GetResource<SimulationTime>();
 
-            simTime.sim_time_factor = 100000;
-
             simTime.real_dt = msSinceInit - simTime.real_time;
             simTime.real_time = msSinceInit;
 

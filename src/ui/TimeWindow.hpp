@@ -43,13 +43,14 @@ public:
 
         ImGui::Begin("Time Control");
 
-        auto simTime = coordinator.GetResource<SimulationTime>();
+        auto& simTime = coordinator.GetResource<SimulationTime>();
         
         int y, mo, d, h, mi;
         double s;
         SimMsToCivil(simTime.sim_time, y, mo, d, h, mi, s);
 
         ImGui::Text("%02d.%02d.%04d %02d:%02d:%06.3f", d, mo, y, h, mi, s);
+        ImGui::SliderInt("Speed", (int*)&simTime.sim_time_factor, 0, 100000, "%d", ImGuiSliderFlags_Logarithmic);
 
         ImGui::End();
     }

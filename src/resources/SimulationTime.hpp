@@ -8,5 +8,5 @@ struct SimulationTime
     uint64_t sim_time;  // ms
     uint64_t sim_dt;    // ms
 
-    uint64_t sim_time_factor; // sim_dt = real_dt / sim_time_factor
+    uint64_t sim_time_factor = 100000; // sim_dt = real_dt / sim_time_factor
 };
