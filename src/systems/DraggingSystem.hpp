@@ -23,11 +23,12 @@ public:
 
     void Update()
     {
+        const Camera& camera = coordinator.GetResource<Camera>();
+
         for (const auto& entity : entities)
         {
             auto& quad = coordinator.GetComponent<Quad>(entity);
             auto& tf = coordinator.GetComponent<Transform>(entity);
-            const Camera& camera = coordinator.GetResource<Camera>();
 
             std::vector<Action> actions = coordinator.GetResource<std::vector<Action>>();
             for (const auto& action : actions)

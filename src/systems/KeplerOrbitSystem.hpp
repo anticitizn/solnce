@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <algorithm>
+#include <random>
 
 #include <src/components/OrbitComponent.hpp>
 #include <src/components/Transform.hpp>
@@ -34,8 +35,8 @@ public:
             double t0 = time.sim_time / 1000.0;
             double dt = time.sim_dt / 1000.0;
 
-            double parentMass = coordinator.GetComponent<MassiveBody>(orbit.parentBodyId).mass;
-            Transform parentTransform = coordinator.GetComponent<Transform>(orbit.parentBodyId);
+            double& parentMass = coordinator.GetComponent<MassiveBody>(orbit.parentBodyId).mass;
+            Transform& parentTransform = coordinator.GetComponent<Transform>(orbit.parentBodyId);
 
             if (orbit.dirty)
             {

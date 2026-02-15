@@ -31,6 +31,7 @@ public:
     {
         std::vector<Action>& actions = coordinator.GetResource<std::vector<Action>>();
         auto& bodySelection = coordinator.GetResource<BodySelection>();
+        const Camera& camera = coordinator.GetResource<Camera>();
 
         for (const auto& action : actions)
         {
@@ -48,7 +49,7 @@ public:
                     auto& quad = coordinator.GetComponent<Quad>(entity);
                     auto& tf = coordinator.GetComponent<Transform>(entity);
 
-                    if (IsClicked(mouseX, mouseY, quad, tf))
+                    if (IsClicked(mouseX, mouseY, quad, tf, camera))
                     {
                         anyEntityClicked = true;
 
@@ -65,9 +66,8 @@ public:
     }
 
 private:
-    bool IsClicked(double mouseX, double mouseY, const Quad& quad, const Transform& tf)
+    bool IsClicked(double mouseX, double mouseY, const Quad& quad, const Transform& tf, const Camera& camera)
     {
-        const Camera& camera = coordinator.GetResource<Camera>();
         glm::dvec2 worldClick = ScreenToWorld(mouseX, mouseY, camera);
 
         double minPx = 20.0;
