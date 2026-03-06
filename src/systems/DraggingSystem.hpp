@@ -30,7 +30,7 @@ public:
             auto& quad = coordinator.GetComponent<Quad>(entity);
             auto& tf = coordinator.GetComponent<Transform>(entity);
 
-            std::vector<Action> actions = coordinator.GetResource<std::vector<Action>>();
+            std::vector<Action>& actions = coordinator.GetResource<std::vector<Action>>();
             for (const auto& action : actions)
             {
                 if (action.type == Select)
