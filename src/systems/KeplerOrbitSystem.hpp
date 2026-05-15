@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <random>
 
+#include <glm/gtc/constants.hpp>
+
 #include <src/components/OrbitComponent.hpp>
 #include <src/components/Transform.hpp>
 #include <src/components/MassiveBody.hpp>
@@ -51,71 +53,212 @@ public:
 
     void AddTestBodies()
     {
+        std::mt19937 rng(1337);
+
+        auto randd = [&](double minv, double maxv) -> double
+        {
+            std::uniform_real_distribution<double> dist(minv, maxv);
+            return dist(rng);
+        };
+
+        auto randf = [&](float minv, float maxv) -> float
+        {
+            std::uniform_real_distribution<float> dist(minv, maxv);
+            return dist(rng);
+        };
+
+        auto randBool = [&](double p = 0.5) -> bool
+        {
+            std::bernoulli_distribution dist(p);
+            return dist(rng);
+        };
+
+        // -------------------------------------------------------------------------
         // Star
+        // -------------------------------------------------------------------------
         Entity star = coordinator.CreateEntity();
         star.Assign<MassiveBody>(MassiveBody{ 1.989e30 });
         star.Assign<Transform>(Transform{ {0.0f, 0.0f}, {0,0}, 0 });
-        star.Assign<Quad>(Quad{80, 80, 0.4, 0.6, 1.0});
+        star.Assign<Quad>(Quad{80, 80, 1.0, 0.9, 0.4});
         star.Assign<Texture>(Texture{"sun.png", 0});
         star.Assign<Polyline>(Polyline{ {}, {{1,1,1,1}, 2.0f, 1.0f, 0, 0} });
 
-        // Planet
-        Entity planet = coordinator.CreateEntity();
-        planet.Assign<Transform>(Transform{ {200.0f, 0.0f}, {0,0}, 0 });
-        planet.Assign<Quad>(Quad{20, 20, 0.4, 0.6, 1.0});
-        planet.Assign<MassiveBody>(MassiveBody{ 5.972e24 });
-        planet.Assign<OrbitComponent>(OrbitComponent{
-            star.GetId(),   // parent
-            1.4710e11,      // pr
-            0.0,            // e
-            0.0,            // ap
-            0.0,            // ta
-            0.0,            // a
-            0.0,            // r
-        });
-        planet.Assign<Texture>(Texture{"planet.png", 0});
-        planet.Assign<Polyline>(Polyline{ {}, {{1,1,1,1}, 2.0f, 1.0f, 0, 0} });
+        auto createOrbiter = [&](Entity parent,
+                                double mass,
+                                double rp,
+                                double e,
+                                double ap,
+                                double ta,
+                                float quadW,
+                                float quadH,
+                                float r,
+                                float g,
+                                float b,
+                                const std::string& texture) -> Entity
+        {
+            Entity body = coordinator.CreateEntity();
+            body.Assign<Transform>(Transform{ {0.0f, 0.0f}, {0,0}, 0 });
+            body.Assign<Quad>(Quad{quadW, quadH, r, g, b});
+            body.Assign<MassiveBody>(MassiveBody{ mass });
+            body.Assign<OrbitComponent>(OrbitComponent{
+                parent.GetId(),
+                rp,   // periapsis distance
+                e,    // eccentricity
+                ap,   // argument of periapsis
+                ta,   // true anomaly
+                0.0,  // a (derived)
+                0.0   // r (derived)
+            });
+            body.Assign<Texture>(Texture{texture, 0});
+            body.Assign<Polyline>(Polyline{ {}, {{1,1,1,1}, 1.5f, 0.8f, 0, 0} });
 
-        // Moon
-        Entity moon = coordinator.CreateEntity();
-        moon.Assign<Transform>(Transform{ {240.0f, 0.0f}, {0,0}, 0 });
-        moon.Assign<Quad>(Quad{10, 10, 0.8, 0.8, 0.8});
-        moon.Assign<MassiveBody>(MassiveBody{7.348e22});
-        moon.Assign<OrbitComponent>(OrbitComponent{
-            planet.GetId(),
-            3.633e8,             // pr
-            0.0549,              // e
-            glm::radians(30.0f), // ap
-            0.0,
-            0.0,
-            0.0,
-        });
-        moon.Assign<Texture>(Texture{"moon.png", 0});
-        moon.Assign<Polyline>(Polyline{ {}, {{1,1,1,1}, 2.0f, 1.0f, 0, 0} });
+            auto& parentMassiveBody = parent.GetComponent<MassiveBody>();
+            parentMassiveBody.childrenIds.push_back(body.GetId());
 
-        // Elliptical planet
-        Entity ellipse = coordinator.CreateEntity();
-        ellipse.Assign<Transform>(Transform{ {300.0f, 0.0f}, {0,0}, 0 });
-        ellipse.Assign<Quad>(Quad{15, 15, 1.0, 0.3, 0.3});
-        ellipse.Assign<MassiveBody>(MassiveBody{ 5.0e15 });
-        ellipse.Assign<OrbitComponent>(OrbitComponent{
-            star.GetId(),
-            0.64699 * AU,         // pr
-            0.6,                  // e
-            glm::radians(45.0f),  // ap
-            0.0,
-            0.0,
-            0.0,
-        });
-        ellipse.Assign<Texture>(Texture{"asteroid.png", 0});
-        ellipse.Assign<Polyline>(Polyline{ {}, {{1,1,1,1}, 2.0f, 1.0f, 0, 0} });
+            return body;
+        };
 
-        auto& starMassiveBody = star.GetComponent<MassiveBody>();
-        starMassiveBody.childrenIds.push_back(planet.GetId());
-        starMassiveBody.childrenIds.push_back(ellipse.GetId());
+        // -------------------------------------------------------------------------
+        // 8 closer-packed planets
+        // Distances are intentionally compressed compared to a real solar system for now
+        // -------------------------------------------------------------------------
+        struct PlanetDef
+        {
+            double rpAU;
+            double e;
+            double mass;
+            float  size;
+            float  cr, cg, cb;
+        };
 
-        auto& planetMassiveBody = planet.GetComponent<MassiveBody>();
-        planetMassiveBody.childrenIds.push_back(moon.GetId());
+        const PlanetDef planets[6] =
+        {
+            {0.18, 0.020, 0.33e24, 12.0f, 0.70f, 0.70f, 0.75f},
+            {0.28, 0.015, 0.81e24, 14.0f, 0.90f, 0.75f, 0.45f},
+            {0.40, 0.018, 1.00e29, 16.0f, 0.35f, 0.60f, 1.00f},
+            {0.55, 0.025, 0.11e24, 13.0f, 0.95f, 0.40f, 0.30f},
+            {1.3, 0.030, 8.00e24, 24.0f, 0.90f, 0.80f, 0.55f},
+            {1.7, 0.020, 6.00e24, 22.0f, 0.65f, 0.75f, 0.95f},
+        };
+
+        for (int i = 0; i < 6; ++i)
+        {
+            const auto& p = planets[i];
+
+            Entity planet = createOrbiter(
+                star,
+                p.mass,
+                p.rpAU * AU,
+                p.e,
+                randd(0.0, glm::two_pi<double>()),
+                randd(0.0, glm::two_pi<double>()),
+                p.size,
+                p.size,
+                p.cr, p.cg, p.cb,
+                "planet.png"
+            );
+
+            const int moonCount = randBool(0.55) ? 2 : 1;
+
+            // Approximate semi-major axis of the planet around the star
+            const double planetA = (p.rpAU * AU) / (1.0 - p.e);
+
+            // Hill radius r_H ~= a * (m / (3M))^(1/3)
+            const double starMass   = 1.989e30;
+            const double hillRadius = planetA * std::cbrt(p.mass / (3.0 * starMass));
+
+            // Keep moons comfortably inside the Hill sphere (<= ~0.25-0.35 r_H)
+            const double safeOuterMoonRp = hillRadius * 0.18;
+            const double safeInnerMoonRp = hillRadius * 0.06;
+
+            for (int m = 0; m < moonCount; ++m)
+            {
+                double moonRp;
+                if (m == 0)
+                {
+                    moonRp = randd(safeInnerMoonRp, hillRadius * 0.12);
+                }
+                else
+                {
+                    moonRp = randd(hillRadius * 0.12, safeOuterMoonRp);
+                }
+
+                const double moonMass =
+                    (m == 0) ? randd(2.0e21, 9.0e22)
+                            : randd(5.0e20, 2.5e22);
+
+                const float moonSize =
+                    (m == 0) ? randf(5.0f, 9.0f)
+                            : randf(3.0f, 6.0f);
+
+                createOrbiter(
+                    planet,
+                    moonMass,
+                    moonRp,
+                    randd(0.0, 0.03), // keep moon eccentricity low
+                    randd(0.0, glm::two_pi<double>()),
+                    randd(0.0, glm::two_pi<double>()),
+                    moonSize,
+                    moonSize,
+                    randf(0.65f, 0.95f),
+                    randf(0.65f, 0.95f),
+                    randf(0.65f, 0.95f),
+                    "moon.png"
+                );
+            }
+        }
+
+        // -------------------------------------------------------------------------
+        // Asteroid belt between 4th and 5th planets
+        // -------------------------------------------------------------------------
+        for (int i = 0; i < 36; ++i)
+        {
+            const double rpAU = randd(0.60, 0.68);
+            const double e    = randd(0.02, 0.10);
+            const float  size = randf(4.0f, 8.0f);
+
+            Entity asteroid = createOrbiter(
+                star,
+                randd(5.0e13, 8.0e16),
+                rpAU * AU,
+                e,
+                randd(glm::radians(5.0), glm::radians(35.0)),
+                randd(0.0, glm::two_pi<double>()),
+                size,
+                size,
+                0.55f, 0.55f, 0.58f,
+                "asteroid.png"
+            );
+
+            asteroid.GetComponent<Polyline>() =
+                Polyline{ {}, {{0.35f, 0.35f, 0.35f, 1.0f}, 1.2f, 0.6f, 0, 0} };
+        }
+
+        // -------------------------------------------------------------------------
+        // Highly elliptical bodies
+        // -------------------------------------------------------------------------
+        for (int i = 0; i < 3; ++i)
+        {
+            const double rpAU = randd(0.55, 0.95);
+            const double e    = randd(0.58, 0.82);
+            const float  size = randf(6.0f, 11.0f);
+
+            Entity asteroid = createOrbiter(
+                star,
+                randd(1.0e14, 5.0e16),
+                rpAU * AU,
+                e,
+                randd(0.0, glm::two_pi<double>()),
+                randd(0.0, glm::two_pi<double>()),
+                size,
+                size,
+                1.0f, 0.35f, 0.35f,
+                "asteroid.png"
+            );
+
+            asteroid.GetComponent<Polyline>() =
+                Polyline{ {}, {{0.3f, 0.3f, 0.3f, 1.0f}, 1.2f, 0.6f, 0, 0} };
+        }
     }
 
 private:
